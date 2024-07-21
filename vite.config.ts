@@ -14,7 +14,6 @@ export default defineConfig({
       '/api': {
         target: 'http://8.217.186.220', // 后端服务地址
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
