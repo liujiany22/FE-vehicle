@@ -213,7 +213,14 @@ export default defineComponent({
     const exportToExcel = async () => {
       const response = await getTransportDetails(totalDetails.value * perPage.value, 1);
       const allDetails = response.data.items;
-      const dataToExport = allDetails.map(detail => ({
+      const dataToExport = allDetails.map((detail: {
+        startsite_name: string,
+        endsite_name: string,
+        vehicle_license: string,
+        goods_name: string,
+        start_date: string,
+        end_date: string,
+      }) => ({
         '运输起点': detail.startsite_name,
         '运输终点': detail.endsite_name,
         '运输车队': detail.vehicle_license,
@@ -228,6 +235,7 @@ export default defineComponent({
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       saveAs(blob, 'transport_details.xlsx');
     };
+
 
     const handleStartPointChange = (value: string) => {
       console.log('Selected start point:', value);
