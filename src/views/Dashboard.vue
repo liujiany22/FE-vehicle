@@ -19,8 +19,7 @@ import TransportFleet from '@/components/TransportFleet.vue';
 import SiteOwner from '@/components/SiteOwner.vue';
 import PaymentMethod from '@/components/PaymentMethod.vue';
 import TransportDetailEntry from '@/components/TransportDetailEntry.vue';
-import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
-import SiteReconciliationReport from '@/components/SiteReconciliationReport.vue';
+// import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
 
 
 
@@ -36,8 +35,7 @@ export default defineComponent({
     SiteOwner,
     PaymentMethod,
     TransportDetailEntry,
-    TransportPriceEntry,
-    SiteReconciliationReport,
+    // TransportPriceEntry,
   },
   setup() {
     const currentModule = ref('Module1Feature1');

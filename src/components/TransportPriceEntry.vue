@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="transport-price-entry">
     <el-card>
       <h2>运输单价录入</h2>
@@ -55,8 +55,11 @@
         <el-table-column prop="endPoint" label="终点工地"></el-table-column>
         <el-table-column prop="category" label="运输品类"></el-table-column>
         <el-table-column prop="date" label="日期"></el-table-column>
-        <el-table-column prop="unit" label="计量单位"></el-table-column>
-        <el-table-column prop="quantity" label="数量"></el-table-column>
+        <el-table-column prop="unit" label="计量单位">
+          <template v-slot:default="scope">
+            <el-input v-model="scope.row.unit" placeholder="请输入"></el-input>
+          </template>
+        </el-table-column>
         <el-table-column prop="contractorPrice" label="工地承接单价">
           <template v-slot:default="scope">
             <el-input v-model.number="scope.row.contractorPrice" placeholder="请输入"></el-input>
@@ -95,7 +98,6 @@ import {
   getTransportStartPoints,
   getTransportEndPoints,
   getTransportCategories,
-  getTransportFleets,
   updateTransportPrices,
 } from '@/services/transportService';
 
@@ -163,7 +165,7 @@ export default defineComponent({
             (!filters.value.dateRange.length ||
               (new Date(detail.date) >= new Date(filters.value.dateRange[0]) &&
                 new Date(detail.date) <= new Date(filters.value.dateRange[1])))
-          );``
+          );
         });
       } catch (error) {
         console.error('Failed to fetch details', error);
@@ -177,12 +179,13 @@ export default defineComponent({
     const updatePrices = async () => {
       try {
         const data = selectedDetails.value.map(detail => ({
-          id: detail.id,
+          item_id: detail.id,
           contractorPrice: detail.contractorPrice,
           startSubsidy: detail.startSubsidy,
           endSubsidy: detail.endSubsidy,
           endPayment: detail.endPayment,
           driverPrice: detail.driverPrice,
+          unit: detail.unit,
         }));
         await updateTransportPrices(data);
         alert('价格更新成功');
@@ -276,4 +279,4 @@ export default defineComponent({
   padding: 10px;
   text-align: center;
 }
-</style>
+</style> -->

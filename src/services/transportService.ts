@@ -46,11 +46,9 @@ export const getTransportFleets = (per_page: number, page: number) => {
 export const addSiteOwner = (data: { siteName: string, ownerName: string, phone: string }) => {
     return apiClient.post('/parameter/new_site2owner', data);
 };
-
 export const deleteSiteOwner = (site2owner_id: number) => {
     return apiClient.delete(`/parameter/del_site2owner/${site2owner_id}`);
 };
-
 export const getSiteOwners = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/site2owner_list/${per_page}/${page}`);
 };
@@ -59,11 +57,9 @@ export const getSiteOwners = (per_page: number, page: number) => {
 export const addPaymentMethod = (data: { method: string }) => {
     return apiClient.post('/parameter/new_pay', data);
 };
-
 export const deletePaymentMethod = (pay_id: number) => {
     return apiClient.delete(`/parameter/del_pay/${pay_id}`);
 };
-
 export const getPaymentMethods = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/pay_list/${per_page}/${page}`);
 };
@@ -76,10 +72,9 @@ export const addTransportDetail = (data: {
     goods_id: number;
     start_date: string;
     end_date: string;
-  }) => {
+}) => {
     return apiClient.post('/item/transport_item', data);
-  };
-
+};
 
 // 删除运输明细的 API 函数
 export const deleteTransportDetail = (itemId: number) => {
@@ -92,24 +87,25 @@ export const getTransportDetails = (perPage: number, page: number) => {
 };
 
 export const updateTransportPrices = (data: {
-    id: number;
+    item_id: number;
     contractorPrice?: number;
     startSubsidy?: number;
     endSubsidy?: number;
     endPayment?: number;
     driverPrice?: number;
+    unit? : string;
 }[]) => {
-    return apiClient.put('/item/transport-details/prices', data);
+    return apiClient.post('/item/item_price', data);
 };
 
 
 // 新增获取对账表的 API 函数
-export const getReconciliationReport = (params: {
-    startDate: string;
-    endDate: string;
-    ownerName?: string;
-    site?: string;
-    displayBy: 'day' | 'month' | 'range';
-}) => {
-    return apiClient.get('/parameter/reconciliation-report', { params });
-};
+// export const getReconciliationReport = (params: {
+//     startDate: string;
+//     endDate: string;
+//     ownerName?: string;
+//     site?: string;
+//     displayBy: 'day' | 'month' | 'range';
+// }) => {
+//     return apiClient.get('/parameter/reconciliation-report', { params });
+// };
