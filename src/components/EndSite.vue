@@ -117,14 +117,14 @@ export default defineComponent({
       }
     };
 
-    const editParameter = (parameter: { site_id: number, name: string, manager: string, manager_phone: string }) => {
+    const editParameter = (parameter: { id: number, name: string, manager: string, manager_phone: string }) => {
       editingId.value = parameter.id;
       editingParameter.value = { ...parameter };
     };
 
     const saveParameter = async (id: number) => {
       try {
-        await updateEndSite({ id, ...editingParameter.value });
+        await updateEndSite({ site_id: id, ...editingParameter.value });
         fetchParameters();
         cancelEdit();
       } catch (error) {
