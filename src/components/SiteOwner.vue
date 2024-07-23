@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addSiteOwner, delSiteOwner, getSiteOwners } from '@/services/transportService';
+import { addSiteOwner, delSiteOwner, getSiteOwners, getSites } from '@/services/transportService';
 
 export default defineComponent({
   name: 'SiteOwner',
@@ -133,6 +133,9 @@ export default defineComponent({
       currentPage,
       perPage,
       totalPages,
+      sites,
+      siteCurrentPage,
+      totalSites,
       addParameter,
       removeParameter,
       handlePageChange,

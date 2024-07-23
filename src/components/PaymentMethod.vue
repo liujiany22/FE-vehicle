@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addPaymentMethod, deletePaymentMethod, getPaymentMethods } from '@/services/transportService';
+import { addPaymentMethod, delPaymentMethod, getPaymentMethods } from '@/services/transportService';
 
 export default defineComponent({
     name: 'PaymentMethod',

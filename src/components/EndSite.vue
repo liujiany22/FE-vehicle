@@ -55,7 +55,7 @@ export default defineComponent({
 
     const fetchParameters = async () => {
       try {
-        const response = await getTransportEndPoints(perPage.value, currentPage.value);
+        const response = await getEndSites(perPage.value, currentPage.value);
         parameters.value = response.data.end_sites;
         totalPages.value = response.data.total_pages;
       } catch (error) {
@@ -66,7 +66,7 @@ export default defineComponent({
     const addParameter = async () => {
       if (newParameter.value.name.trim() && newParameter.value.manager.trim() && newParameter.value.phone.trim()) {
         try {
-          const response = await addTransportEndPoint(newParameter.value);
+          const response = await addEndSite(newParameter.value);
           fetchParameters();
           newParameter.value = { name: '', manager: '', phone: '' };
         } catch (error) {
@@ -77,7 +77,7 @@ export default defineComponent({
 
     const removeParameter = async (id: number) => {
       try {
-        await deleteTransportEndPoint(id);
+        await delEndSite(id);
         fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
