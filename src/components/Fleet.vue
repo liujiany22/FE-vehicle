@@ -117,4 +117,57 @@ export default defineComponent({
             editingParameter.value = { ...parameter };
         };
 
-        const saveParameter
+        const saveParameter = async (id: number) => {
+            try {
+                await updateFleet({ vehicle_id: id, ...editingParameter.value });
+                fetchParameters();
+                cancelEdit();
+            } catch (error) {
+                console.error('Failed to update parameter', error);
+            }
+        };
+
+        const cancelEdit = () => {
+            editingId.value = null;
+            editingParameter.value = { license: '', driver: '', phone: '' };
+        };
+
+        const handlePageChange = (page: number) => {
+            currentPage.value = page;
+            fetchParameters();
+        };
+
+        onMounted(fetchParameters);
+
+        return {
+            parameters,
+            newParameter,
+            editingParameter,
+            editingId,
+            currentPage,
+            perPage,
+            totalPages,
+            addParameter,
+            removeParameter,
+            editParameter,
+            saveParameter,
+            cancelEdit,
+            handlePageChange,
+        };
+    },
+});
+</script>
+
+<style scoped>
+.fleet {
+    padding: 20px;
+}
+
+.el-card {
+    margin-bottom: 20px;
+}
+
+.el-form-item {
+    margin-bottom: 20px;
+}
+</style>
