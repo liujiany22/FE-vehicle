@@ -74,9 +74,9 @@ import {
   getCategories,
   getFleets,
   addTransportDetail,
-  deleteTransportDetail,
+  deTransportDetail,
   getTransportDetails,
-  change_item
+  updateTransportDetail
 } from '@/services/transportService';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -194,7 +194,7 @@ export default defineComponent({
 
     const removeDetail = async (itemId: number) => {
       try {
-        await deleteTransportDetail(itemId);
+        await delTransportDetail(itemId);
         alert('运输明细删除成功');
         fetchDetails(); // 刷新列表
       } catch (error) {
@@ -224,7 +224,7 @@ export default defineComponent({
           start_date: form.value.dateRange[0],
           end_date: form.value.dateRange[1],
         };
-        await change_item(data);
+        await updateTransportDetail(data);
         alert('运输明细更新成功');
         form.value = {
           startsite_id: 0,

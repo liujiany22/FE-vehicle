@@ -87,18 +87,18 @@ export const updatePaymentMethod = (data: { pay_id: number, method?: string }) =
 
 // 新增运输明细录入的 API 函数
 export const addTransportDetail = (data: {
-    startsite_id: number,
-    endsite_id: number,
-    vehicle_id: number,
-    goods_id: number,
-    start_date: string,
-    end_date: string,
+    startsite_id: number;
+    endsite_id: number;
+    vehicle_id: number;
+    goods_id: number;
+    start_date: string;
+    end_date: string;
 }) => {
     return apiClient.post('/item/transport_item', data);
 };
 
 // 删除运输明细的 API 函数
-export const deleteTransportDetail = (item_id: number) => {
+export const delTransportDetail = (item_id: number) => {
     return apiClient.delete(`/item/del_item/${item_id}`);
 };
 
@@ -107,14 +107,14 @@ export const getTransportDetails = (perPage: number, page: number) => {
     return apiClient.get(`/item/item_list/${perPage}/${page}`);
 };
 
-export const change_item = (data: { 
-    item_id: number,
-    startsite_id?: number,
-    endsite_id?: number,
-    vehicle_id?: number,
-    goods_id?: number,
-    start_date?: string,
-    end_date?: string
+export const updateTransportDetail = (data: { 
+    item_id: number;
+    startsite_id?: number;
+    endsite_id?: number;
+    vehicle_id?: number;
+    goods_id?: number;
+    start_date?: string;
+    end_date?: string;
 }) => {
     return apiClient.post('/parameter/change_item', data);
 };
