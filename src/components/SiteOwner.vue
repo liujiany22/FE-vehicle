@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addSiteOwner, deleteSiteOwner, getSiteOwners } from '@/services/transportService';
+import { addSiteOwner, delSiteOwner, getSiteOwners } from '@/services/transportService';
 
 export default defineComponent({
   name: 'SiteOwner',
@@ -81,7 +81,7 @@ export default defineComponent({
 
     const removeParameter = async (index: number, id: number) => {
       try {
-        await deleteSiteOwner(id);
+        await delSiteOwner(id);
         fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
