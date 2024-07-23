@@ -9,7 +9,7 @@ export const delStartSite = (site_id: number) => {
 export const getStartSites = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/start_site_list/${per_page}/${page}`);
 };
-export const updateStartite = (data: { site_id: number, name?: string, manager?: string, phone?: string }) => {
+export const updateStartSite = (data: { site_id: number, name?: string, manager?: string, phone?: string }) => {
     return apiClient.post('/parameter/change_site', data);
 };
 
