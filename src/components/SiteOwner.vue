@@ -4,20 +4,18 @@
       <h2>工地老板名参数</h2>
       <el-form @submit.prevent="addParameter">
         <el-form-item label="工地名称">
-          <el-select v-model="newParameter.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange"
-            @visible-change="handleSiteVisibleChange">
+          <el-select v-model="newParameter.id" placeholder="请选择运输工地名称" @change="handleSiteChange" @visible-change="handleSiteVisibleChange">
             <el-option v-for="item in sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage"
-                layout="prev, pager, next" :total="totalSites" />
+              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="工地老板名">
-          <el-input v-model="newParameter.ownerName" placeholder="请输入工地老板名"></el-input>
+          <el-input v-model="newParameter.owner" placeholder="请输入工地老板名"></el-input>
         </el-form-item>
         <el-form-item label="联系电话">
-          <el-input v-model="newParameter.phone" placeholder="请输入联系电话"></el-input>
+          <el-input v-model="newParameter.owner_phone" placeholder="请输入联系电话"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addParameter">添加</el-button>
@@ -58,8 +56,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
-        layout="prev, pager, next" :total="totalPages * perPage" />
+      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage" layout="prev, pager, next" :total="totalPages * perPage" />
     </el-card>
   </div>
 </template>
@@ -72,8 +69,8 @@ export default defineComponent({
   name: 'SiteOwner',
   setup() {
     const parameters = ref<{ id: number, name: string, owner: string, owner_phone: string }[]>([]);
-    const newParameter = ref({ site_id: 0, owner: '', owner_phone: '' });
-    const editingParameter = ref({ site_id: 0, owner: '', owner_phone: '' });
+    const newParameter = ref({ id: 0, owner: '', owner_phone: '' });
+    const editingParameter = ref({ id: 0, owner: '', owner_phone: '' });
     const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(20);
@@ -82,7 +79,7 @@ export default defineComponent({
     const fetchParameters = async () => {
       try {
         const response = await getSites(perPage.value, currentPage.value);
-        parameters.value = response.data.site;
+        parameters.value = response.data.sites;
         totalPages.value = response.data.total_pages;
       } catch (error) {
         console.error('Failed to fetch parameters', error);
@@ -90,11 +87,11 @@ export default defineComponent({
     };
 
     const addParameter = async () => {
-      if (newParameter.value.site_id && newParameter.value.owner.trim() && newParameter.value.owner_phone.trim()) {
+      if (newParameter.value.id && newParameter.value.owner.trim() && newParameter.value.owner_phone.trim()) {
         try {
-          await addSiteOwner(newParameter.value);
+          await addSiteOwner({ site_id: newParameter.value.id, owner: newParameter.value.owner, owner_phone: newParameter.value.owner_phone });
           fetchParameters();
-          newParameter.value = { site_id: 0, owner: '', owner_phone: '' };
+          newParameter.value = { id: 0, owner: '', owner_phone: '' };
         } catch (error) {
           console.error('Failed to add parameter', error);
         }
@@ -117,7 +114,7 @@ export default defineComponent({
 
     const saveParameter = async (id: number) => {
       try {
-        await updateOwner({ site_id: id, ...editingParameter.value });
+        await updateOwner({ site_id: id, owner: editingParameter.value.owner, owner_phone: editingParameter.value.owner_phone });
         fetchParameters();
         cancelEdit();
       } catch (error) {
@@ -127,7 +124,7 @@ export default defineComponent({
 
     const cancelEdit = () => {
       editingId.value = null;
-      editingParameter.value = { site_id: 0, ownerName: '', phone: '' };
+      editingParameter.value = { id: 0, owner: '', owner_phone: '' };
     };
 
     const handlePageChange = (page: number) => {
@@ -142,7 +139,7 @@ export default defineComponent({
     const fetchSites = async () => {
       try {
         const response = await getSites(perPage.value, siteCurrentPage.value);
-        sites.value = response.data.site;
+        sites.value = response.data.sites;
         totalSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch sites', error);
@@ -150,7 +147,7 @@ export default defineComponent({
     };
 
     const handleSiteChange = (value: number) => {
-      newParameter.value.site_id = value;
+      newParameter.value.id = value;
     };
 
     const handleSiteVisibleChange = (visible: boolean) => {

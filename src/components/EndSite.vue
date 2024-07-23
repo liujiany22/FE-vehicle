@@ -60,13 +60,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @current-change="handlePageChange"
-        :current-page="currentPage"
-        :page-size="perPage"
-        layout="prev, pager, next"
-        :total="totalPages * perPage"
-      />
+      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalPages * perPage" />
     </el-card>
   </div>
 </template>
