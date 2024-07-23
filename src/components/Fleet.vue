@@ -17,12 +17,46 @@
                 </el-form-item>
             </el-form>
             <el-table :data="parameters" style="width: 100%">
-                <el-table-column prop="license" label="司机车牌号"></el-table-column>
-                <el-table-column prop="driver" label="司机名字"></el-table-column>
-                <el-table-column prop="phone" label="司机电话号码"></el-table-column>
+                <el-table-column prop="license" label="司机车牌号">
+                  <template v-slot:default="scope">
+                      <div v-if="editingId === scope.row.id">
+                          <el-input v-model="editingParameter.license" />
+                      </div>
+                      <div v-else>
+                          {{ scope.row.license }}
+                      </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="driver" label="司机名字">
+                  <template v-slot:default="scope">
+                      <div v-if="editingId === scope.row.id">
+                          <el-input v-model="editingParameter.driver" />
+                      </div>
+                      <div v-else>
+                          {{ scope.row.driver }}
+                      </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="司机电话号码">
+                  <template v-slot:default="scope">
+                      <div v-if="editingId === scope.row.id">
+                          <el-input v-model="editingParameter.phone" />
+                      </div>
+                      <div v-else>
+                          {{ scope.row.phone }}
+                      </div>
+                  </template>
+                </el-table-column>
                 <el-table-column label="操作">
                     <template v-slot:default="scope">
-                        <el-button type="danger" @click="removeParameter(scope.$index, scope.row.id)">删除</el-button>
+                        <div v-if="editingId === scope.row.id">
+                            <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
+                            <el-button @click="cancelEdit">取消</el-button>
+                        </div>
+                        <div v-else>
+                            <el-button @click="editParameter(scope.row)">修改</el-button>
+                            <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+                        </div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -34,13 +68,15 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addFleet, delFleet, getFleets } from '@/services/transportService';
+import { addFleet, delFleet, getFleets, updateFleet } from '@/services/transportService';
 
 export default defineComponent({
     name: 'Fleet',
     setup() {
         const parameters = ref<{ id: number, license: string, driver: string, phone: string }[]>([]);
         const newParameter = ref({ license: '', driver: '', phone: '' });
+        const editingParameter = ref({ license: '', driver: '', phone: '' });
+        const editingId = ref<number | null>(null);
         const currentPage = ref(1);
         const perPage = ref(20);
         const totalPages = ref(0);
@@ -58,7 +94,7 @@ export default defineComponent({
         const addParameter = async () => {
             if (newParameter.value.license.trim() && newParameter.value.driver.trim() && newParameter.value.phone.trim()) {
                 try {
-                    const response = await addFleet(newParameter.value);
+                    await addFleet(newParameter.value);
                     fetchParameters();
                     newParameter.value = { license: '', driver: '', phone: '' };
                 } catch (error) {
@@ -67,7 +103,7 @@ export default defineComponent({
             }
         };
 
-        const removeParameter = async (index: number, id: number) => {
+        const removeParameter = async (id: number) => {
             try {
                 await delFleet(id);
                 fetchParameters();
@@ -76,37 +112,9 @@ export default defineComponent({
             }
         };
 
-        const handlePageChange = (page: number) => {
-            currentPage.value = page;
-            fetchParameters();
+        const editParameter = (parameter: { id: number, license: string, driver: string, phone: string }) => {
+            editingId.value = parameter.id;
+            editingParameter.value = { ...parameter };
         };
 
-        onMounted(fetchParameters);
-
-        return {
-            parameters,
-            newParameter,
-            currentPage,
-            perPage,
-            totalPages,
-            addParameter,
-            removeParameter,
-            handlePageChange,
-        };
-    },
-});
-</script>
-
-<style scoped>
-.fleet {
-    padding: 20px;
-}
-
-.el-card {
-    margin-bottom: 20px;
-}
-
-.el-form-item {
-    margin-bottom: 20px;
-}
-</style>
+        const saveParameter

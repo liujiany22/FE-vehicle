@@ -17,37 +17,68 @@
         </el-form-item>
       </el-form>
       <el-table :data="parameters" style="width: 100%">
-        <el-table-column prop="name" label="工地名称"></el-table-column>
-        <el-table-column prop="manager" label="工地负责人"></el-table-column>
-        <el-table-column prop="manager_phone" label="联系电话"></el-table-column>
+        <el-table-column prop="name" label="工地名称">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.name" />
+            </div>
+            <div v-else>
+              {{ scope.row.name }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="manager" label="工地负责人">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.manager" />
+            </div>
+            <div v-else>
+              {{ scope.row.manager }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="manager_phone" label="联系电话">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.manager_phone" />
+            </div>
+            <div v-else>
+              {{ scope.row.manager_phone }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
-            <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            <div v-if="editingId === scope.row.id">
+              <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
+              <el-button @click="cancelEdit">取消</el-button>
+            </div>
+            <div v-else>
+              <el-button @click="editParameter(scope.row)">修改</el-button>
+              <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @current-change="handlePageChange"
-        :current-page="currentPage"
-        :page-size="perPage"
-        layout="prev, pager, next"
-        :total="totalPages * perPage"
-      />
+      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalPages * perPage" />
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addStartSite, delStartSite, getStartSites } from '@/services/transportService';
+import { addStartSite, delStartSite, getStartSites, updateStartSite } from '@/services/transportService';
 
 export default defineComponent({
   name: 'StartSite',
   setup() {
     const parameters = ref<{ id: number, name: string, manager: string, manager_phone: string }[]>([]);
     const newParameter = ref({ name: '', manager: '', phone: '' });
+    const editingParameter = ref({ name: '', manager: '', manager_phone: '' });
+    const editingId = ref<number | null>(null);
     const currentPage = ref(1);
-    const perPage = ref(20);
+    const perPage = ref(10);
     const totalPages = ref(0);
 
     const fetchParameters = async () => {
@@ -63,8 +94,8 @@ export default defineComponent({
     const addParameter = async () => {
       if (newParameter.value.name.trim() && newParameter.value.manager.trim() && newParameter.value.phone.trim()) {
         try {
-          const response = await addStartSite(newParameter.value);
-          fetchParameters();  // Refresh the list after adding a new parameter
+          await addStartSite(newParameter.value);
+          fetchParameters();
           newParameter.value = { name: '', manager: '', phone: '' };
         } catch (error) {
           console.error('Failed to add parameter', error);
@@ -75,10 +106,30 @@ export default defineComponent({
     const removeParameter = async (id: number) => {
       try {
         await delStartSite(id);
-        fetchParameters();  // Refresh the list after deleting a parameter
+        fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
       }
+    };
+
+    const editParameter = (parameter: { id: number, name: string, manager: string, manager_phone: string }) => {
+      editingId.value = parameter.id;
+      editingParameter.value = { ...parameter };
+    };
+
+    const saveParameter = async (id: number) => {
+      try {
+        await updateStartSite({ site_id: id, ...editingParameter.value });
+        fetchParameters();
+        cancelEdit();
+      } catch (error) {
+        console.error('Failed to update parameter', error);
+      }
+    };
+
+    const cancelEdit = () => {
+      editingId.value = null;
+      editingParameter.value = { name: '', manager: '', manager_phone: '' };
     };
 
     const handlePageChange = (page: number) => {
@@ -91,11 +142,16 @@ export default defineComponent({
     return {
       parameters,
       newParameter,
+      editingParameter,
+      editingId,
       currentPage,
       perPage,
       totalPages,
       addParameter,
       removeParameter,
+      editParameter,
+      saveParameter,
+      cancelEdit,
       handlePageChange,
     };
   },

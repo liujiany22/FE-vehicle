@@ -9,6 +9,9 @@ export const delStartSite = (site_id: number) => {
 export const getStartSites = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/start_site_list/${per_page}/${page}`);
 };
+export const updateStartite = (data: { site_id: number, name?: string, manager?: string, phone?: string }) => {
+    return apiClient.post('/parameter/change_site', data);
+};
 
 export const addEndSite = (data: { name: string, manager: string, phone: string }) => {
     return apiClient.post('/parameter/end_site', data);
@@ -37,6 +40,9 @@ export const delCategory = (goods_id: number) => {
 export const getCategories = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/goods_list/${per_page}/${page}`);
 };
+export const updateCategory = (data: { goods_id: number, name?: string }) => {
+    return apiClient.post('/parameter/change_goods', data);
+};
 
 // 新增运输车队参数的 API 函数
 export const addFleet = (data: { license: string, driver: string, phone: string }) => {
@@ -47,6 +53,9 @@ export const delFleet = (vehicle_id: number) => {
 };
 export const getFleets = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/vehicle_list/${per_page}/${page}`);
+};
+export const updateFleet = (data: { vehicle_id: number, license?: string, driver?: string, phone?: string }) => {
+    return apiClient.post('/parameter/change_vehicle', data);
 };
 
 // 新增工地老板名参数的 API 函数
@@ -71,6 +80,9 @@ export const delPaymentMethod = (pay_id: number) => {
 };
 export const getPaymentMethods = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/pay_list/${per_page}/${page}`);
+};
+export const updatePaymentMethod = (data: { pay_id: number, method?: string }) => {
+    return apiClient.post('/parameter/change_pay', data);
 };
 
 // 新增运输明细录入的 API 函数
