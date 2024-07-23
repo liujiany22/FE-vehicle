@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addTransportEndPoint, deleteTransportEndPoint, getTransportEndPoints, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/transportService';
+import { addEndSite, delEndSite, getEndSites, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/transportService';
 
 export default defineComponent({
   name: 'EndSite',
