@@ -113,7 +113,7 @@ export const updateTransportDetail = (data: {
     start_date?: string;
     end_date?: string;
 }) => {
-    return apiClient.post('/parameter/change_item', data);
+    return apiClient.post('/item/change_item', data);
 };
 
 export const updateTransportPrices = (data: {
