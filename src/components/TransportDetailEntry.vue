@@ -1,5 +1,5 @@
 <template>
-  <div class="detail-entry">
+  <div class="transport-detail-entry">
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addTransportDetail">
