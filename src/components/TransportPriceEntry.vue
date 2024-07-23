@@ -100,9 +100,9 @@ export default defineComponent({
     const goods = ref<{ id: number, name: string }[]>([]);
     const details = ref<any[]>([]);
     const filters = ref({
-      startsite_id: '',
-      endsite_id: '',
-      goods_id: '',
+      startsite_id: 0,
+      endsite_id: 0,
+      goods_id: 0,
       dateRange: [],
     });
     const selectedDetails = ref<any[]>([]);
@@ -228,6 +228,9 @@ export default defineComponent({
       handleStartSitePageChange,
       handleEndSitePageChange,
       handleGoodsPageChange,
+      fetchStartSites,
+      fetchEndSites,
+      fetchGoods,
     };
   },
 });

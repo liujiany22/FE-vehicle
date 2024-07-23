@@ -338,7 +338,7 @@ export default defineComponent({
       const dataToExport = allDetails.map((detail: {
         start_site: { name: string },
         end_site: { name: string },
-        vehicle: { license: string },
+        vehicle: { driver: string },
         goods: { name: string },
         start_date: string,
         end_date: string,
@@ -422,6 +422,10 @@ export default defineComponent({
       handleVehiclePageChange,
       handleGoodsPageChange,
       handleDetailPageChange,
+      fetchStartSites,
+      fetchEndSites,
+      fetchFleets,
+      fetchGoods,
     };
   },
 });
