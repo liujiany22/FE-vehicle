@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addEndSite, delEndSite, getEndSites, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/endSiteService';
+import { addEndSite, delEndSite, getEndSites, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/transportService';
 
 export default defineComponent({
   name: 'EndSite',
