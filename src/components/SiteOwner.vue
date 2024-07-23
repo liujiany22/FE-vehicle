@@ -79,7 +79,7 @@ export default defineComponent({
     const fetchParameters = async () => {
       try {
         const response = await getSites(perPage.value, currentPage.value);
-        parameters.value = response.data.sites;
+        parameters.value = response.data.site;
         totalPages.value = response.data.total_pages;
       } catch (error) {
         console.error('Failed to fetch parameters', error);
@@ -139,7 +139,7 @@ export default defineComponent({
     const fetchSites = async () => {
       try {
         const response = await getSites(perPage.value, siteCurrentPage.value);
-        sites.value = response.data.sites;
+        sites.value = response.data.site;
         totalSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch sites', error);
