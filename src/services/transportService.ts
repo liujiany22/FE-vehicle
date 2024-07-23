@@ -56,13 +56,13 @@ export const getFleets = (per_page: number, page: number) => {
 };
 
 // 新增工地老板名参数的 API 函数
-export const addOwner = (data: { site_id: number, ownerName: string, phone: string }) => {
+export const addSiteOwner = (data: { site_id: number, ownerName: string, phone: string }) => {
     return apiClient.post('/parameter/new_site2owner', data);
 };
-export const delOwner = (site2owner_id: number) => {
+export const delSiteOwner = (site2owner_id: number) => {
     return apiClient.delete(`/parameter/del_site2owner/${site2owner_id}`);
 };
-export const getOwners = (per_page: number, page: number) => {
+export const getSiteOwners = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/site2owner_list/${per_page}/${page}`);
 };
 
