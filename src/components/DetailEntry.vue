@@ -175,7 +175,7 @@ export default defineComponent({
       }
     };
 
-    const addTransportDetail = async () => {
+    const addDetail = async () => {
       try {
         const data = {
           startsite_id: form.value.startsite_id,
@@ -378,7 +378,7 @@ export default defineComponent({
       totalCategories,
       totalDetails,
       exportToExcel,
-      addTransportDetail,
+      addDetail,
       removeDetail,
       editDetail,
       saveDetail,
