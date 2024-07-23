@@ -61,7 +61,7 @@ export default defineComponent({
 
         const removeParameter = async (index: number, id: number) => {
             try {
-                await deletePaymentMethod(id);
+                await delPaymentMethod(id);
                 fetchParameters();
             } catch (error) {
                 console.error('Failed to delete parameter', error);

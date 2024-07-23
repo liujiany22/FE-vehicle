@@ -1,7 +1,7 @@
 <template>
-  <div class="transport-start-point">
+  <div class="end-site">
     <el-card>
-      <h2>运输起点参数</h2>
+      <h2>运输终点参数</h2>
       <el-form @submit.prevent="addParameter">
         <el-form-item label="工地名称">
           <el-input v-model="newParameter.name" placeholder="请输入工地名称"></el-input>
@@ -22,7 +22,10 @@
         <el-table-column prop="manager_phone" label="联系电话"></el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
-            <el-button type="danger" @click="removeParameter(scope.$index, scope.row.id)">删除</el-button>
+            <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            <el-button type="primary" @click="editParameter(scope.row.id, 'name', scope.row.name)">修改名称</el-button>
+            <el-button type="primary" @click="editParameter(scope.row.id, 'manager', scope.row.manager)">修改负责人</el-button>
+            <el-button type="primary" @click="editParameter(scope.row.id, 'phone', scope.row.manager_phone)">修改电话</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -39,21 +42,21 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addTransportStartPoint, deleteTransportStartPoint, getTransportStartPoints } from '@/services/transportService';
+import { addTransportEndPoint, deleteTransportEndPoint, getTransportEndPoints, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/transportService';
 
 export default defineComponent({
-  name: 'TransportStartPoint',
+  name: 'EndSite',
   setup() {
     const parameters = ref<{ id: number, name: string, manager: string, manager_phone: string }[]>([]);
     const newParameter = ref({ name: '', manager: '', phone: '' });
     const currentPage = ref(1);
-    const perPage = ref(20);
+    const perPage = ref(10);
     const totalPages = ref(0);
 
     const fetchParameters = async () => {
       try {
-        const response = await getTransportStartPoints(perPage.value, currentPage.value);
-        parameters.value = response.data.start_sites;
+        const response = await getTransportEndPoints(perPage.value, currentPage.value);
+        parameters.value = response.data.end_sites;
         totalPages.value = response.data.total_pages;
       } catch (error) {
         console.error('Failed to fetch parameters', error);
@@ -63,8 +66,8 @@ export default defineComponent({
     const addParameter = async () => {
       if (newParameter.value.name.trim() && newParameter.value.manager.trim() && newParameter.value.phone.trim()) {
         try {
-          const response = await addTransportStartPoint(newParameter.value);
-          fetchParameters();  // Refresh the list after adding a new parameter
+          const response = await addTransportEndPoint(newParameter.value);
+          fetchParameters();
           newParameter.value = { name: '', manager: '', phone: '' };
         } catch (error) {
           console.error('Failed to add parameter', error);
@@ -72,12 +75,27 @@ export default defineComponent({
       }
     };
 
-    const removeParameter = async (index: number, id: number) => {
+    const removeParameter = async (id: number) => {
       try {
-        await deleteTransportStartPoint(id);
-        fetchParameters();  // Refresh the list after deleting a parameter
+        await deleteTransportEndPoint(id);
+        fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
+      }
+    };
+
+    const editParameter = async (id: number, field: string, value: string) => {
+      try {
+        if (field === 'name') {
+          await changeSiteName({ id, name: value });
+        } else if (field === 'manager') {
+          await changeSiteManager({ id, manager: value });
+        } else if (field === 'phone') {
+          await changeSitePhone({ id, phone: value });
+        }
+        fetchParameters();
+      } catch (error) {
+        console.error(`Failed to update ${field}`, error);
       }
     };
 
@@ -96,6 +114,7 @@ export default defineComponent({
       totalPages,
       addParameter,
       removeParameter,
+      editParameter,
       handlePageChange,
     };
   },
@@ -103,7 +122,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.transport-start-point {
+.end-site {
   padding: 20px;
 }
 

@@ -7,7 +7,14 @@
           <el-input v-model="newParameter.ownerName" placeholder="请输入工地老板名"></el-input>
         </el-form-item>
         <el-form-item label="工地名称">
-          <el-input v-model="newParameter.siteName" placeholder="请输入工地名称"></el-input>
+          <el-select v-model="form.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange"
+            @visible-change="handleSiteVisibleChange">
+            <el-option v-for="item in sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            <div class="pagination-container">
+              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage"
+                :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
+            </div>
+          </el-select>
         </el-form-item>
         <el-form-item label="联系电话">
           <el-input v-model="newParameter.phone" placeholder="请输入联系电话"></el-input>
@@ -86,7 +93,39 @@ export default defineComponent({
       fetchParameters();
     };
 
-    onMounted(fetchParameters);
+    const sites = ref<{ id: number, name: string }[]>([]);
+    const siteCurrentPage = ref(1);
+    const totalSites = ref(0);
+
+    const fetchSites = async () => {
+      try {
+        const response = await getSites(perPage.value, siteCurrentPage.value);
+        sites.value = response.data.sites;
+        totalSites.value = response.data.total_pages * perPage.value;
+      } catch (error) {
+        console.error('Failed to fetch sites', error);
+      }
+    };
+
+    const handleSiteChange = (value: string) => {
+      console.log('Selected site:', value);
+    };
+
+    const handleSiteVisibleChange = (visible: boolean) => {
+      if (visible) {
+        fetchSites();
+      }
+    };
+
+    const handleSitePageChange = (page: number) => {
+      siteCurrentPage.value = page;
+      fetchSites();
+    };
+
+    onMounted(() => {
+      fetchSites();
+      fetchParameters();
+    });
 
     return {
       parameters,
@@ -97,6 +136,9 @@ export default defineComponent({
       addParameter,
       removeParameter,
       handlePageChange,
+      handleSiteChange,
+      handleSiteVisibleChange,
+      handleSitePageChange,
     };
   },
 });

@@ -1,5 +1,5 @@
 <template>
-    <div class="transport-fleet">
+    <div class="fleet">
         <el-card>
             <h2>运输车队参数</h2>
             <el-form @submit.prevent="addParameter">
@@ -34,10 +34,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addTransportFleet, deleteTransportFleet, getTransportFleets } from '@/services/transportService';
+import { addFleet, delFleet, getFleets } from '@/services/transportService';
 
 export default defineComponent({
-    name: 'TransportFleet',
+    name: 'Fleet',
     setup() {
         const parameters = ref<{ id: number, license: string, driver: string, phone: string }[]>([]);
         const newParameter = ref({ license: '', driver: '', phone: '' });
@@ -47,7 +47,7 @@ export default defineComponent({
 
         const fetchParameters = async () => {
             try {
-                const response = await getTransportFleets(perPage.value, currentPage.value);
+                const response = await getFleets(perPage.value, currentPage.value);
                 parameters.value = response.data.vehicle;
                 totalPages.value = response.data.total_pages;
             } catch (error) {
@@ -58,7 +58,7 @@ export default defineComponent({
         const addParameter = async () => {
             if (newParameter.value.license.trim() && newParameter.value.driver.trim() && newParameter.value.phone.trim()) {
                 try {
-                    const response = await addTransportFleet(newParameter.value);
+                    const response = await addFleet(newParameter.value);
                     fetchParameters();
                     newParameter.value = { license: '', driver: '', phone: '' };
                 } catch (error) {
@@ -69,7 +69,7 @@ export default defineComponent({
 
         const removeParameter = async (index: number, id: number) => {
             try {
-                await deleteTransportFleet(id);
+                await delFleet(id);
                 fetchParameters();
             } catch (error) {
                 console.error('Failed to delete parameter', error);
@@ -98,7 +98,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.transport-fleet {
+.fleet {
     padding: 20px;
 }
 

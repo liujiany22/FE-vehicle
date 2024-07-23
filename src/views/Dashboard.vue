@@ -12,10 +12,10 @@
 import { defineComponent, ref } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import PasswordSetting from '@/components/PasswordSetting.vue';
-import TransportStartPoint from '@/components/TransportStartPoint.vue';
-import TransportEndPoint from '@/components/TransportEndPoint.vue';
-import TransportCategory from '@/components/TransportCategory.vue';
-import TransportFleet from '@/components/TransportFleet.vue';
+import StartSite from '@/components/StartSite.vue';
+import EndSite from '@/components/EndSite.vue';
+import Category from '@/components/Category.vue';
+import Fleet from '@/components/Fleet.vue';
 import SiteOwner from '@/components/SiteOwner.vue';
 import PaymentMethod from '@/components/PaymentMethod.vue';
 import TransportDetailEntry from '@/components/TransportDetailEntry.vue';
@@ -28,10 +28,10 @@ export default defineComponent({
   components: {
     Sidebar,
     PasswordSetting,
-    TransportStartPoint,
-    TransportEndPoint,
-    TransportCategory,
-    TransportFleet,
+    StartSite,
+    EndSite,
+    Category,
+    Fleet,
     SiteOwner,
     PaymentMethod,
     TransportDetailEntry,

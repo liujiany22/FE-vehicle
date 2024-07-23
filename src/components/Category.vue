@@ -1,5 +1,5 @@
 <template>
-  <div class="transport-category">
+  <div class="category">
     <el-card>
       <h2>运输品类参数</h2>
       <el-form @submit.prevent="addParameter">
@@ -31,10 +31,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addTransportCategory, deleteTransportCategory, getTransportCategories } from '@/services/transportService';
+import { addCategory, delCategory, getCategories } from '@/services/transportService';
 
 export default defineComponent({
-  name: 'TransportCategory',
+  name: 'Category',
   setup() {
     const parameters = ref<{ id: number, name: string }[]>([]);
     const newParameter = ref({ name: '' });
@@ -44,7 +44,7 @@ export default defineComponent({
 
     const fetchParameters = async () => {
       try {
-        const response = await getTransportCategories(perPage.value, currentPage.value);
+        const response = await getCategories(perPage.value, currentPage.value);
         parameters.value = response.data.goods;
         totalPages.value = response.data.total_pages;
       } catch (error) {
@@ -55,7 +55,7 @@ export default defineComponent({
     const addParameter = async () => {
       if (newParameter.value.name.trim()) {
         try {
-          const response = await addTransportCategory(newParameter.value);
+          const response = await addCategory(newParameter.value);
           fetchParameters();
           newParameter.value = { name: '' };
         } catch (error) {
@@ -66,7 +66,7 @@ export default defineComponent({
 
     const removeParameter = async (index: number, id: number) => {
       try {
-        await deleteTransportCategory(id);
+        await delCategory(id);
         fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
@@ -77,7 +77,7 @@ export default defineComponent({
       currentPage.value = page;
       fetchParameters();
     };
-    
+
     onMounted(fetchParameters);
 
     return {
@@ -95,7 +95,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.transport-category {
+.category {
   padding: 20px;
 }
 
