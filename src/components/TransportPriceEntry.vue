@@ -76,6 +76,8 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage"
+        :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
       <el-button type="primary" @click="updatePrices">保存所有修改</el-button>
     </el-card>
   </div>
@@ -110,10 +112,12 @@ export default defineComponent({
     const startSiteCurrentPage = ref(1);
     const endSiteCurrentPage = ref(1);
     const goodsCurrentPage = ref(1);
+    const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalStartSites = ref(0);
     const totalEndSites = ref(0);
     const totalGoods = ref(0);
+    const totalDetails = ref(0);
 
     const fetchStartSites = async () => {
       try {
@@ -153,12 +157,11 @@ export default defineComponent({
           goods_id: filters.value.goods_id,
           start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null,
           end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null,
-          per_page: perPage.value,
-          page: 1,
         };
 
-        const response = await searchTransportDetails(params);
+        const response = await searchTransportDetails(params, perPage.value, detailCurrentPage.value);
         details.value = response.data.items;
+        totalDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch details', error);
       }
@@ -201,6 +204,11 @@ export default defineComponent({
       fetchGoods();
     };
 
+    const handleDetailPageChange = (page: number) => {
+      detailCurrentPage.value = page;
+      fetchFilteredDetails();
+    };
+
     onMounted(() => {
       fetchStartSites();
       fetchEndSites();
@@ -218,16 +226,19 @@ export default defineComponent({
       startSiteCurrentPage,
       endSiteCurrentPage,
       goodsCurrentPage,
+      detailCurrentPage,
       perPage,
       totalStartSites,
       totalEndSites,
       totalGoods,
+      totalDetails,
       fetchFilteredDetails,
       handleSelectionChange,
       updatePrices,
       handleStartSitePageChange,
       handleEndSitePageChange,
       handleGoodsPageChange,
+      handleDetailPageChange,
       fetchStartSites,
       fetchEndSites,
       fetchGoods,

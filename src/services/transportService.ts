@@ -124,9 +124,7 @@ export const searchTransportDetails = (params: {
     start_date?: string;
     end_date?: string;
     unit?: string;
-    per_page: number;
-    page: number;
-}) => {
+}, perPage: number, page: number) => {
     return apiClient.get(`/item/search4item/${perPage}/${page}`, { params });
 };
 
