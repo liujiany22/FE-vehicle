@@ -19,22 +19,44 @@
       <el-table :data="parameters" style="width: 100%">
         <el-table-column prop="name" label="工地名称">
           <template v-slot:default="scope">
-            <el-input v-model="scope.row.name" @change="updateParameter(scope.row.id, 'name', scope.row.name)" />
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.name" />
+            </div>
+            <div v-else>
+              {{ scope.row.name }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="manager" label="工地负责人">
           <template v-slot:default="scope">
-            <el-input v-model="scope.row.manager" @change="updateParameter(scope.row.id, 'manager', scope.row.manager)" />
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.manager" />
+            </div>
+            <div v-else>
+              {{ scope.row.manager }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="manager_phone" label="联系电话">
           <template v-slot:default="scope">
-            <el-input v-model="scope.row.manager_phone" @change="updateParameter(scope.row.id, 'manager_phone', scope.row.manager_phone)" />
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.manager_phone" />
+            </div>
+            <div v-else>
+              {{ scope.row.manager_phone }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
-            <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            <div v-if="editingId === scope.row.id">
+              <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
+              <el-button @click="cancelEdit">取消</el-button>
+            </div>
+            <div v-else>
+              <el-button @click="editParameter(scope.row)">修改</el-button>
+              <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -51,13 +73,15 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addEndSite, delEndSite, getEndSites, changeSiteName, changeSiteManager, changeSitePhone } from '@/services/transportService';
+import { addEndSite, delEndSite, getEndSites, updateEndSite } from '@/services/transportService';
 
 export default defineComponent({
   name: 'EndSite',
   setup() {
     const parameters = ref<{ id: number, name: string, manager: string, manager_phone: string }[]>([]);
     const newParameter = ref({ name: '', manager: '', phone: '' });
+    const editingParameter = ref({ name: '', manager: '', manager_phone: '' });
+    const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalPages = ref(0);
@@ -75,7 +99,7 @@ export default defineComponent({
     const addParameter = async () => {
       if (newParameter.value.name.trim() && newParameter.value.manager.trim() && newParameter.value.phone.trim()) {
         try {
-          const response = await addEndSite(newParameter.value);
+          await addEndSite(newParameter.value);
           fetchParameters();
           newParameter.value = { name: '', manager: '', phone: '' };
         } catch (error) {
@@ -93,19 +117,24 @@ export default defineComponent({
       }
     };
 
-    const updateParameter = async (id: number, field: string, value: string) => {
+    const editParameter = (parameter: { id: number, name: string, manager: string, manager_phone: string }) => {
+      editingId.value = parameter.id;
+      editingParameter.value = { ...parameter };
+    };
+
+    const saveParameter = async (id: number) => {
       try {
-        if (field === 'name') {
-          await changeSiteName({ id, name: value });
-        } else if (field === 'manager') {
-          await changeSiteManager({ id, manager: value });
-        } else if (field === 'manager_phone') {
-          await changeSitePhone({ id, phone: value });
-        }
+        await updateEndSite({ id, ...editingParameter.value });
         fetchParameters();
+        cancelEdit();
       } catch (error) {
         console.error('Failed to update parameter', error);
       }
+    };
+
+    const cancelEdit = () => {
+      editingId.value = null;
+      editingParameter.value = { name: '', manager: '', manager_phone: '' };
     };
 
     const handlePageChange = (page: number) => {
@@ -118,12 +147,16 @@ export default defineComponent({
     return {
       parameters,
       newParameter,
+      editingParameter,
+      editingId,
       currentPage,
       perPage,
       totalPages,
       addParameter,
       removeParameter,
-      updateParameter,
+      editParameter,
+      saveParameter,
+      cancelEdit,
       handlePageChange,
     };
   },

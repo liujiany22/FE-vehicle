@@ -19,18 +19,12 @@ export const delEndSite = (site_id: number) => {
 export const getEndSites = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/end_site_list/${per_page}/${page}`);
 };
+export const updateEndSite = (data: { id: number, name?: string, manager?: string, phone?: string }) => {
+    return apiClient.post('/parameter/change_site', data);
+};
 
 export const getSites = (per_page: number, page: number) => {
     return apiClient.get(`/parameter/site_list/${per_page}/${page}`);
-};
-export const changeSiteName = (data: { id: number, name: string }) => {
-    return apiClient.post('/parameter/change_site', data);
-};
-export const changeSiteManager = (data: { id: number, manager: string }) => {
-    return apiClient.post('/parameter/change_site', data);
-};
-export const changeSitePhone = (data: { id: number, phone: string }) => {
-    return apiClient.post('/parameter/change_site', data);
 };
 
 // 新增运输品类参数的 API 函数
