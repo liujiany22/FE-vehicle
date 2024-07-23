@@ -116,6 +116,20 @@ export const updateTransportDetail = (data: {
     return apiClient.post('/item/change_item', data);
 };
 
+export const searchTransportDetails = (params: {
+    startsite_id?: number;
+    endsite_id?: number;
+    vehicle_id?: number;
+    goods_id?: number;
+    start_date?: string;
+    end_date?: string;
+    unit?: string;
+    per_page: number;
+    page: number;
+}) => {
+    return apiClient.get('/item/search4item', { params });
+};
+
 export const updateTransportPrices = (data: {
     item_id: number;
     contractorPrice?: number;

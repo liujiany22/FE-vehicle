@@ -1,49 +1,38 @@
-<!-- <template>
+<template>
   <div class="transport-price-entry">
     <el-card>
       <h2>运输单价录入</h2>
       <el-form @submit.prevent="fetchFilteredDetails">
         <el-form-item label="起点工地">
-          <el-select v-model="filters.startPoint" placeholder="请选择起点工地" @change="handleStartPointChange" @visible-change="handleStartPointVisibleChange">
-            <el-option v-for="item in startPoints" :key="item.id" :label="item.name" :value="item.name"></el-option>
+          <el-select v-model="filters.startsite_id" placeholder="请选择起点工地" @visible-change="fetchStartSites">
+            <el-option v-for="item in startSites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination 
-                @current-change="handleStartPointPageChange" 
-                :current-page="startPointCurrentPage"
-                :page-size="perPage" 
-                layout="prev, pager, next" 
-                :total="totalStartPoints" />
+              <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
+                :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="终点工地">
-          <el-select v-model="filters.endPoint" placeholder="请选择终点工地" @change="handleEndPointChange" @visible-change="handleEndPointVisibleChange">
-            <el-option v-for="item in endPoints" :key="item.id" :label="item.name" :value="item.name"></el-option>
+          <el-select v-model="filters.endsite_id" placeholder="请选择终点工地" @visible-change="fetchEndSites">
+            <el-option v-for="item in endSites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination 
-                @current-change="handleEndPointPageChange" 
-                :current-page="endPointCurrentPage"
-                :page-size="perPage" 
-                layout="prev, pager, next" 
-                :total="totalEndPoints" />
+              <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage"
+                :page-size="perPage" layout="prev, pager, next" :total="totalEndSites" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输品类">
-          <el-select v-model="filters.category" placeholder="请选择运输品类" @change="handleCategoryChange" @visible-change="handleCategoryVisibleChange">
-            <el-option v-for="item in categories" :key="item.id" :label="item.name" :value="item.name"></el-option>
+          <el-select v-model="filters.goods_id" placeholder="请选择运输品类" @visible-change="fetchGoods">
+            <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination 
-                @current-change="handleCategoryPageChange" 
-                :current-page="categoryCurrentPage"
-                :page-size="perPage" 
-                layout="prev, pager, next" 
-                :total="totalCategories" />
+              <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage"
+                :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="时间范围">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期"
+            end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
@@ -51,10 +40,11 @@
       </el-form>
       <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable">
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="startPoint" label="起点工地"></el-table-column>
-        <el-table-column prop="endPoint" label="终点工地"></el-table-column>
-        <el-table-column prop="category" label="运输品类"></el-table-column>
-        <el-table-column prop="date" label="日期"></el-table-column>
+        <el-table-column prop="start_site.name" label="起点工地"></el-table-column>
+        <el-table-column prop="end_site.name" label="终点工地"></el-table-column>
+        <el-table-column prop="goods.name" label="运输品类"></el-table-column>
+        <el-table-column prop="start_date" label="开始日期"></el-table-column>
+        <el-table-column prop="end_date" label="结束日期"></el-table-column>
         <el-table-column prop="unit" label="计量单位">
           <template v-slot:default="scope">
             <el-input v-model="scope.row.unit" placeholder="请输入"></el-input>
@@ -99,74 +89,76 @@ import {
   getTransportEndPoints,
   getTransportCategories,
   updateTransportPrices,
+  searchTransportDetails,
 } from '@/services/transportService';
 
 export default defineComponent({
   name: 'TransportPriceEntry',
   setup() {
-    const startPoints = ref<{ id: number, name: string }[]>([]);
-    const endPoints = ref<{ id: number, name: string }[]>([]);
-    const categories = ref<{ id: number, name: string }[]>([]);
+    const startSites = ref<{ id: number, name: string }[]>([]);
+    const endSites = ref<{ id: number, name: string }[]>([]);
+    const goods = ref<{ id: number, name: string }[]>([]);
     const details = ref<any[]>([]);
     const filters = ref({
-      startPoint: '',
-      endPoint: '',
-      category: '',
+      startsite_id: '',
+      endsite_id: '',
+      goods_id: '',
       dateRange: [],
     });
     const selectedDetails = ref<any[]>([]);
 
-    const startPointCurrentPage = ref(1);
-    const endPointCurrentPage = ref(1);
-    const categoryCurrentPage = ref(1);
+    const startSiteCurrentPage = ref(1);
+    const endSiteCurrentPage = ref(1);
+    const goodsCurrentPage = ref(1);
     const perPage = ref(10);
-    const totalStartPoints = ref(0);
-    const totalEndPoints = ref(0);
-    const totalCategories = ref(0);
+    const totalStartSites = ref(0);
+    const totalEndSites = ref(0);
+    const totalGoods = ref(0);
 
-    const fetchStartPoints = async () => {
+    const fetchStartSites = async () => {
       try {
-        const response = await getTransportStartPoints(perPage.value, startPointCurrentPage.value);
-        startPoints.value = response.data.start_sites;
-        totalStartPoints.value = response.data.total_pages * perPage.value;
+        const response = await getTransportStartPoints(perPage.value, startSiteCurrentPage.value);
+        startSites.value = response.data.start_sites;
+        totalStartSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch start points', error);
+        console.error('Failed to fetch start sites', error);
       }
     };
 
-    const fetchEndPoints = async () => {
+    const fetchEndSites = async () => {
       try {
-        const response = await getTransportEndPoints(perPage.value, endPointCurrentPage.value);
-        endPoints.value = response.data.end_sites; // 假设终点和起点的数据结构相同
-        totalEndPoints.value = response.data.total_pages * perPage.value;
+        const response = await getTransportEndPoints(perPage.value, endSiteCurrentPage.value);
+        endSites.value = response.data.end_sites;
+        totalEndSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch end points', error);
+        console.error('Failed to fetch end sites', error);
       }
     };
 
-    const fetchCategories = async () => {
+    const fetchGoods = async () => {
       try {
-        const response = await getTransportCategories(perPage.value, categoryCurrentPage.value);
-        categories.value = response.data.goods;
-        totalCategories.value = response.data.total_pages * perPage.value;
+        const response = await getTransportCategories(perPage.value, goodsCurrentPage.value);
+        goods.value = response.data.goods;
+        totalGoods.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch categories', error);
+        console.error('Failed to fetch goods', error);
       }
     };
 
     const fetchFilteredDetails = async () => {
       try {
-        const response = await getTransportDetails();
-        details.value = response.data.filter((detail: any) => {
-          return (
-            (!filters.value.startPoint || detail.startPoint === filters.value.startPoint) &&
-            (!filters.value.endPoint || detail.endPoint === filters.value.endPoint) &&
-            (!filters.value.category || detail.category === filters.value.category) &&
-            (!filters.value.dateRange.length ||
-              (new Date(detail.date) >= new Date(filters.value.dateRange[0]) &&
-                new Date(detail.date) <= new Date(filters.value.dateRange[1])))
-          );
-        });
+        const params = {
+          startsite_id: filters.value.startsite_id,
+          endsite_id: filters.value.endsite_id,
+          goods_id: filters.value.goods_id,
+          start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null,
+          end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null,
+          per_page: perPage.value,
+          page: 1,
+        };
+
+        const response = await searchTransportDetails(params);
+        details.value = response.data.items;
       } catch (error) {
         console.error('Failed to fetch details', error);
       }
@@ -194,69 +186,48 @@ export default defineComponent({
       }
     };
 
-    const handleStartPointPageChange = (page: number) => {
-      startPointCurrentPage.value = page;
-      fetchStartPoints();
+    const handleStartSitePageChange = (page: number) => {
+      startSiteCurrentPage.value = page;
+      fetchStartSites();
     };
 
-    const handleStartPointVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchStartPoints();
-      }
+    const handleEndSitePageChange = (page: number) => {
+      endSiteCurrentPage.value = page;
+      fetchEndSites();
     };
 
-    const handleEndPointPageChange = (page: number) => {
-      endPointCurrentPage.value = page;
-      fetchEndPoints();
-    };
-
-    const handleEndPointVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchEndPoints();
-      }
-    };
-
-    const handleCategoryPageChange = (page: number) => {
-      categoryCurrentPage.value = page;
-      fetchCategories();
-    };
-
-    const handleCategoryVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchCategories();
-      }
+    const handleGoodsPageChange = (page: number) => {
+      goodsCurrentPage.value = page;
+      fetchGoods();
     };
 
     onMounted(() => {
-      fetchStartPoints();
-      fetchEndPoints();
-      fetchCategories();
+      fetchStartSites();
+      fetchEndSites();
+      fetchGoods();
       fetchFilteredDetails();
     });
 
     return {
-      startPoints,
-      endPoints,
-      categories,
+      startSites,
+      endSites,
+      goods,
       details,
       filters,
       selectedDetails,
-      startPointCurrentPage,
-      endPointCurrentPage,
-      categoryCurrentPage,
+      startSiteCurrentPage,
+      endSiteCurrentPage,
+      goodsCurrentPage,
       perPage,
-      totalStartPoints,
-      totalEndPoints,
-      totalCategories,
+      totalStartSites,
+      totalEndSites,
+      totalGoods,
       fetchFilteredDetails,
       handleSelectionChange,
       updatePrices,
-      handleStartPointPageChange,
-      handleStartPointVisibleChange,
-      handleEndPointPageChange,
-      handleEndPointVisibleChange,
-      handleCategoryPageChange,
-      handleCategoryVisibleChange,
+      handleStartSitePageChange,
+      handleEndSitePageChange,
+      handleGoodsPageChange,
     };
   },
 });
@@ -279,4 +250,4 @@ export default defineComponent({
   padding: 10px;
   text-align: center;
 }
-</style> -->
+</style>
