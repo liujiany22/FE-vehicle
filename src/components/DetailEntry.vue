@@ -1,51 +1,42 @@
 <template>
-  <div class="transport-detail-entry">
+  <div class="detail-entry">
     <el-card>
       <h2>运输明细录入</h2>
-      <el-form @submit.prevent="addTransportDetail">
+      <el-form @submit.prevent="addDetail">
         <el-form-item label="运输起点">
-          <el-select v-model="form.startsite_id" placeholder="请选择运输起点" @change="handleStartPointChange"
-            @visible-change="handleStartPointVisibleChange">
+          <el-select v-model="form.startsite_id" placeholder="请选择运输起点" @change="handleStartPointChange" @visible-change="handleStartPointVisibleChange">
             <el-option v-for="item in startPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleStartPointPageChange" :current-page="startPointCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalStartPoints" />
+              <el-pagination @current-change="handleStartPointPageChange" :current-page="startPointCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalStartPoints" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输终点">
-          <el-select v-model="form.endsite_id" placeholder="请选择运输终点" @change="handleEndPointChange"
-            @visible-change="handleEndPointVisibleChange">
+          <el-select v-model="form.endsite_id" placeholder="请选择运输终点" @change="handleEndPointChange" @visible-change="handleEndPointVisibleChange">
             <el-option v-for="item in endPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleEndPointPageChange" :current-page="endPointCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalEndPoints" />
+              <el-pagination @current-change="handleEndPointPageChange" :current-page="endPointCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalEndPoints" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输车队">
-          <el-select v-model="form.vehicle_id" placeholder="请选择运输车队" @change="handleFleetChange"
-            @visible-change="handleFleetVisibleChange">
+          <el-select v-model="form.vehicle_id" placeholder="请选择运输车队" @change="handleFleetChange" @visible-change="handleFleetVisibleChange">
             <el-option v-for="item in fleets" :key="item.id" :label="item.license" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleFleetPageChange" :current-page="fleetCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalFleets" />
+              <el-pagination @current-change="handleFleetPageChange" :current-page="fleetCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalFleets" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输品类">
-          <el-select v-model="form.goods_id" placeholder="请选择运输品类" @change="handleCategoryChange"
-            @visible-change="handleCategoryVisibleChange">
+          <el-select v-model="form.goods_id" placeholder="请选择运输品类" @change="handleCategoryChange" @visible-change="handleCategoryVisibleChange">
             <el-option v-for="item in categories" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleCategoryPageChange" :current-page="categoryCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalCategories" />
+              <el-pagination @current-change="handleCategoryPageChange" :current-page="categoryCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalCategories" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="日期范围">
-          <el-date-picker v-model="form.dateRange" type="daterange" start-placeholder="开始日期"
-            end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="form.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addTransportDetail">提交</el-button>
@@ -64,12 +55,12 @@
         <el-table-column prop="end_date" label="结束日期"></el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
+            <el-button @click="editDetail(scope.row)">修改</el-button>
             <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
-        layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
       <el-button type="primary" @click="exportToExcel">导出为Excel</el-button>
     </el-card>
   </div>
@@ -85,6 +76,7 @@ import {
   addTransportDetail,
   deleteTransportDetail,
   getTransportDetails,
+  change_item
 } from '@/services/transportService';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -165,7 +157,7 @@ export default defineComponent({
       }
     };
 
-    const fetchParameters = async () => {
+    const fetchDetails = async () => {
       try {
         const response = await getTransportDetails(perPage.value, detailCurrentPage.value);
         details.value = response.data.items;
@@ -175,7 +167,7 @@ export default defineComponent({
       }
     };
 
-    const addParameter = async () => {
+    const addTransportDetail = async () => {
       try {
         const data = {
           startsite_id: form.value.startsite_id,
@@ -194,20 +186,69 @@ export default defineComponent({
           goods_id: 0,
           dateRange: ['', ''],
         };
-        fetchParameters(); // 刷新列表
+        fetchDetails(); // 刷新列表
       } catch (error) {
         console.error('Failed to add transport detail', error);
       }
     };
 
-    const removeParameter = async (itemId: number) => {
+    const removeDetail = async (itemId: number) => {
       try {
         await deleteTransportDetail(itemId);
         alert('运输明细删除成功');
-        fetchParameters(); // 刷新列表
+        fetchDetails(); // 刷新列表
       } catch (error) {
         console.error('Failed to delete transport detail', error);
       }
+    };
+
+    const editDetail = (detail: { id: number, startsite_id: number, endsite_id: number, vehicle_id: number, goods_id: number, start_date: string, end_date: string }) => {
+      form.value = {
+        startsite_id: detail.startsite_id,
+        endsite_id: detail.endsite_id,
+        vehicle_id: detail.vehicle_id,
+        goods_id: detail.goods_id,
+        dateRange: [detail.start_date, detail.end_date],
+      };
+      editingId.value = detail.id;
+    };
+
+    const saveDetail = async (itemId: number) => {
+      try {
+        const data = {
+          item_id: itemId,
+          startsite_id: form.value.startsite_id,
+          endsite_id: form.value.endsite_id,
+          vehicle_id: form.value.vehicle_id,
+          goods_id: form.value.goods_id,
+          start_date: form.value.dateRange[0],
+          end_date: form.value.dateRange[1],
+        };
+        await change_item(data);
+        alert('运输明细更新成功');
+        form.value = {
+          startsite_id: 0,
+          endsite_id: 0,
+          vehicle_id: 0,
+          goods_id: 0,
+          dateRange: ['', ''],
+        };
+        fetchDetails(); // 刷新列表
+        editingId.value = null;
+      } catch (error) {
+        console.error('Failed to update transport detail', error);
+      }
+    };
+
+    const cancelEdit = () => {
+      form.value = {
+        startsite_id: 0,
+        endsite_id: 0,
+        vehicle_id: 0,
+        goods_id: 0,
+        dateRange: ['', ''],
+      };
+      editingId.value = null;
     };
 
     const exportToExcel = async () => {
@@ -235,7 +276,6 @@ export default defineComponent({
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       saveAs(blob, 'transport_details.xlsx');
     };
-
 
     const handleStartPointChange = (value: string) => {
       console.log('Selected start point:', value);
@@ -299,7 +339,7 @@ export default defineComponent({
 
     const handleDetailPageChange = (page: number) => {
       detailCurrentPage.value = page;
-      fetchParameters();
+      fetchDetails();
     };
 
     onMounted(() => {
@@ -307,7 +347,7 @@ export default defineComponent({
       fetchEndPoints();
       fetchFleets();
       fetchCategories();
-      fetchParameters();
+      fetchDetails();
     });
 
     return {
@@ -317,6 +357,7 @@ export default defineComponent({
       categories,
       details,
       form,
+      editingId,
       startPointCurrentPage,
       endPointCurrentPage,
       fleetCurrentPage,
@@ -329,8 +370,11 @@ export default defineComponent({
       totalCategories,
       totalDetails,
       exportToExcel,
-      addTransportDetail: addParameter,
-      removeDetail: removeParameter,
+      addTransportDetail,
+      removeDetail,
+      editDetail,
+      saveDetail,
+      cancelEdit,
       handleStartPointChange,
       handleStartPointPageChange,
       handleStartPointVisibleChange,
@@ -350,7 +394,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.transport-detail-entry {
+.detail-entry {
   padding: 20px;
 }
 
