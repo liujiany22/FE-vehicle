@@ -4,10 +4,12 @@
       <h2>工地老板名参数</h2>
       <el-form @submit.prevent="addParameter">
         <el-form-item label="工地名称">
-          <el-select v-model="newParameter.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange" @visible-change="handleSiteVisibleChange">
+          <el-select v-model="newParameter.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange"
+            @visible-change="handleSiteVisibleChange">
             <el-option v-for="item in sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
+              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage"
+                layout="prev, pager, next" :total="totalSites" />
             </div>
           </el-select>
         </el-form-item>
@@ -23,23 +25,23 @@
       </el-form>
       <el-table :data="parameters" style="width: 100%">
         <el-table-column prop="name" label="工地名称"></el-table-column>
-        <el-table-column prop="ownerName" label="工地老板名">
+        <el-table-column prop="owner" label="工地老板名">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <el-input v-model="editingParameter.ownerName" />
+              <el-input v-model="editingParameter.owner" />
             </div>
             <div v-else>
-              {{ scope.row.ownerName }}
+              {{ scope.row.owner }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="phone" label="联系电话">
+        <el-table-column prop="owner_phone" label="联系电话">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <el-input v-model="editingParameter.phone" />
+              <el-input v-model="editingParameter.owner_phone" />
             </div>
             <div v-else>
-              {{ scope.row.phone }}
+              {{ scope.row.owner_phone }}
             </div>
           </template>
         </el-table-column>
@@ -56,13 +58,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @current-change="handlePageChange"
-        :current-page="currentPage"
-        :page-size="perPage"
-        layout="prev, pager, next"
-        :total="totalPages * perPage"
-      />
+      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalPages * perPage" />
     </el-card>
   </div>
 </template>
@@ -74,9 +71,9 @@ import { addSiteOwner, delSiteOwner, getSites, updateOwner } from '@/services/tr
 export default defineComponent({
   name: 'SiteOwner',
   setup() {
-    const parameters = ref<{ id: number, name: string, ownerName: string, phone: string }[]>([]);
-    const newParameter = ref({ site_id: 0, ownerName: '', phone: '' });
-    const editingParameter = ref({ site_id: 0, ownerName: '', phone: '' });
+    const parameters = ref<{ id: number, name: string, owner: string, owner_phone: string }[]>([]);
+    const newParameter = ref({ site_id: 0, owner: '', owner_phone: '' });
+    const editingParameter = ref({ site_id: 0, owner: '', owner_phone: '' });
     const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(20);
@@ -93,11 +90,11 @@ export default defineComponent({
     };
 
     const addParameter = async () => {
-      if (newParameter.value.site_id && newParameter.value.ownerName.trim() && newParameter.value.phone.trim()) {
+      if (newParameter.value.site_id && newParameter.value.owner.trim() && newParameter.value.owner_phone.trim()) {
         try {
           await addSiteOwner(newParameter.value);
           fetchParameters();
-          newParameter.value = { site_id: 0, ownerName: '', phone: '' };
+          newParameter.value = { site_id: 0, owner: '', owner_phone: '' };
         } catch (error) {
           console.error('Failed to add parameter', error);
         }
