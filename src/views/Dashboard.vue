@@ -35,7 +35,7 @@ export default defineComponent({
     SiteOwner,
     PaymentMethod,
     TransportDetailEntry,
-    // TransportPriceEntry,
+    TransportPriceEntry,
   },
   setup() {
     const currentModule = ref('Module1Feature1');
