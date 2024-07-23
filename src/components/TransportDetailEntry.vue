@@ -2,7 +2,7 @@
   <div class="transport-detail-entry">
     <el-card>
       <h2>运输明细录入</h2>
-      <el-form @submit.prevent="addTransportDetail">
+      <el-form @submit.prevent="addDetail">
         <el-form-item label="运输起点">
           <el-select v-model="form.startsite_id" placeholder="请选择运输起点" @change="handleStartPointChange" @visible-change="handleStartPointVisibleChange">
             <el-option v-for="item in startPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -39,7 +39,7 @@
           <el-date-picker v-model="form.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addTransportDetail">提交</el-button>
+          <el-button type="primary" @click="addDetail">提交</el-button>
         </el-form-item>
       </el-form>
     </el-card>
