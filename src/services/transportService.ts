@@ -96,17 +96,14 @@ export const addTransportDetail = (data: {
 }) => {
     return apiClient.post('/item/transport_item', data);
 };
-
 // 删除运输明细的 API 函数
 export const delTransportDetail = (item_id: number) => {
     return apiClient.delete(`/item/del_item/${item_id}`);
 };
-
 // 获取运输明细列表的 API 函数
 export const getTransportDetails = (perPage: number, page: number) => {
     return apiClient.get(`/item/item_list/${perPage}/${page}`);
 };
-
 export const updateTransportDetail = (data: { 
     item_id: number;
     startsite_id?: number;

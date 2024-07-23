@@ -2,7 +2,7 @@
   <div class="detail-entry">
     <el-card>
       <h2>运输明细录入</h2>
-      <el-form @submit.prevent="addDetail">
+      <el-form @submit.prevent="addTransportDetail">
         <el-form-item label="运输起点">
           <el-select v-model="form.startsite_id" placeholder="请选择运输起点" @change="handleStartPointChange" @visible-change="handleStartPointVisibleChange">
             <el-option v-for="item in startPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -55,8 +55,14 @@
         <el-table-column prop="end_date" label="结束日期"></el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
-            <el-button @click="editDetail(scope.row)">修改</el-button>
-            <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
+            <div v-if="editingId === scope.row.id">
+              <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
+              <el-button @click="cancelEdit">取消</el-button>
+            </div>
+            <div v-else>
+              <el-button @click="editDetail(scope.row)">修改</el-button>
+              <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -74,7 +80,7 @@ import {
   getCategories,
   getFleets,
   addTransportDetail,
-  deTransportDetail,
+  delTransportDetail,
   getTransportDetails,
   updateTransportDetail
 } from '@/services/transportService';
@@ -104,6 +110,8 @@ export default defineComponent({
       goods_id: 0,
       dateRange: ['', ''],
     });
+
+    const editingId = ref<number | null>(null);
 
     const startPointCurrentPage = ref(1);
     const endPointCurrentPage = ref(1);
