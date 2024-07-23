@@ -85,9 +85,9 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import {
   getTransportDetails,
-  getTransportStartPoints,
-  getTransportEndPoints,
-  getTransportCategories,
+  getStartSites,
+  getEndSites,
+  getCategories,
   updateTransportPrices,
   searchTransportDetails,
 } from '@/services/transportService';
@@ -117,7 +117,7 @@ export default defineComponent({
 
     const fetchStartSites = async () => {
       try {
-        const response = await getTransportStartPoints(perPage.value, startSiteCurrentPage.value);
+        const response = await getStartSites(perPage.value, startSiteCurrentPage.value);
         startSites.value = response.data.start_sites;
         totalStartSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -127,7 +127,7 @@ export default defineComponent({
 
     const fetchEndSites = async () => {
       try {
-        const response = await getTransportEndPoints(perPage.value, endSiteCurrentPage.value);
+        const response = await getEndSites(perPage.value, endSiteCurrentPage.value);
         endSites.value = response.data.end_sites;
         totalEndSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -137,7 +137,7 @@ export default defineComponent({
 
     const fetchGoods = async () => {
       try {
-        const response = await getTransportCategories(perPage.value, goodsCurrentPage.value);
+        const response = await getCategories(perPage.value, goodsCurrentPage.value);
         goods.value = response.data.goods;
         totalGoods.value = response.data.total_pages * perPage.value;
       } catch (error) {
