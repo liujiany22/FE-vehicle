@@ -4,39 +4,39 @@
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
         <el-form-item label="运输起点">
-          <el-select v-model="form.startsite_id" placeholder="请选择运输起点" @change="handleStartPointChange" @visible-change="handleStartPointVisibleChange">
-            <el-option v-for="item in startPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-select v-model="form.start_site_id" placeholder="请选择运输起点" @visible-change="fetchStartSites">
+            <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleStartPointPageChange" :current-page="startPointCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalStartPoints" />
+              <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输终点">
-          <el-select v-model="form.endsite_id" placeholder="请选择运输终点" @change="handleEndPointChange" @visible-change="handleEndPointVisibleChange">
-            <el-option v-for="item in endPoints" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-select v-model="form.end_site_id" placeholder="请选择运输终点" @visible-change="fetchEndSites">
+            <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleEndPointPageChange" :current-page="endPointCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalEndPoints" />
+              <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalEndSites" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输车队">
-          <el-select v-model="form.vehicle_id" placeholder="请选择运输车队" @change="handleFleetChange" @visible-change="handleFleetVisibleChange">
-            <el-option v-for="item in fleets" :key="item.id" :label="item.license" :value="item.id"></el-option>
+          <el-select v-model="form.vehicle_id" placeholder="请选择运输车队" @visible-change="fetchFleets">
+            <el-option v-for="item in vehicles" :key="item.id" :label="item.driver" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleFleetPageChange" :current-page="fleetCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalFleets" />
+              <el-pagination @current-change="handleVehiclePageChange" :current-page="vehicleCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalVehicles" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="运输品类">
-          <el-select v-model="form.goods_id" placeholder="请选择运输品类" @change="handleCategoryChange" @visible-change="handleCategoryVisibleChange">
-            <el-option v-for="item in categories" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-select v-model="form.goods_id" placeholder="请选择运输品类" @visible-change="fetchGoods">
+            <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleCategoryPageChange" :current-page="categoryCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalCategories" />
+              <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
             </div>
           </el-select>
         </el-form-item>
         <el-form-item label="日期范围">
-          <el-date-picker v-model="form.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
@@ -47,12 +47,74 @@
     <el-card>
       <h2>已录入的运输明细</h2>
       <el-table :data="details" style="width: 100%">
-        <el-table-column prop="startsite.name" label="运输起点"></el-table-column>
-        <el-table-column prop="endsite.name" label="运输终点"></el-table-column>
-        <el-table-column prop="vehicle.license" label="运输车队"></el-table-column>
-        <el-table-column prop="goods.name" label="运输品类"></el-table-column>
-        <el-table-column prop="start_date" label="开始日期"></el-table-column>
-        <el-table-column prop="end_date" label="结束日期"></el-table-column>
+        <el-table-column prop="start_site.name" label="运输起点">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-select v-model="editingDetail.start_site_id" placeholder="请选择运输起点" @visible-change="fetchStartSites">
+                <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
+            </div>
+            <div v-else>
+              {{ scope.row.start_site.name }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="end_site.name" label="运输终点">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-select v-model="editingDetail.end_site_id" placeholder="请选择运输终点" @visible-change="fetchEndSites">
+                <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
+            </div>
+            <div v-else>
+              {{ scope.row.end_site.name }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="vehicle.driver" label="运输车队">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-select v-model="editingDetail.vehicle_id" placeholder="请选择运输车队" @visible-change="fetchFleets">
+                <el-option v-for="item in vehicles" :key="item.id" :label="item.driver" :value="item.id"></el-option>
+              </el-select>
+            </div>
+            <div v-else>
+              {{ scope.row.vehicle.driver }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods.name" label="运输品类">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-select v-model="editingDetail.goods_id" placeholder="请选择运输品类" @visible-change="fetchGoods">
+                <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
+            </div>
+            <div v-else>
+              {{ scope.row.goods.name }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="start_date" label="开始日期">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-date-picker v-model="editingDetail.start_date" type="date" placeholder="选择开始日期"></el-date-picker>
+            </div>
+            <div v-else>
+              {{ scope.row.start_date }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="end_date" label="结束日期">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-date-picker v-model="editingDetail.end_date" type="date" placeholder="选择结束日期"></el-date-picker>
+            </div>
+            <div v-else>
+              {{ scope.row.end_date }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
@@ -90,78 +152,86 @@ import { saveAs } from 'file-saver';
 export default defineComponent({
   name: 'TransportDetailEntry',
   setup() {
-    const startPoints = ref<{ id: number, name: string }[]>([]);
-    const endPoints = ref<{ id: number, name: string }[]>([]);
-    const fleets = ref<{ id: number, license: string }[]>([]);
-    const categories = ref<{ id: number, name: string }[]>([]);
+    const start_sites = ref<{ id: number, name: string }[]>([]);
+    const end_sites = ref<{ id: number, name: string }[]>([]);
+    const vehicles = ref<{ id: number, driver: string }[]>([]);
+    const goods = ref<{ id: number, name: string }[]>([]);
     const details = ref<{
       id: number,
-      startsite: { name: string },
-      endsite_name: { name: string },
-      vehicle_license: { license: string },
-      goods_name: { name: string },
+      start_site: { name: string },
+      end_site: { name: string },
+      vehicle: { driver: string },
+      goods: { name: string },
       start_date: string,
       end_date: string
     }[]>([]);
     const form = ref({
-      startsite_id: 0,
-      endsite_id: 0,
+      start_site_id: 0,
+      end_site_id: 0,
       vehicle_id: 0,
       goods_id: 0,
-      dateRange: ['', ''],
+      date_range: ['', ''],
+    });
+    const editingDetail = ref({
+      start_site_id: 0,
+      end_site_id: 0,
+      vehicle_id: 0,
+      goods_id: 0,
+      start_date: '',
+      end_date: '',
     });
 
     const editingId = ref<number | null>(null);
 
-    const startPointCurrentPage = ref(1);
-    const endPointCurrentPage = ref(1);
-    const fleetCurrentPage = ref(1);
-    const categoryCurrentPage = ref(1);
+    const startSiteCurrentPage = ref(1);
+    const endSiteCurrentPage = ref(1);
+    const vehicleCurrentPage = ref(1);
+    const goodsCurrentPage = ref(1);
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
-    const totalStartPoints = ref(0);
-    const totalEndPoints = ref(0);
-    const totalFleets = ref(0);
-    const totalCategories = ref(0);
+    const totalStartSites = ref(0);
+    const totalEndSites = ref(0);
+    const totalVehicles = ref(0);
+    const totalGoods = ref(0);
     const totalDetails = ref(0);
 
-    const fetchStartPoints = async () => {
+    const fetchStartSites = async () => {
       try {
-        const response = await getStartSites(perPage.value, startPointCurrentPage.value);
-        startPoints.value = response.data.start_sites;
-        totalStartPoints.value = response.data.total_pages * perPage.value;
+        const response = await getStartSites(perPage.value, startSiteCurrentPage.value);
+        start_sites.value = response.data.start_sites;
+        totalStartSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch start points', error);
+        console.error('Failed to fetch start sites', error);
       }
     };
 
-    const fetchEndPoints = async () => {
+    const fetchEndSites = async () => {
       try {
-        const response = await getEndSites(perPage.value, endPointCurrentPage.value);
-        endPoints.value = response.data.end_sites;
-        totalEndPoints.value = response.data.total_pages * perPage.value;
+        const response = await getEndSites(perPage.value, endSiteCurrentPage.value);
+        end_sites.value = response.data.end_sites;
+        totalEndSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch end points', error);
+        console.error('Failed to fetch end sites', error);
       }
     };
 
     const fetchFleets = async () => {
       try {
-        const response = await getFleets(perPage.value, fleetCurrentPage.value);
-        fleets.value = response.data.vehicle;
-        totalFleets.value = response.data.total_pages * perPage.value;
+        const response = await getFleets(perPage.value, vehicleCurrentPage.value);
+        vehicles.value = response.data.vehicle;
+        totalVehicles.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch fleets', error);
       }
     };
 
-    const fetchCategories = async () => {
+    const fetchGoods = async () => {
       try {
-        const response = await getCategories(perPage.value, categoryCurrentPage.value);
-        categories.value = response.data.goods;
-        totalCategories.value = response.data.total_pages * perPage.value;
+        const response = await getCategories(perPage.value, goodsCurrentPage.value);
+        goods.value = response.data.goods;
+        totalGoods.value = response.data.total_pages * perPage.value;
       } catch (error) {
-        console.error('Failed to fetch categories', error);
+        console.error('Failed to fetch goods', error);
       }
     };
 
@@ -178,21 +248,21 @@ export default defineComponent({
     const addDetail = async () => {
       try {
         const data = {
-          startsite_id: form.value.startsite_id,
-          endsite_id: form.value.endsite_id,
+          startsite_id: form.value.start_site_id,
+          endsite_id: form.value.end_site_id,
           vehicle_id: form.value.vehicle_id,
           goods_id: form.value.goods_id,
-          start_date: form.value.dateRange[0],
-          end_date: form.value.dateRange[1],
+          start_date: form.value.date_range[0],
+          end_date: form.value.date_range[1],
         };
         await addTransportDetail(data);
         alert('运输明细录入成功');
         form.value = {
-          startsite_id: 0,
-          endsite_id: 0,
+          start_site_id: 0,
+          end_site_id: 0,
           vehicle_id: 0,
           goods_id: 0,
-          dateRange: ['', ''],
+          date_range: ['', ''],
         };
         fetchDetails(); // 刷新列表
       } catch (error) {
@@ -210,13 +280,14 @@ export default defineComponent({
       }
     };
 
-    const editDetail = (detail: { id: number, startsite_id: number, endsite_id: number, vehicle_id: number, goods_id: number, start_date: string, end_date: string }) => {
-      form.value = {
-        startsite_id: detail.startsite_id,
-        endsite_id: detail.endsite_id,
-        vehicle_id: detail.vehicle_id,
-        goods_id: detail.goods_id,
-        dateRange: [detail.start_date, detail.end_date],
+    const editDetail = (detail: { id: number, start_site: { id: number }, end_site: { id: number }, vehicle: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
+      editingDetail.value = {
+        start_site_id: detail.start_site.id,
+        end_site_id: detail.end_site.id,
+        vehicle_id: detail.vehicle.id,
+        goods_id: detail.goods.id,
+        start_date: detail.start_date,
+        end_date: detail.end_date,
       };
       editingId.value = detail.id;
     };
@@ -225,21 +296,22 @@ export default defineComponent({
       try {
         const data = {
           item_id: itemId,
-          startsite_id: form.value.startsite_id,
-          endsite_id: form.value.endsite_id,
-          vehicle_id: form.value.vehicle_id,
-          goods_id: form.value.goods_id,
-          start_date: form.value.dateRange[0],
-          end_date: form.value.dateRange[1],
+          startsite_id: editingDetail.value.start_site_id,
+          endsite_id: editingDetail.value.end_site_id,
+          vehicle_id: editingDetail.value.vehicle_id,
+          goods_id: editingDetail.value.goods_id,
+          start_date: editingDetail.value.start_date,
+          end_date: editingDetail.value.end_date,
         };
         await updateTransportDetail(data);
         alert('运输明细更新成功');
-        form.value = {
-          startsite_id: 0,
-          endsite_id: 0,
+        editingDetail.value = {
+          start_site_id: 0,
+          end_site_id: 0,
           vehicle_id: 0,
           goods_id: 0,
-          dateRange: ['', ''],
+          start_date: '',
+          end_date: '',
         };
         fetchDetails(); // 刷新列表
         editingId.value = null;
@@ -249,12 +321,13 @@ export default defineComponent({
     };
 
     const cancelEdit = () => {
-      form.value = {
-        startsite_id: 0,
-        endsite_id: 0,
+      editingDetail.value = {
+        start_site_id: 0,
+        end_site_id: 0,
         vehicle_id: 0,
         goods_id: 0,
-        dateRange: ['', ''],
+        start_date: '',
+        end_date: '',
       };
       editingId.value = null;
     };
@@ -263,17 +336,17 @@ export default defineComponent({
       const response = await getTransportDetails(totalDetails.value * perPage.value, 1);
       const allDetails = response.data.items;
       const dataToExport = allDetails.map((detail: {
-        startsite_name: string,
-        endsite_name: string,
-        vehicle_license: string,
-        goods_name: string,
+        start_site: { name: string },
+        end_site: { name: string },
+        vehicle: { license: string },
+        goods: { name: string },
         start_date: string,
         end_date: string,
       }) => ({
-        '运输起点': detail.startsite_name,
-        '运输终点': detail.endsite_name,
-        '运输车队': detail.vehicle_license,
-        '运输品类': detail.goods_name,
+        '运输起点': detail.start_site.name,
+        '运输终点': detail.end_site.name,
+        '运输车队': detail.vehicle.driver,
+        '运输品类': detail.goods.name,
         '开始日期': detail.start_date,
         '结束日期': detail.end_date,
       }));
@@ -285,64 +358,24 @@ export default defineComponent({
       saveAs(blob, 'transport_details.xlsx');
     };
 
-    const handleStartPointChange = (value: string) => {
-      console.log('Selected start point:', value);
+    const handleStartSitePageChange = (page: number) => {
+      startSiteCurrentPage.value = page;
+      fetchStartSites();
     };
 
-    const handleStartPointPageChange = (page: number) => {
-      startPointCurrentPage.value = page;
-      fetchStartPoints();
+    const handleEndSitePageChange = (page: number) => {
+      endSiteCurrentPage.value = page;
+      fetchEndSites();
     };
 
-    const handleStartPointVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchStartPoints();
-      }
-    };
-
-    const handleEndPointChange = (value: string) => {
-      console.log('Selected end point:', value);
-    };
-
-    const handleEndPointPageChange = (page: number) => {
-      endPointCurrentPage.value = page;
-      fetchEndPoints();
-    };
-
-    const handleEndPointVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchEndPoints();
-      }
-    };
-
-    const handleFleetChange = (value: string) => {
-      console.log('Selected fleet:', value);
-    };
-
-    const handleFleetPageChange = (page: number) => {
-      fleetCurrentPage.value = page;
+    const handleVehiclePageChange = (page: number) => {
+      vehicleCurrentPage.value = page;
       fetchFleets();
     };
 
-    const handleFleetVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchFleets();
-      }
-    };
-
-    const handleCategoryChange = (value: string) => {
-      console.log('Selected category:', value);
-    };
-
-    const handleCategoryPageChange = (page: number) => {
-      categoryCurrentPage.value = page;
-      fetchCategories();
-    };
-
-    const handleCategoryVisibleChange = (visible: boolean) => {
-      if (visible) {
-        fetchCategories();
-      }
+    const handleGoodsPageChange = (page: number) => {
+      goodsCurrentPage.value = page;
+      fetchGoods();
     };
 
     const handleDetailPageChange = (page: number) => {
@@ -351,31 +384,32 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      fetchStartPoints();
-      fetchEndPoints();
+      fetchStartSites();
+      fetchEndSites();
       fetchFleets();
-      fetchCategories();
+      fetchGoods();
       fetchDetails();
     });
 
     return {
-      startPoints,
-      endPoints,
-      fleets,
-      categories,
+      start_sites,
+      end_sites,
+      vehicles,
+      goods,
       details,
       form,
+      editingDetail,
       editingId,
-      startPointCurrentPage,
-      endPointCurrentPage,
-      fleetCurrentPage,
-      categoryCurrentPage,
+      startSiteCurrentPage,
+      endSiteCurrentPage,
+      vehicleCurrentPage,
+      goodsCurrentPage,
       detailCurrentPage,
       perPage,
-      totalStartPoints,
-      totalEndPoints,
-      totalFleets,
-      totalCategories,
+      totalStartSites,
+      totalEndSites,
+      totalVehicles,
+      totalGoods,
       totalDetails,
       exportToExcel,
       addDetail,
@@ -383,18 +417,10 @@ export default defineComponent({
       editDetail,
       saveDetail,
       cancelEdit,
-      handleStartPointChange,
-      handleStartPointPageChange,
-      handleStartPointVisibleChange,
-      handleEndPointChange,
-      handleEndPointPageChange,
-      handleEndPointVisibleChange,
-      handleFleetChange,
-      handleFleetPageChange,
-      handleFleetVisibleChange,
-      handleCategoryChange,
-      handleCategoryPageChange,
-      handleCategoryVisibleChange,
+      handleStartSitePageChange,
+      handleEndSitePageChange,
+      handleVehiclePageChange,
+      handleGoodsPageChange,
       handleDetailPageChange,
     };
   },
