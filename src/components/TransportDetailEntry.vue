@@ -78,10 +78,10 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import {
-  getTransportStartPoints,
-  getTransportEndPoints,
-  getTransportCategories,
-  getTransportFleets,
+  getStartSites,
+  getEndSites,
+  getCategories,
+  getFleets,
   addTransportDetail,
   deleteTransportDetail,
   getTransportDetails,
@@ -127,7 +127,7 @@ export default defineComponent({
 
     const fetchStartPoints = async () => {
       try {
-        const response = await getTransportStartPoints(perPage.value, startPointCurrentPage.value);
+        const response = await getStartSites(perPage.value, startPointCurrentPage.value);
         startPoints.value = response.data.start_sites;
         totalStartPoints.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -137,7 +137,7 @@ export default defineComponent({
 
     const fetchEndPoints = async () => {
       try {
-        const response = await getTransportEndPoints(perPage.value, endPointCurrentPage.value);
+        const response = await getEndSites(perPage.value, endPointCurrentPage.value);
         endPoints.value = response.data.end_sites;
         totalEndPoints.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -147,7 +147,7 @@ export default defineComponent({
 
     const fetchFleets = async () => {
       try {
-        const response = await getTransportFleets(perPage.value, fleetCurrentPage.value);
+        const response = await getFleets(perPage.value, fleetCurrentPage.value);
         fleets.value = response.data.vehicle;
         totalFleets.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -157,7 +157,7 @@ export default defineComponent({
 
     const fetchCategories = async () => {
       try {
-        const response = await getTransportCategories(perPage.value, categoryCurrentPage.value);
+        const response = await getCategories(perPage.value, categoryCurrentPage.value);
         categories.value = response.data.goods;
         totalCategories.value = response.data.total_pages * perPage.value;
       } catch (error) {
