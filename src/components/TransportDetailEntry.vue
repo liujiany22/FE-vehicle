@@ -47,10 +47,10 @@
     <el-card>
       <h2>已录入的运输明细</h2>
       <el-table :data="details" style="width: 100%">
-        <el-table-column prop="startsite_name" label="运输起点"></el-table-column>
-        <el-table-column prop="endsite_name" label="运输终点"></el-table-column>
-        <el-table-column prop="vehicle_license" label="运输车队"></el-table-column>
-        <el-table-column prop="goods_name" label="运输品类"></el-table-column>
+        <el-table-column prop="startsite.name" label="运输起点"></el-table-column>
+        <el-table-column prop="endsite.name" label="运输终点"></el-table-column>
+        <el-table-column prop="vehicle.license" label="运输车队"></el-table-column>
+        <el-table-column prop="goods.name" label="运输品类"></el-table-column>
         <el-table-column prop="start_date" label="开始日期"></el-table-column>
         <el-table-column prop="end_date" label="结束日期"></el-table-column>
         <el-table-column label="操作">
@@ -96,10 +96,10 @@ export default defineComponent({
     const categories = ref<{ id: number, name: string }[]>([]);
     const details = ref<{
       id: number,
-      startsite_name: string,
-      endsite_name: string,
-      vehicle_license: string,
-      goods_name: string,
+      startsite: { name: string },
+      endsite_name: { name: string },
+      vehicle_license: { license: string },
+      goods_name: { name: string },
       start_date: string,
       end_date: string
     }[]>([]);
