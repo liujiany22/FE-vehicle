@@ -19,7 +19,7 @@ import Fleet from '@/components/Fleet.vue';
 import SiteOwner from '@/components/SiteOwner.vue';
 import PaymentMethod from '@/components/PaymentMethod.vue';
 import TransportDetailEntry from '@/components/TransportDetailEntry.vue';
-// import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
+import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
 
 
 
