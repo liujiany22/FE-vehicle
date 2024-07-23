@@ -127,7 +127,7 @@ export const searchTransportDetails = (params: {
     per_page: number;
     page: number;
 }) => {
-    return apiClient.get('/item/search4item', { params });
+    return apiClient.get(`/item/search4item/${perPage}/${page}`, { params });
 };
 
 export const updateTransportPrices = (data: {
