@@ -3,18 +3,16 @@
     <el-card>
       <h2>工地老板名参数</h2>
       <el-form @submit.prevent="addParameter">
-        <el-form-item label="工地老板名">
-          <el-input v-model="newParameter.ownerName" placeholder="请输入工地老板名"></el-input>
-        </el-form-item>
         <el-form-item label="工地名称">
-          <el-select v-model="form.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange"
-            @visible-change="handleSiteVisibleChange">
+          <el-select v-model="newParameter.site_id" placeholder="请选择运输工地名称" @change="handleSiteChange" @visible-change="handleSiteVisibleChange">
             <el-option v-for="item in sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
             <div class="pagination-container">
-              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
+              <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
             </div>
           </el-select>
+        </el-form-item>
+        <el-form-item label="工地老板名">
+          <el-input v-model="newParameter.ownerName" placeholder="请输入工地老板名"></el-input>
         </el-form-item>
         <el-form-item label="联系电话">
           <el-input v-model="newParameter.phone" placeholder="请输入联系电话"></el-input>
@@ -25,11 +23,36 @@
       </el-form>
       <el-table :data="parameters" style="width: 100%">
         <el-table-column prop="name" label="工地名称"></el-table-column>
-        <el-table-column prop="owner" label="工地老板名"></el-table-column>
-        <el-table-column prop="phone" label="联系电话"></el-table-column>
+        <el-table-column prop="ownerName" label="工地老板名">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.ownerName" />
+            </div>
+            <div v-else>
+              {{ scope.row.ownerName }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="phone" label="联系电话">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingParameter.phone" />
+            </div>
+            <div v-else>
+              {{ scope.row.phone }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template v-slot:default="scope">
-            <el-button type="danger" @click="removeParameter(scope.$index, scope.row.id)">删除</el-button>
+            <div v-if="editingId === scope.row.id">
+              <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
+              <el-button @click="cancelEdit">取消</el-button>
+            </div>
+            <div v-else>
+              <el-button @click="editParameter(scope.row)">修改</el-button>
+              <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -46,21 +69,23 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { addSiteOwner, delSiteOwner, getSiteOwners, getSites } from '@/services/transportService';
+import { addSiteOwner, delSiteOwner, getSites, updateOwner } from '@/services/transportService';
 
 export default defineComponent({
   name: 'SiteOwner',
   setup() {
-    const parameters = ref<{ id: number, name: string, owner: string, phone: string }[]>([]);
-    const newParameter = ref({ siteName: '', ownerName: '', phone: '' });
+    const parameters = ref<{ id: number, name: string, ownerName: string, phone: string }[]>([]);
+    const newParameter = ref({ site_id: 0, ownerName: '', phone: '' });
+    const editingParameter = ref({ site_id: 0, ownerName: '', phone: '' });
+    const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(20);
     const totalPages = ref(0);
 
     const fetchParameters = async () => {
       try {
-        const response = await getSiteOwners(perPage.value, currentPage.value);
-        parameters.value = response.data.site2owner;
+        const response = await getSites(perPage.value, currentPage.value);
+        parameters.value = response.data.sites;
         totalPages.value = response.data.total_pages;
       } catch (error) {
         console.error('Failed to fetch parameters', error);
@@ -68,24 +93,44 @@ export default defineComponent({
     };
 
     const addParameter = async () => {
-      if (newParameter.value.siteName.trim() && newParameter.value.ownerName.trim() && newParameter.value.phone.trim()) {
+      if (newParameter.value.site_id && newParameter.value.ownerName.trim() && newParameter.value.phone.trim()) {
         try {
-          const response = await addSiteOwner(newParameter.value);
+          await addSiteOwner(newParameter.value);
           fetchParameters();
-          newParameter.value = { siteName: '', ownerName: '', phone: '' };
+          newParameter.value = { site_id: 0, ownerName: '', phone: '' };
         } catch (error) {
           console.error('Failed to add parameter', error);
         }
       }
     };
 
-    const removeParameter = async (index: number, id: number) => {
+    const removeParameter = async (id: number) => {
       try {
         await delSiteOwner(id);
         fetchParameters();
       } catch (error) {
         console.error('Failed to delete parameter', error);
       }
+    };
+
+    const editParameter = (parameter: { id: number, ownerName: string, phone: string }) => {
+      editingId.value = parameter.id;
+      editingParameter.value = { ...parameter };
+    };
+
+    const saveParameter = async (id: number) => {
+      try {
+        await updateOwner({ site_id: id, ...editingParameter.value });
+        fetchParameters();
+        cancelEdit();
+      } catch (error) {
+        console.error('Failed to update parameter', error);
+      }
+    };
+
+    const cancelEdit = () => {
+      editingId.value = null;
+      editingParameter.value = { site_id: 0, ownerName: '', phone: '' };
     };
 
     const handlePageChange = (page: number) => {
@@ -107,8 +152,8 @@ export default defineComponent({
       }
     };
 
-    const handleSiteChange = (value: string) => {
-      console.log('Selected site:', value);
+    const handleSiteChange = (value: number) => {
+      newParameter.value.site_id = value;
     };
 
     const handleSiteVisibleChange = (visible: boolean) => {
@@ -130,6 +175,8 @@ export default defineComponent({
     return {
       parameters,
       newParameter,
+      editingParameter,
+      editingId,
       currentPage,
       perPage,
       totalPages,
@@ -138,6 +185,9 @@ export default defineComponent({
       totalSites,
       addParameter,
       removeParameter,
+      editParameter,
+      saveParameter,
+      cancelEdit,
       handlePageChange,
       handleSiteChange,
       handleSiteVisibleChange,
