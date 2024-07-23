@@ -7,10 +7,10 @@
         </el-sub-menu>
         <el-sub-menu index="2">
             <template v-slot:title>运输参数设置</template>
-            <el-menu-item index="TransportStartPoint">运输起点参数</el-menu-item>
-            <el-menu-item index="TransportEndPoint">运输终点参数</el-menu-item>
-            <el-menu-item index="TransportCategory">运输品类参数</el-menu-item>
-            <el-menu-item index="TransportFleet">运输车队参数</el-menu-item>
+            <el-menu-item index="StartSite">运输起点参数</el-menu-item>
+            <el-menu-item index="EndSite">运输终点参数</el-menu-item>
+            <el-menu-item index="Category">运输品类参数</el-menu-item>
+            <el-menu-item index="Fleet">运输车队参数</el-menu-item>
             <el-menu-item index="SiteOwner">工地老板名参数</el-menu-item>
             <el-menu-item index="PaymentMethod">付款方式参数</el-menu-item>
         </el-sub-menu>
