@@ -76,8 +76,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage"
-        :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalDetails" />
       <el-button type="primary" @click="updatePrices">保存所有修改</el-button>
     </el-card>
   </div>

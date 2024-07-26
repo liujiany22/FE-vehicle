@@ -116,17 +116,27 @@ export const updateTransportDetail = (data: {
     return apiClient.post('/item/change_item', data);
 };
 
-export const searchTransportDetails = (params: {
-    startsite_id?: number;
-    endsite_id?: number;
-    vehicle_id?: number;
-    goods_id?: number;
-    start_date?: string;
-    end_date?: string;
-    unit?: string;
-}, perPage: number, page: number) => {
-    return apiClient.get(`/item/search4item/${perPage}/${page}`, { params });
-};
+export const searchTransportDetails = (
+    params: {
+      startsite_id: number;
+      endsite_id: number;
+      goods_id: number;
+      start_date: string | null;
+      end_date: string | null;
+    },
+    perPage: number,
+    page: number
+  ) => {
+    const queryParams = new URLSearchParams();
+  
+    if (params.startsite_id !== undefined) queryParams.append('startsite_id', params.startsite_id.toString());
+    if (params.endsite_id !== undefined) queryParams.append('endsite_id', params.endsite_id.toString());
+    if (params.goods_id !== undefined) queryParams.append('goods_id', params.goods_id.toString());
+    if (params.start_date !== null) queryParams.append('start_date', params.start_date);
+    if (params.end_date !== null) queryParams.append('end_date', params.end_date);
+  
+    return apiClient.get(`/item/search4item/${perPage}/${page}?${queryParams.toString()}`);
+  };
 
 export const updateTransportPrices = (data: {
     item_id: number;
