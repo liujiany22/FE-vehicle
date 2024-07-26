@@ -45,53 +45,49 @@
         <el-table-column prop="goods.name" label="运输品类"></el-table-column>
         <el-table-column prop="start_date" label="开始日期"></el-table-column>
         <el-table-column prop="end_date" label="结束日期"></el-table-column>
-        <el-table-column prop="unit" label="计量单位">
-          <template v-slot:default="scope">
-            <el-input v-model="scope.row.unit" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column prop="contractorPrice" label="工地承接单价">
-          <template v-slot:default="scope">
-            <el-input v-model.number="scope.row.contractorPrice" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column prop="startSubsidy" label="起点补贴金额">
-          <template v-slot:default="scope">
-            <el-input v-model.number="scope.row.startSubsidy" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column prop="endSubsidy" label="终点补贴金额">
-          <template v-slot:default="scope">
-            <el-input v-model.number="scope.row.endSubsidy" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column prop="endPayment" label="终点付费金额">
-          <template v-slot:default="scope">
-            <el-input v-model.number="scope.row.endPayment" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column prop="driverPrice" label="给司机单价">
-          <template v-slot:default="scope">
-            <el-input v-model.number="scope.row.driverPrice" placeholder="请输入"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
-              <el-button @click="cancelEdit">取消</el-button>
-            </div>
-            <div v-else>
-              <el-button @click="editDetail(scope.row)">修改</el-button>
-              <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
-            </div>
-          </template>
-        </el-table-column>
+        <el-table-column prop="unit" label="计量单位"></el-table-column>
+        <el-table-column prop="contractorPrice" label="工地承接单价"></el-table-column>
+        <el-table-column prop="startSubsidy" label="起点补贴金额"></el-table-column>
+        <el-table-column prop="endSubsidy" label="终点补贴金额"></el-table-column>
+        <el-table-column prop="endPayment" label="终点付费金额"></el-table-column>
+        <el-table-column prop="driverPrice" label="给司机单价"></el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
-      <el-button type="primary" @click="updatePrices">保存所有修改</el-button>
+      <el-button type="primary" @click="toggleEditMode" :disabled="!selectedDetails.length">
+        {{ isEditing ? '保存' : '修改' }}
+      </el-button>
     </el-card>
+
+    <div v-if="isEditing" class="edit-form">
+      <el-card>
+        <h2>修改选中的运输单价</h2>
+        <el-form @submit.prevent="saveDetail">
+          <el-form-item label="计量单位">
+            <el-input v-model="editForm.unit" placeholder="请输入计量单位"></el-input>
+          </el-form-item>
+          <el-form-item label="工地承接单价">
+            <el-input v-model.number="editForm.contractorPrice" placeholder="请输入工地承接单价"></el-input>
+          </el-form-item>
+          <el-form-item label="起点补贴金额">
+            <el-input v-model.number="editForm.startSubsidy" placeholder="请输入起点补贴金额"></el-input>
+          </el-form-item>
+          <el-form-item label="终点补贴金额">
+            <el-input v-model.number="editForm.endSubsidy" placeholder="请输入终点补贴金额"></el-input>
+          </el-form-item>
+          <el-form-item label="终点付费金额">
+            <el-input v-model.number="editForm.endPayment" placeholder="请输入终点付费金额"></el-input>
+          </el-form-item>
+          <el-form-item label="给司机单价">
+            <el-input v-model.number="editForm.driverPrice" placeholder="请输入给司机单价"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="saveDetail">保存</el-button>
+            <el-button @click="cancelEdit">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -104,9 +100,6 @@ import {
   getCategories,
   updateTransportPrices,
   searchTransportDetails,
-  addTransportDetail,
-  delTransportDetail,
-  updateTransportDetail,
 } from '@/services/transportService';
 
 export default defineComponent({
@@ -123,6 +116,14 @@ export default defineComponent({
       dateRange: [],
     });
     const selectedDetails = ref<any[]>([]);
+    const editForm = ref({
+      unit: '',
+      contractorPrice: 0,
+      startSubsidy: 0,
+      endSubsidy: 0,
+      endPayment: 0,
+      driverPrice: 0,
+    });
 
     const startSiteCurrentPage = ref(1);
     const endSiteCurrentPage = ref(1);
@@ -134,15 +135,7 @@ export default defineComponent({
     const totalGoods = ref(0);
     const totalDetails = ref(0);
 
-    const editingDetail = ref({
-      start_site_id: 0,
-      end_site_id: 0,
-      goods_id: 0,
-      start_date: '',
-      end_date: '',
-    });
-
-    const editingId = ref<number | null>(null);
+    const isEditing = ref(false);
 
     const fetchStartSites = async () => {
       try {
@@ -196,80 +189,39 @@ export default defineComponent({
       selectedDetails.value = selection;
     };
 
-    const editDetail = (detail: { id: number, start_site: { id: number }, end_site: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
-      editingDetail.value = {
-        start_site_id: detail.start_site.id,
-        end_site_id: detail.end_site.id,
-        goods_id: detail.goods.id,
-        start_date: detail.start_date,
-        end_date: detail.end_date,
-      };
-      editingId.value = detail.id;
+    const toggleEditMode = () => {
+      if (isEditing.value) {
+        saveDetail();
+      } else {
+        isEditing.value = true;
+      }
     };
 
-    const saveDetail = async (itemId: number) => {
+    const saveDetail = async () => {
       try {
-        const data = {
-          item_id: itemId,
-          startsite_id: editingDetail.value.start_site_id,
-          endsite_id: editingDetail.value.end_site_id,
-          goods_id: editingDetail.value.goods_id,
-          start_date: editingDetail.value.start_date,
-          end_date: editingDetail.value.end_date,
-        };
-        await updateTransportDetail(data);
-        alert('运输明细更新成功');
-        editingDetail.value = {
-          start_site_id: 0,
-          end_site_id: 0,
-          goods_id: 0,
-          start_date: '',
-          end_date: '',
-        };
+        const data = selectedDetails.value.map(detail => ({
+          item_id: detail.id,
+          ...editForm.value,
+        }));
+        await updateTransportPrices(data);
+        alert('价格更新成功');
         fetchFilteredDetails(); // 刷新列表
-        editingId.value = null;
+        isEditing.value = false;
       } catch (error) {
-        console.error('Failed to update transport detail', error);
+        console.error('Failed to update prices', error);
       }
     };
 
     const cancelEdit = () => {
-      editingDetail.value = {
-        start_site_id: 0,
-        end_site_id: 0,
-        goods_id: 0,
-        start_date: '',
-        end_date: '',
+      isEditing.value = false;
+      editForm.value = {
+        unit: '',
+        contractorPrice: 0,
+        startSubsidy: 0,
+        endSubsidy: 0,
+        endPayment: 0,
+        driverPrice: 0,
       };
-      editingId.value = null;
-    };
-
-    const removeDetail = async (itemId: number) => {
-      try {
-        await delTransportDetail(itemId);
-        alert('运输明细删除成功');
-        fetchFilteredDetails(); // 刷新列表
-      } catch (error) {
-        console.error('Failed to delete transport detail', error);
-      }
-    };
-
-    const updatePrices = async () => {
-      try {
-        const data = selectedDetails.value.map(detail => ({
-          item_id: detail.id,
-          contractorPrice: detail.contractorPrice,
-          startSubsidy: detail.startSubsidy,
-          endSubsidy: detail.endSubsidy,
-          endPayment: detail.endPayment,
-          driverPrice: detail.driverPrice,
-          unit: detail.unit,
-        }));
-        await updateTransportPrices(data);
-        alert('价格更新成功');
-      } catch (error) {
-        console.error('Failed to update prices', error);
-      }
     };
 
     const handleStartSitePageChange = (page: number) => {
@@ -306,6 +258,7 @@ export default defineComponent({
       details,
       filters,
       selectedDetails,
+      editForm,
       startSiteCurrentPage,
       endSiteCurrentPage,
       goodsCurrentPage,
@@ -315,14 +268,12 @@ export default defineComponent({
       totalEndSites,
       totalGoods,
       totalDetails,
-      editingId,
+      isEditing,
       fetchFilteredDetails,
       handleSelectionChange,
-      editDetail,
+      toggleEditMode,
       saveDetail,
       cancelEdit,
-      removeDetail,
-      updatePrices,
       handleStartSitePageChange,
       handleEndSitePageChange,
       handleGoodsPageChange,
@@ -351,5 +302,9 @@ export default defineComponent({
 .pagination-container {
   padding: 10px;
   text-align: center;
+}
+
+.edit-form {
+  margin-top: 20px;
 }
 </style>
