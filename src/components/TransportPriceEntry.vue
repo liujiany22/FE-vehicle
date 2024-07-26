@@ -54,8 +54,8 @@
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
-      <el-button type="primary" @click="toggleEditMode" :disabled="!selectedDetails.length">
-        {{ isEditing ? '保存' : '修改' }}
+      <el-button v-if="!isEditing" type="primary" @click="toggleEditMode" :disabled="!selectedDetails.length">
+        修改
       </el-button>
     </el-card>
 
