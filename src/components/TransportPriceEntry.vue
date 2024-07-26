@@ -315,6 +315,7 @@ export default defineComponent({
       totalEndSites,
       totalGoods,
       totalDetails,
+      editingId,
       fetchFilteredDetails,
       handleSelectionChange,
       editDetail,
