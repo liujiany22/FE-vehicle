@@ -75,6 +75,18 @@
             <el-input v-model.number="scope.row.driverPrice" placeholder="请输入"></el-input>
           </template>
         </el-table-column>
+        <el-table-column label="操作">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
+              <el-button @click="cancelEdit">取消</el-button>
+            </div>
+            <div v-else>
+              <el-button @click="editDetail(scope.row)">修改</el-button>
+              <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
@@ -92,6 +104,9 @@ import {
   getCategories,
   updateTransportPrices,
   searchTransportDetails,
+  addTransportDetail,
+  delTransportDetail,
+  updateTransportDetail,
 } from '@/services/transportService';
 
 export default defineComponent({
@@ -118,6 +133,16 @@ export default defineComponent({
     const totalEndSites = ref(0);
     const totalGoods = ref(0);
     const totalDetails = ref(0);
+
+    const editingDetail = ref({
+      start_site_id: 0,
+      end_site_id: 0,
+      goods_id: 0,
+      start_date: '',
+      end_date: '',
+    });
+
+    const editingId = ref<number | null>(null);
 
     const fetchStartSites = async () => {
       try {
@@ -169,6 +194,64 @@ export default defineComponent({
 
     const handleSelectionChange = (selection: any[]) => {
       selectedDetails.value = selection;
+    };
+
+    const editDetail = (detail: { id: number, start_site: { id: number }, end_site: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
+      editingDetail.value = {
+        start_site_id: detail.start_site.id,
+        end_site_id: detail.end_site.id,
+        goods_id: detail.goods.id,
+        start_date: detail.start_date,
+        end_date: detail.end_date,
+      };
+      editingId.value = detail.id;
+    };
+
+    const saveDetail = async (itemId: number) => {
+      try {
+        const data = {
+          item_id: itemId,
+          startsite_id: editingDetail.value.start_site_id,
+          endsite_id: editingDetail.value.end_site_id,
+          goods_id: editingDetail.value.goods_id,
+          start_date: editingDetail.value.start_date,
+          end_date: editingDetail.value.end_date,
+        };
+        await updateTransportDetail(data);
+        alert('运输明细更新成功');
+        editingDetail.value = {
+          start_site_id: 0,
+          end_site_id: 0,
+          goods_id: 0,
+          start_date: '',
+          end_date: '',
+        };
+        fetchFilteredDetails(); // 刷新列表
+        editingId.value = null;
+      } catch (error) {
+        console.error('Failed to update transport detail', error);
+      }
+    };
+
+    const cancelEdit = () => {
+      editingDetail.value = {
+        start_site_id: 0,
+        end_site_id: 0,
+        goods_id: 0,
+        start_date: '',
+        end_date: '',
+      };
+      editingId.value = null;
+    };
+
+    const removeDetail = async (itemId: number) => {
+      try {
+        await delTransportDetail(itemId);
+        alert('运输明细删除成功');
+        fetchFilteredDetails(); // 刷新列表
+      } catch (error) {
+        console.error('Failed to delete transport detail', error);
+      }
     };
 
     const updatePrices = async () => {
@@ -234,6 +317,10 @@ export default defineComponent({
       totalDetails,
       fetchFilteredDetails,
       handleSelectionChange,
+      editDetail,
+      saveDetail,
+      cancelEdit,
+      removeDetail,
       updatePrices,
       handleStartSitePageChange,
       handleEndSitePageChange,
