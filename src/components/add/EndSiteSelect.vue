@@ -1,4 +1,5 @@
 <template>
+    <div>
     <el-form-item label="运输终点">
       <el-select v-model="modelValue" placeholder="请选择运输终点" @visible-change="fetchEndSites">
         <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -7,6 +8,7 @@
         </div>
       </el-select>
     </el-form-item>
+</div>
   </template>
   
   <script lang="ts">
