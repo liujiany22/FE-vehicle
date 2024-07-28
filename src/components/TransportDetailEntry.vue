@@ -8,7 +8,9 @@
         <EndSiteSelect v-model="form.end_site_id" />
         <FleetSelect v-model="form.vehicle_id" />
         <GoodsSelect v-model="form.goods_id" />
-        <DateRangePicker v-model="form.date_range" />
+        <el-form-item label="时间范围">
+          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
         </el-form-item>
@@ -109,7 +111,6 @@ import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetSelect from '@/components/select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
-import DateRangePicker from './select/DateRangePicker.vue';
 import SiteEntry from './buttons/SiteEntry.vue';
 import {
   getTransportDetails,
@@ -126,7 +127,6 @@ export default defineComponent({
     EndSiteSelect,
     FleetSelect,
     GoodsSelect,
-    DateRangePicker,
     SiteEntry,
   },
   setup() {
