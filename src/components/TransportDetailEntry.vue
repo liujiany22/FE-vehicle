@@ -361,7 +361,7 @@ export default defineComponent({
       const header2 = ['对账起始日期', form.value.date_range[0], '对账截止日期', form.value.date_range[1]];
       const header3 = ['序号', '运输起点名', '运输品类名', '数量', '单位', '工地承接单价', '起点工地补贴金额', '终点工地补贴金额'];
 
-      const dataToExport = allDetails.map((detail, index) => ({
+      const dataToExport = allDetails.map((detail: { start_spot: any; goods: { name: any; }; }, index: number) => ({
         '序号': index + 1,
         '运输起点名': detail.start_spot,
         '运输品类名': detail.goods.name,
@@ -378,7 +378,7 @@ export default defineComponent({
       const worksheet = XLSX.utils.aoa_to_sheet([header1, header2, header3]);
       XLSX.utils.sheet_add_json(worksheet, dataToExport, { skipHeader: true, origin: 'A4' });
       XLSX.utils.sheet_add_aoa(worksheet, [footer1], { origin: `A${4 + dataToExport.length + 1}` });
-      XLSX.utils.sheet_add_aoa(worksheet, [footer2], { origin: `A${4 + dataToExport.length + 2}` });
+      XLSX.utils.sheet_add_aoa(worksheet, [footer2], { origin: `A${4 + dataToExport.length + 3}` });
 
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'TransportDetails');
