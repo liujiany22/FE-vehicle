@@ -21,6 +21,7 @@ import PaymentMethod from '@/components/PaymentMethod.vue';
 import TransportDetailEntry from '@/components/TransportDetailEntry.vue';
 import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
 import SiteEntryM from '@/components/reports/SiteEntryM.vue';
+import Advance from '@/components/finance/Advance.vue';
 
 
 
@@ -38,6 +39,7 @@ export default defineComponent({
     TransportDetailEntry,
     TransportPriceEntry,
     SiteEntryM,
+    Advance,
   },
   setup() {
     const currentModule = ref('Module1Feature1');
