@@ -3,17 +3,12 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
-        <div><StartSiteSelect v-model="form.start_site_id" /></div>
-        <el-form-item label="运输起点描述">
-          <el-input v-model="form.start_spot" placeholder="请输入运输起点描述"></el-input>
-        </el-form-item>
-        <div><EndSiteSelect v-model="form.end_site_id" /></div>
-        <div><FleetSelect v-model="form.vehicle_id" /></div>
-        <div><GoodsSelect v-model="form.goods_id" /></div>
-        <el-form-item label="日期范围">
-          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期"
-            end-placeholder="结束日期"></el-date-picker>
-        </el-form-item>
+        <StartSiteSelect v-model="form.start_site_id" />
+        <StartSpotInput v-model="form.start_spot" />
+        <EndSiteSelect v-model="form.end_site_id" />
+        <FleetSelect v-model="form.vehicle_id" />
+        <GoodsSelect v-model="form.goods_id" />
+        <DateRangePicker v-model="form.date_range" />
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
         </el-form-item>
@@ -36,7 +31,7 @@
         <el-table-column prop="start_spot" label="运输起点描述">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <el-input v-model="editingDetail.start_spot" placeholder="请输入运输起点描述"></el-input>
+              <StartSpotInput v-model="editingDetail.start_spot" />
             </div>
             <div v-else>
               {{ scope.row.start_spot }}
@@ -106,18 +101,19 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
-        layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import StartSiteSelect from '@/components/add/StartSiteSelect.vue';
-import EndSiteSelect from '@/components/add/EndSiteSelect.vue';
-import FleetSelect from '@/components/add/FleetSelect.vue';
-import GoodsSelect from '@/components/add/GoodsSelect.vue';
+import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
+import StartSpotInput from '@/components/input/StartSpotInput.vue';
+import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
+import FleetSelect from '@/components/select/FleetSelect.vue';
+import GoodsSelect from '@/components/select/GoodsSelect.vue';
+import DateRangePicker from '@/components/select/DateRangePicker.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -129,9 +125,11 @@ export default defineComponent({
   name: 'TransportDetailEntry',
   components: {
     StartSiteSelect,
+    StartSpotInput,
     EndSiteSelect,
     FleetSelect,
     GoodsSelect,
+    DateRangePicker
   },
   setup() {
     const details = ref<{
