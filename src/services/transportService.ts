@@ -6,8 +6,8 @@ export const addStartSite = (data: { name: string, manager: string, phone: strin
 export const delStartSite = (site_id: number) => {
     return apiClient.delete(`/parameter/del_start_site/${site_id}`);
 };
-export const getStartSites = (per_page: number, page: number) => {
-    return apiClient.get(`/parameter/start_site_list/${per_page}/${page}`);
+export const getStartSites = (per_page: number, page: number, ownerName?: string) => {
+    return apiClient.get(`/parameter/start_site_list/${per_page}/${page}?${ownerName}`);
 };
 export const updateStartSite = (data: { site_id: number, name?: string, manager?: string, phone?: string }) => {
     return apiClient.post('/parameter/change_site', data);
@@ -19,8 +19,8 @@ export const addEndSite = (data: { name: string, manager: string, phone: string 
 export const delEndSite = (site_id: number) => {
     return apiClient.delete(`/parameter/del_end_site/${site_id}`);
 };
-export const getEndSites = (per_page: number, page: number) => {
-    return apiClient.get(`/parameter/end_site_list/${per_page}/${page}`);
+export const getEndSites = (per_page: number, page: number, ownerName?: string) => {
+    return apiClient.get(`/parameter/end_site_list/${per_page}/${page}?${ownerName}`);
 };
 export const updateEndSite = (data: { site_id: number, name?: string, manager?: string, phone?: string }) => {
     return apiClient.post('/parameter/change_site', data);
@@ -115,7 +115,12 @@ export const updateTransportDetail = (data: {
 }) => {
     return apiClient.post('/item/change_item', data);
 };
-
+export const getOwners = (perPage: number, page: number) => {
+    return apiClient.get(`/parameter/owner_list/${perPage}/${page}`)
+};
+export const owner2site = (ownerName: string, perPage: number, page: number) => {
+    return apiClient.get(`/parameter/owner2site/${perPage}/${page}?${ownerName}`)
+};
 export const searchTransportDetails = (
     params: {
       startsite_id: number;
