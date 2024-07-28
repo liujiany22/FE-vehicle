@@ -101,7 +101,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalDetails" />
     </el-card>
   </div>
 </template>

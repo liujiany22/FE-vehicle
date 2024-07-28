@@ -11,7 +11,7 @@
     name: 'DateRangePicker',
     props: {
       modelValue: {
-        type: Array as () => [string, string],
+        type: Array as unknown as () => [string, string],
         required: true
       }
     },
