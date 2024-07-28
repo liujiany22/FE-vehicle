@@ -89,17 +89,6 @@
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
     </el-card>
-
-    <!-- Add the SiteEntry component here -->
-    <el-card>
-      <h2>导出工地月对账单</h2>
-      <SiteEntry
-        :itemIds="details.map(detail => detail.id)"
-        :startsiteId="form.start_site_id"
-        :startDate="form.date_range[0]"
-        :endDate="form.date_range[1]"
-      />
-    </el-card>
   </div>
 </template>
 
@@ -111,7 +100,6 @@ import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetSelect from '@/components/select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
-import SiteEntry from './buttons/SiteEntry.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -127,7 +115,6 @@ export default defineComponent({
     EndSiteSelect,
     FleetSelect,
     GoodsSelect,
-    SiteEntry,
   },
   setup() {
     const details = ref<{
