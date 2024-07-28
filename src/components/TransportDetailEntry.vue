@@ -109,8 +109,8 @@ import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetSelect from '@/components/select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
-import DateRangePicker from '@/components/select/DateRangePicker.vue';
-import SiteEntry from '@/components/buttons/SiteEntry.vue';
+import DateRangePicker from './select/DateRangePicker.vue';
+import SiteEntry from './buttons/SiteEntry.vue';
 import {
   getTransportDetails,
   addTransportDetail,
