@@ -117,6 +117,15 @@ export const updateTransportDetail = (data: {
 }) => {
     return apiClient.post('/item/change_item', data);
 };
+export const getSiteEntry = (data : {
+    item_ids: number[], 
+    startsite_id: number, 
+    start_date: string, 
+    end_date: string 
+}) => {
+    return apiClient.post('/item/item2excel', data, { responseType: 'blob' });
+}
+
 export const getOwners = (perPage: number, page: number) => {
     return apiClient.get(`/parameter/owner_list/${perPage}/${page}`)
 };
@@ -154,7 +163,7 @@ export const updateTransportPrices = (data: {
     driverPrice?: number;
     unit? : string;
 }[]) => {
-    return apiClient.post('/item/item_price', data);
+    return apiClient.post('/item/item_price', { items: data });
 };
 
 

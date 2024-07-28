@@ -3,54 +3,13 @@
     <el-card>
       <h2>运输单价录入</h2>
       <el-form @submit.prevent="fetchFilteredDetails">
-        <el-form-item label="起点老板">
-          <el-select v-model="filters.startOwner" placeholder="请选择起点老板" @visible-change="fetchStartOwners">
-            <el-option v-for="owner in startOwners" :key="owner" :label="owner" :value="owner"></el-option>
-            <div class="pagination-container">
-              <el-pagination @current-change="handleStartOwnerPageChange" :current-page="startOwnerCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalStartOwners" />
-            </div>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="起点工地">
-          <el-select v-model="filters.startsite_id" placeholder="请选择起点工地" @visible-change="fetchStartSites">
-            <el-option v-for="item in startSites" :key="item.id" :label="item.name" :value="item.id"></el-option>
-            <div class="pagination-container">
-              <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
-            </div>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="终点老板">
-          <el-select v-model="filters.endOwner" placeholder="请选择终点老板" @visible-change="fetchEndOwners">
-            <el-option v-for="owner in endOwners" :key="owner" :label="owner" :value="owner"></el-option>
-            <div class="pagination-container">
-              <el-pagination @current-change="handleEndOwnerPageChange" :current-page="endOwnerCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalEndOwners" />
-            </div>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="终点工地">
-          <el-select v-model="filters.endsite_id" placeholder="请选择终点工地" @visible-change="fetchEndSites">
-            <el-option v-for="item in endSites" :key="item.id" :label="item.name" :value="item.id"></el-option>
-            <div class="pagination-container">
-              <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalEndSites" />
-            </div>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="运输品类">
-          <el-select v-model="filters.goods_id" placeholder="请选择运输品类" @visible-change="fetchGoods">
-            <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
-            <div class="pagination-container">
-              <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage"
-                :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
-            </div>
-          </el-select>
-        </el-form-item>
+        <OwnerSelect v-model="filters.startOwner" label="起点老板" />
+        <SiteSelect v-model="filters.startsite_id" label="起点工地" :owner="filters.startOwner" siteType="start" />
+        <OwnerSelect v-model="filters.endOwner" label="终点老板" />
+        <SiteSelect v-model="filters.endsite_id" label="终点工地" :owner="filters.endOwner" siteType="end" />
+        <GoodsSelect v-model="filters.goods_id" />
         <el-form-item label="时间范围">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期"
-            end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
@@ -111,24 +70,23 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
+import OwnerSelect from '@/components/select/OwnerSelect.vue';
+import SiteSelect from '@/components/select/SiteSelect.vue';
+import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import {
   getTransportDetails,
-  getStartSites,
-  getEndSites,
-  getCategories,
-  updateTransportPrices,
   searchTransportDetails,
-  getOwners,
+  updateTransportPrices
 } from '@/services/transportService';
 
 export default defineComponent({
   name: 'TransportPriceEntry',
+  components: {
+    OwnerSelect,
+    SiteSelect,
+    GoodsSelect
+  },
   setup() {
-    const startOwners = ref<string[]>([]);
-    const endOwners = ref<string[]>([]);
-    const startSites = ref<{ id: number, name: string }[]>([]);
-    const endSites = ref<{ id: number, name: string }[]>([]);
-    const goods = ref<{ id: number, name: string }[]>([]);
     const details = ref<any[]>([]);
     const filters = ref({
       startOwner: '',
@@ -148,79 +106,11 @@ export default defineComponent({
       driverPrice: 0,
     });
 
-    const startOwnerCurrentPage = ref(1);
-    const endOwnerCurrentPage = ref(1);
-    const startSiteCurrentPage = ref(1);
-    const endSiteCurrentPage = ref(1);
-    const goodsCurrentPage = ref(1);
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
-    const totalStartOwners = ref(0);
-    const totalEndOwners = ref(0);
-    const totalStartSites = ref(0);
-    const totalEndSites = ref(0);
-    const totalGoods = ref(0);
     const totalDetails = ref(0);
 
     const isEditing = ref(false);
-
-    const fetchStartOwners = async () => {
-      try {
-        const response = await getOwners(perPage.value, startOwnerCurrentPage.value);
-        startOwners.value = response.data.owner_list;
-        totalStartOwners.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        console.error('Failed to fetch start owners', error);
-      }
-    };
-
-    const fetchEndOwners = async () => {
-      try {
-        const response = await getOwners(perPage.value, endOwnerCurrentPage.value);
-        endOwners.value = response.data.owner_list;
-        totalEndOwners.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        console.error('Failed to fetch end owners', error);
-      }
-    };
-
-    const fetchStartSites = async () => {
-      try {
-        const response = await getStartSites(
-          perPage.value,
-          startSiteCurrentPage.value,
-          filters.value.startOwner
-        );
-        startSites.value = response.data.start_sites;
-        totalStartSites.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        console.error('Failed to fetch start sites', error);
-      }
-    };
-
-    const fetchEndSites = async () => {
-      try {
-        const response = await getEndSites(
-          perPage.value,
-          endSiteCurrentPage.value,
-          filters.value.endOwner
-        );
-        endSites.value = response.data.end_sites;
-        totalEndSites.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        console.error('Failed to fetch end sites', error);
-      }
-    };
-
-    const fetchGoods = async () => {
-      try {
-        const response = await getCategories(perPage.value, goodsCurrentPage.value);
-        goods.value = response.data.goods;
-        totalGoods.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        console.error('Failed to fetch goods', error);
-      }
-    };
 
     const fetchFilteredDetails = async () => {
       try {
@@ -279,67 +169,22 @@ export default defineComponent({
       };
     };
 
-    const handleStartOwnerPageChange = (page: number) => {
-      startOwnerCurrentPage.value = page;
-      fetchStartOwners();
-    };
-
-    const handleEndOwnerPageChange = (page: number) => {
-      endOwnerCurrentPage.value = page;
-      fetchEndOwners();
-    };
-
-    const handleStartSitePageChange = (page: number) => {
-      startSiteCurrentPage.value = page;
-      fetchStartSites();
-    };
-
-    const handleEndSitePageChange = (page: number) => {
-      endSiteCurrentPage.value = page;
-      fetchEndSites();
-    };
-
-    const handleGoodsPageChange = (page: number) => {
-      goodsCurrentPage.value = page;
-      fetchGoods();
-    };
-
     const handleDetailPageChange = (page: number) => {
       detailCurrentPage.value = page;
       fetchFilteredDetails();
     };
 
     onMounted(() => {
-      fetchStartOwners();
-      fetchEndOwners();
-      fetchStartSites();
-      fetchEndSites();
-      fetchGoods();
       fetchFilteredDetails();
     });
 
     return {
-      startOwners,
-      endOwners,
-      startSites,
-      endSites,
-      goods,
       details,
       filters,
       selectedDetails,
       editForm,
-      startOwnerCurrentPage,
-      endOwnerCurrentPage,
-      startSiteCurrentPage,
-      endSiteCurrentPage,
-      goodsCurrentPage,
       detailCurrentPage,
       perPage,
-      totalStartOwners,
-      totalEndOwners,
-      totalStartSites,
-      totalEndSites,
-      totalGoods,
       totalDetails,
       isEditing,
       fetchFilteredDetails,
@@ -347,17 +192,7 @@ export default defineComponent({
       toggleEditMode,
       saveDetail,
       cancelEdit,
-      handleStartOwnerPageChange,
-      handleEndOwnerPageChange,
-      handleStartSitePageChange,
-      handleEndSitePageChange,
-      handleGoodsPageChange,
       handleDetailPageChange,
-      fetchStartOwners,
-      fetchEndOwners,
-      fetchStartSites,
-      fetchEndSites,
-      fetchGoods,
     };
   },
 });

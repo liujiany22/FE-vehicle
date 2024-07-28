@@ -18,103 +18,99 @@
     <el-card>
       <h2>已录入的运输明细</h2>
       <el-table :data="details" style="width: 100%">
-        <el-table-column prop="start_site.name" label="运输起点">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <StartSiteSelect v-model="editingDetail.start_site_id" />
-            </div>
-            <div v-else>
-              {{ scope.row.start_site.name }}
-            </div>
-          </template>
+        <el-table-column prop="start_site.name" label="运输起点" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <StartSiteSelect v-model="editingDetail.start_site_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.start_site?.name || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="start_spot" label="运输起点描述">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <StartSpotInput v-model="editingDetail.start_spot" />
-            </div>
-            <div v-else>
-              {{ scope.row.start_spot }}
-            </div>
-          </template>
+        <el-table-column prop="start_spot" label="运输起点描述" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <StartSpotInput v-model="editingDetail.start_spot" />
+          </div>
+          <div v-else>
+            {{ scope.row.start_spot || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="end_site.name" label="运输终点">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <EndSiteSelect v-model="editingDetail.end_site_id" />
-            </div>
-            <div v-else>
-              {{ scope.row.end_site.name }}
-            </div>
-          </template>
+        <el-table-column prop="end_site.name" label="运输终点" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <EndSiteSelect v-model="editingDetail.end_site_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.end_site?.name || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="vehicle.driver" label="运输车队">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <FleetSelect v-model="editingDetail.vehicle_id" />
-            </div>
-            <div v-else>
-              {{ scope.row.vehicle.driver }}
-            </div>
-          </template>
+        <el-table-column prop="vehicle.driver" label="运输车队" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <FleetSelect v-model="editingDetail.vehicle_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.vehicle?.driver || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="goods.name" label="运输品类">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <GoodsSelect v-model="editingDetail.goods_id" />
-            </div>
-            <div v-else>
-              {{ scope.row.goods.name }}
-            </div>
-          </template>
+        <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <GoodsSelect v-model="editingDetail.goods_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.goods?.name || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="start_date" label="开始日期">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <el-date-picker v-model="editingDetail.start_date" type="date" placeholder="选择开始日期"></el-date-picker>
-            </div>
-            <div v-else>
-              {{ scope.row.start_date }}
-            </div>
-          </template>
+        <el-table-column prop="start_date" label="开始日期" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-date-picker v-model="editingDetail.start_date" type="date" placeholder="选择开始日期"></el-date-picker>
+          </div>
+          <div v-else>
+            {{ formatDate(scope.row.start_date) || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column prop="end_date" label="结束日期">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <el-date-picker v-model="editingDetail.end_date" type="date" placeholder="选择结束日期"></el-date-picker>
-            </div>
-            <div v-else>
-              {{ scope.row.end_date }}
-            </div>
-          </template>
+        <el-table-column prop="end_date" label="结束日期" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-date-picker v-model="editingDetail.end_date" type="date" placeholder="选择结束日期"></el-date-picker>
+          </div>
+          <div v-else>
+            {{ formatDate(scope.row.end_date) || '无' }}
+          </div>
         </el-table-column>
-        <el-table-column label="操作">
-          <template v-slot:default="scope">
-            <div v-if="editingId === scope.row.id">
-              <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
-              <el-button @click="cancelEdit">取消</el-button>
-            </div>
-            <div v-else>
-              <el-button @click="editDetail(scope.row)">修改</el-button>
-              <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
-            </div>
-          </template>
+        <el-table-column label="操作" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
+            <el-button @click="cancelEdit">取消</el-button>
+          </div>
+          <div v-else>
+            <el-button @click="editDetail(scope.row)">修改</el-button>
+            <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
+          </div>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
-        layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+    </el-card>
+
+    <!-- Add the SiteEntry component here -->
+    <el-card>
+      <h2>导出工地月对账单</h2>
+      <SiteEntry
+        :itemIds="details.map(detail => detail.id)"
+        :startsiteId="form.start_site_id"
+        :startDate="form.date_range[0]"
+        :endDate="form.date_range[1]"
+      />
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
+import { formatDate } from '@/utils/time';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
 import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetSelect from '@/components/select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import DateRangePicker from '@/components/select/DateRangePicker.vue';
+import SiteEntry from '@/components/buttons/SiteEntry.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -130,18 +126,19 @@ export default defineComponent({
     EndSiteSelect,
     FleetSelect,
     GoodsSelect,
-    DateRangePicker
+    DateRangePicker,
+    SiteEntry,
   },
   setup() {
     const details = ref<{
       id: number,
-      start_site: { name: string },
-      start_spot: string,
-      end_site: { name: string },
-      vehicle: { driver: string },
-      goods: { name: string },
-      start_date: string,
-      end_date: string
+      start_site: { name: string } | null,
+      start_spot: string | null,
+      end_site: { name: string } | null,
+      vehicle: { driver: string } | null,
+      goods: { name: string } | null,
+      start_date: string | null,
+      end_date: string | null
     }[]>([]);
     const form = ref({
       start_site_id: 0,
@@ -170,7 +167,13 @@ export default defineComponent({
     const fetchDetails = async () => {
       try {
         const response = await getTransportDetails(perPage.value, detailCurrentPage.value);
-        details.value = response.data.items;
+        details.value = response.data.items.map((item: { start_site: any; end_site: any; vehicle: any; goods: any; }) => ({
+          ...item,
+          start_site: item.start_site || { name: '' },
+          end_site: item.end_site || { name: '' },
+          vehicle: item.vehicle || { driver: '' },
+          goods: item.goods || { name: '' },
+        }));
         totalDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch details', error);
@@ -190,14 +193,7 @@ export default defineComponent({
         };
         await addTransportDetail(data);
         alert('运输明细录入成功');
-        form.value = {
-          start_site_id: 0,
-          start_spot: '',
-          end_site_id: 0,
-          vehicle_id: 0,
-          goods_id: 0,
-          date_range: ['', ''],
-        };
+        resetForm();
         fetchDetails(); // 刷新列表
       } catch (error) {
         console.error('Failed to add transport detail', error);
@@ -214,15 +210,15 @@ export default defineComponent({
       }
     };
 
-    const editDetail = (detail: { id: number, start_site: { id: number }, start_spot: string, end_site: { id: number }, vehicle: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
+    const editDetail = (detail: any) => {
       editingDetail.value = {
-        start_site_id: detail.start_site.id,
-        start_spot: detail.start_spot,
-        end_site_id: detail.end_site.id,
-        vehicle_id: detail.vehicle.id,
-        goods_id: detail.goods.id,
-        start_date: detail.start_date,
-        end_date: detail.end_date,
+        start_site_id: detail.start_site?.id || 0,
+        start_spot: detail.start_spot || '',
+        end_site_id: detail.end_site?.id || 0,
+        vehicle_id: detail.vehicle?.id || 0,
+        goods_id: detail.goods?.id || 0,
+        start_date: detail.start_date || '',
+        end_date: detail.end_date || '',
       };
       editingId.value = detail.id;
     };
@@ -241,23 +237,34 @@ export default defineComponent({
         };
         await updateTransportDetail(data);
         alert('运输明细更新成功');
-        editingDetail.value = {
-          start_site_id: 0,
-          start_spot: '',
-          end_site_id: 0,
-          vehicle_id: 0,
-          goods_id: 0,
-          start_date: '',
-          end_date: '',
-        };
+        resetEditingDetail();
         fetchDetails(); // 刷新列表
-        editingId.value = null;
       } catch (error) {
         console.error('Failed to update transport detail', error);
       }
     };
 
     const cancelEdit = () => {
+      resetEditingDetail();
+    };
+
+    const handleDetailPageChange = (page: number) => {
+      detailCurrentPage.value = page;
+      fetchDetails();
+    };
+
+    const resetForm = () => {
+      form.value = {
+        start_site_id: 0,
+        start_spot: '',
+        end_site_id: 0,
+        vehicle_id: 0,
+        goods_id: 0,
+        date_range: ['', ''],
+      };
+    };
+
+    const resetEditingDetail = () => {
       editingDetail.value = {
         start_site_id: 0,
         start_spot: '',
@@ -270,10 +277,7 @@ export default defineComponent({
       editingId.value = null;
     };
 
-    const handleDetailPageChange = (page: number) => {
-      detailCurrentPage.value = page;
-      fetchDetails();
-    };
+    const isEditing = (id: number) => editingId.value === id;
 
     onMounted(() => {
       fetchDetails();
@@ -293,6 +297,8 @@ export default defineComponent({
       saveDetail,
       cancelEdit,
       handleDetailPageChange,
+      isEditing,
+      formatDate,
     };
   },
 });

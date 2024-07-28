@@ -12,10 +12,14 @@
   },
   "dependencies": {
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "element-plus": "^2.7.6",
     "file-saver": "^2.0.5",
+    "handsontable": "^14.4.0",
+    "luckysheet": "^2.1.13",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
+    "vue-good-table": "^2.21.11",
     "vue-router": "^4.3.3",
     "xlsx": "^0.18.5"
   },
