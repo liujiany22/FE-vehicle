@@ -167,7 +167,7 @@ export default defineComponent({
     const fetchStartOwners = async () => {
       try {
         const response = await getOwners(perPage.value, startOwnerCurrentPage.value);
-        startOwners.value = response.data.owners;
+        startOwners.value = response.data.owner_list;
         totalStartOwners.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch start owners', error);
@@ -177,7 +177,7 @@ export default defineComponent({
     const fetchEndOwners = async () => {
       try {
         const response = await getOwners(perPage.value, endOwnerCurrentPage.value);
-        endOwners.value = response.data.owners;
+        endOwners.value = response.data.owner_list;
         totalEndOwners.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch end owners', error);
