@@ -1,65 +1,60 @@
+<!-- src/add/SelectInput.vue -->
 <template>
     <el-form-item :label="label">
       <el-select v-model="modelValue" :placeholder="placeholder" @visible-change="fetchOptions">
         <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id"></el-option>
         <div class="pagination-container">
-          <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize" layout="prev, pager, next" :total="totalOptions" />
+          <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize" layout="prev, pager, next" :total="total" />
         </div>
       </el-select>
     </el-form-item>
   </template>
   
   <script lang="ts">
-  import { defineComponent, ref, watch } from 'vue';
+  import { defineComponent, type PropType } from 'vue';
   
   export default defineComponent({
-    name: 'SelectInputField',
+    name: 'SelectInput',
     props: {
       modelValue: {
         type: [String, Number],
-        required: true,
+        required: true
       },
       label: {
         type: String,
-        required: true,
+        required: true
       },
       placeholder: {
         type: String,
-        required: true,
+        required: false,
+        default: ''
+      },
+      options: {
+        type: Array as PropType<{ id: number; name: string }[]>,
+        required: true
       },
       fetchOptions: {
-        type: Function,
-        required: true,
+        type: Function as PropType<() => void>,
+        required: true
       },
+      currentPage: {
+        type: Number,
+        required: true
+      },
+      pageSize: {
+        type: Number,
+        required: true
+      },
+      total: {
+        type: Number,
+        required: true
+      },
+      handlePageChange: {
+        type: Function as PropType<(page: number) => void>,
+        required: true
+      }
     },
-    emits: ['update:modelValue'],
-    setup(props, { emit }) {
-      const options = ref<{ id: number, name: string }[]>([]);
-      const currentPage = ref(1);
-      const pageSize = ref(10);
-      const totalOptions = ref(0);
-  
-      const loadOptions = async () => {
-        const response = await props.fetchOptions(pageSize.value, currentPage.value);
-        options.value = response.data.items;
-        totalOptions.value = response.data.total_pages * pageSize.value;
-      };
-  
-      const handlePageChange = (page: number) => {
-        currentPage.value = page;
-        loadOptions();
-      };
-  
-      watch(currentPage, loadOptions, { immediate: true });
-  
-      return {
-        options,
-        currentPage,
-        pageSize,
-        totalOptions,
-        handlePageChange,
-      };
-    },
+    emits: ['update:modelValue']
   });
   </script>
   

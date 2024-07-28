@@ -3,34 +3,54 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
-        <SelectInputField
+        <SelectInput
           v-model="form.start_site_id"
           label="运输起点"
           placeholder="请选择运输起点"
+          :options="start_sites"
           :fetchOptions="fetchStartSites"
+          :currentPage="startSiteCurrentPage"
+          :pageSize="perPage"
+          :total="totalStartSites"
+          :handlePageChange="handleStartSitePageChange"
         />
-        <InputField
+        <Input
           v-model="form.start_spot"
           label="运输起点描述"
           placeholder="请输入运输起点描述"
         />
-        <SelectInputField
+        <SelectInput
           v-model="form.end_site_id"
           label="运输终点"
           placeholder="请选择运输终点"
+          :options="end_sites"
           :fetchOptions="fetchEndSites"
+          :currentPage="endSiteCurrentPage"
+          :pageSize="perPage"
+          :total="totalEndSites"
+          :handlePageChange="handleEndSitePageChange"
         />
-        <SelectInputField
+        <SelectInput
           v-model="form.vehicle_id"
           label="运输车队"
           placeholder="请选择运输车队"
+          :options="vehicles"
           :fetchOptions="fetchFleets"
+          :currentPage="vehicleCurrentPage"
+          :pageSize="perPage"
+          :total="totalVehicles"
+          :handlePageChange="handleVehiclePageChange"
         />
-        <SelectInputField
+        <SelectInput
           v-model="form.goods_id"
           label="运输品类"
           placeholder="请选择运输品类"
+          :options="goods"
           :fetchOptions="fetchGoods"
+          :currentPage="goodsCurrentPage"
+          :pageSize="perPage"
+          :total="totalGoods"
+          :handlePageChange="handleGoodsPageChange"
         />
         <el-form-item label="日期范围">
           <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
@@ -47,12 +67,9 @@
         <el-table-column prop="start_site.name" label="运输起点">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <SelectInputField
-                v-model="editingDetail.start_site_id"
-                label="运输起点"
-                placeholder="请选择运输起点"
-                :fetchOptions="fetchStartSites"
-              />
+              <el-select v-model="editingDetail.start_site_id" placeholder="请选择运输起点" @visible-change="fetchStartSites">
+                <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
             </div>
             <div v-else>
               {{ scope.row.start_site.name }}
@@ -62,11 +79,7 @@
         <el-table-column prop="start_spot" label="运输起点描述">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <InputField
-                v-model="editingDetail.start_spot"
-                label="运输起点描述"
-                placeholder="请输入运输起点描述"
-              />
+              <el-input v-model="editingDetail.start_spot" placeholder="请输入运输起点描述"></el-input>
             </div>
             <div v-else>
               {{ scope.row.start_spot }}
@@ -76,12 +89,9 @@
         <el-table-column prop="end_site.name" label="运输终点">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <SelectInputField
-                v-model="editingDetail.end_site_id"
-                label="运输终点"
-                placeholder="请选择运输终点"
-                :fetchOptions="fetchEndSites"
-              />
+              <el-select v-model="editingDetail.end_site_id" placeholder="请选择运输终点" @visible-change="fetchEndSites">
+                <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
             </div>
             <div v-else>
               {{ scope.row.end_site.name }}
@@ -91,12 +101,9 @@
         <el-table-column prop="vehicle.driver" label="运输车队">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <SelectInputField
-                v-model="editingDetail.vehicle_id"
-                label="运输车队"
-                placeholder="请选择运输车队"
-                :fetchOptions="fetchFleets"
-              />
+              <el-select v-model="editingDetail.vehicle_id" placeholder="请选择运输车队" @visible-change="fetchFleets">
+                <el-option v-for="item in vehicles" :key="item.id" :label="item.driver" :value="item.id"></el-option>
+              </el-select>
             </div>
             <div v-else>
               {{ scope.row.vehicle.driver }}
@@ -106,12 +113,9 @@
         <el-table-column prop="goods.name" label="运输品类">
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <SelectInputField
-                v-model="editingDetail.goods_id"
-                label="运输品类"
-                placeholder="请选择运输品类"
-                :fetchOptions="fetchGoods"
-              />
+              <el-select v-model="editingDetail.goods_id" placeholder="请选择运输品类" @visible-change="fetchGoods">
+                <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
             </div>
             <div v-else>
               {{ scope.row.goods.name }}
@@ -152,14 +156,14 @@
         </el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+      <site-entry :date-range="form.date_range" :total-details="totalDetails" :per-page="perPage" />
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import SelectInputField from './add/SelectInput.vue';
-import InputField from './add/Input.vue';
+import SiteEntry from './buttons/SiteEntry.vue';
 import {
   getStartSites,
   getEndSites,
@@ -173,10 +177,6 @@ import {
 
 export default defineComponent({
   name: 'TransportDetailEntry',
-  components: {
-    SelectInputField,
-    InputField,
-  },
   setup() {
     const start_sites = ref<{ id: number, name: string }[]>([]);
     const end_sites = ref<{ id: number, name: string }[]>([]);
@@ -367,6 +367,7 @@ export default defineComponent({
       editingId.value = null;
     };
 
+    
     const handleStartSitePageChange = (page: number) => {
       startSiteCurrentPage.value = page;
       fetchStartSites();
