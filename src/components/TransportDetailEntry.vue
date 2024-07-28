@@ -3,13 +3,13 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
-        <StartSiteSelect v-model="form.start_site_id" />
+        <div><StartSiteSelect v-model="form.start_site_id" /></div>
         <el-form-item label="运输起点描述">
           <el-input v-model="form.start_spot" placeholder="请输入运输起点描述"></el-input>
         </el-form-item>
-        <EndSiteSelect v-model="form.end_site_id" />
-        <FleetSelect v-model="form.vehicle_id" />
-        <GoodsSelect v-model="form.goods_id" />
+        <div><EndSiteSelect v-model="form.end_site_id" /></div>
+        <div><FleetSelect v-model="form.vehicle_id" /></div>
+        <div><GoodsSelect v-model="form.goods_id" /></div>
         <el-form-item label="日期范围">
           <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期"
             end-placeholder="结束日期"></el-date-picker>
