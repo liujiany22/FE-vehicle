@@ -1,0 +1,67 @@
+<template>
+    <el-form-item label="运输起点">
+        <el-select v-model="modelValue" placeholder="请选择运输起点" @visible-change="fetchStartSites">
+            <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            <div class="pagination-container">
+                <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
+                    :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
+            </div>
+        </el-select>
+    </el-form-item>
+</template>
+
+<script lang="ts">
+import { defineComponent, ref, watch } from 'vue';
+import { getStartSites } from '@/services/transportService';
+
+export default defineComponent({
+    name: 'StartSiteSelect',
+    props: {
+        modelValue: {
+            type: Number,
+            required: true
+        }
+    },
+    setup(props, { emit }) {
+        const start_sites = ref<{ id: number, name: string }[]>([]);
+        const startSiteCurrentPage = ref(1);
+        const perPage = ref(10);
+        const totalStartSites = ref(0);
+
+        const fetchStartSites = async () => {
+            try {
+                const response = await getStartSites(perPage.value, startSiteCurrentPage.value);
+                start_sites.value = response.data.start_sites;
+                totalStartSites.value = response.data.total_pages * perPage.value;
+            } catch (error) {
+                console.error('Failed to fetch start sites', error);
+            }
+        };
+
+        const handleStartSitePageChange = (page: number) => {
+            startSiteCurrentPage.value = page;
+            fetchStartSites();
+        };
+
+        watch(() => props.modelValue, (newValue) => {
+            emit('update:modelValue', newValue);
+        });
+
+        return {
+            start_sites,
+            startSiteCurrentPage,
+            perPage,
+            totalStartSites,
+            fetchStartSites,
+            handleStartSitePageChange
+        };
+    },
+});
+</script>
+
+<style scoped>
+.pagination-container {
+    padding: 10px;
+    text-align: center;
+}
+</style>

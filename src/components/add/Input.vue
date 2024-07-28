@@ -1,12 +1,12 @@
 <!-- src/add/Input.vue -->
 <template>
     <el-form-item :label="label">
-      <el-input v-model="modelValue" :placeholder="placeholder"></el-input>
+      <el-input v-model="inputValue" :placeholder="placeholder" @input="updateValue"></el-input>
     </el-form-item>
   </template>
   
   <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, ref, toRefs } from 'vue';
   
   export default defineComponent({
     name: 'Input',
@@ -25,7 +25,21 @@
         default: ''
       }
     },
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+      const { modelValue } = toRefs(props);
+      
+      const inputValue = ref(modelValue.value);
+      
+      const updateValue = (value: string) => {
+        emit('update:modelValue', value);
+      };
+  
+      return {
+        inputValue,
+        updateValue,
+      };
+    }
   });
   </script>
   

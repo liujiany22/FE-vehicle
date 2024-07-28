@@ -1,7 +1,7 @@
 <!-- src/add/SelectInput.vue -->
 <template>
     <el-form-item :label="label">
-      <el-select v-model="modelValue" :placeholder="placeholder" @visible-change="fetchOptions">
+      <el-select v-model="selectValue" :placeholder="placeholder" @visible-change="fetchOptions">
         <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id"></el-option>
         <div class="pagination-container">
           <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize" layout="prev, pager, next" :total="total" />
@@ -11,7 +11,7 @@
   </template>
   
   <script lang="ts">
-  import { defineComponent, type PropType } from 'vue';
+  import { defineComponent, toRefs, ref, watch, type PropType } from 'vue';
   
   export default defineComponent({
     name: 'SelectInput',
@@ -54,7 +54,31 @@
         required: true
       }
     },
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+      const { modelValue, currentPage, pageSize, total, options } = toRefs(props);
+  
+      const selectValue = ref(modelValue.value);
+      
+      watch(modelValue, (newValue) => {
+        selectValue.value = newValue;
+      });
+  
+      const updateValue = (value: number | string) => {
+        emit('update:modelValue', value);
+      };
+  
+      return {
+        selectValue,
+        updateValue,
+        currentPage,
+        pageSize,
+        total,
+        options,
+        fetchOptions: props.fetchOptions,
+        handlePageChange: props.handlePageChange,
+      };
+    }
   });
   </script>
   
