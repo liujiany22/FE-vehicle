@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { formatDate } from '@/utils/time';
+import { formatDate } from '../utils/time';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
 import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
