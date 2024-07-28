@@ -127,6 +127,12 @@ import {
 
 export default defineComponent({
   name: 'TransportDetailEntry',
+  components: {
+    StartSiteSelect,
+    EndSiteSelect,
+    FleetSelect,
+    GoodsSelect,
+  },
   setup() {
     const details = ref<{
       id: number,
