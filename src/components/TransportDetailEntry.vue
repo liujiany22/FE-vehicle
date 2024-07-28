@@ -11,6 +11,9 @@
             </div>
           </el-select>
         </el-form-item>
+        <el-form-item label="运输起点描述">
+          <el-input v-model="form.start_spot" placeholder="请输入运输起点描述"></el-input>
+        </el-form-item>
         <el-form-item label="运输终点">
           <el-select v-model="form.end_site_id" placeholder="请选择运输终点" @visible-change="fetchEndSites">
             <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -56,6 +59,16 @@
             </div>
             <div v-else>
               {{ scope.row.start_site.name }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="start_spot" label="运输起点描述">
+          <template v-slot:default="scope">
+            <div v-if="editingId === scope.row.id">
+              <el-input v-model="editingDetail.start_spot" placeholder="请输入运输起点描述"></el-input>
+            </div>
+            <div v-else>
+              {{ scope.row.start_spot }}
             </div>
           </template>
         </el-table-column>
@@ -159,6 +172,7 @@ export default defineComponent({
     const details = ref<{
       id: number,
       start_site: { name: string },
+      start_spot: string,
       end_site: { name: string },
       vehicle: { driver: string },
       goods: { name: string },
@@ -167,6 +181,7 @@ export default defineComponent({
     }[]>([]);
     const form = ref({
       start_site_id: 0,
+      start_spot: '',
       end_site_id: 0,
       vehicle_id: 0,
       goods_id: 0,
@@ -174,6 +189,7 @@ export default defineComponent({
     });
     const editingDetail = ref({
       start_site_id: 0,
+      start_spot: '',
       end_site_id: 0,
       vehicle_id: 0,
       goods_id: 0,
@@ -249,6 +265,7 @@ export default defineComponent({
       try {
         const data = {
           startsite_id: form.value.start_site_id,
+          start_spot: form.value.start_spot,
           endsite_id: form.value.end_site_id,
           vehicle_id: form.value.vehicle_id,
           goods_id: form.value.goods_id,
@@ -259,6 +276,7 @@ export default defineComponent({
         alert('运输明细录入成功');
         form.value = {
           start_site_id: 0,
+          start_spot: '',
           end_site_id: 0,
           vehicle_id: 0,
           goods_id: 0,
@@ -280,9 +298,10 @@ export default defineComponent({
       }
     };
 
-    const editDetail = (detail: { id: number, start_site: { id: number }, end_site: { id: number }, vehicle: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
+    const editDetail = (detail: { id: number, start_site: { id: number }, start_spot: string, end_site: { id: number }, vehicle: { id: number }, goods: { id: number }, start_date: string, end_date: string }) => {
       editingDetail.value = {
         start_site_id: detail.start_site.id,
+        start_spot: detail.start_spot,
         end_site_id: detail.end_site.id,
         vehicle_id: detail.vehicle.id,
         goods_id: detail.goods.id,
@@ -297,6 +316,7 @@ export default defineComponent({
         const data = {
           item_id: itemId,
           startsite_id: editingDetail.value.start_site_id,
+          start_spot: editingDetail.value.start_spot,
           endsite_id: editingDetail.value.end_site_id,
           vehicle_id: editingDetail.value.vehicle_id,
           goods_id: editingDetail.value.goods_id,
@@ -307,6 +327,7 @@ export default defineComponent({
         alert('运输明细更新成功');
         editingDetail.value = {
           start_site_id: 0,
+          start_spot: '',
           end_site_id: 0,
           vehicle_id: 0,
           goods_id: 0,
@@ -323,6 +344,7 @@ export default defineComponent({
     const cancelEdit = () => {
       editingDetail.value = {
         start_site_id: 0,
+        start_spot: '',
         end_site_id: 0,
         vehicle_id: 0,
         goods_id: 0,
@@ -335,22 +357,29 @@ export default defineComponent({
     const exportToExcel = async () => {
       const response = await getTransportDetails(totalDetails.value * perPage.value, 1);
       const allDetails = response.data.items;
-      const dataToExport = allDetails.map((detail: {
-        start_site: { name: string },
-        end_site: { name: string },
-        vehicle: { driver: string },
-        goods: { name: string },
-        start_date: string,
-        end_date: string,
-      }) => ({
-        '运输起点': detail.start_site.name,
-        '运输终点': detail.end_site.name,
-        '运输车队': detail.vehicle.driver,
-        '运输品类': detail.goods.name,
-        '开始日期': detail.start_date,
-        '结束日期': detail.end_date,
+      const header1 = ['宏图运输每月对账单'];
+      const header2 = ['对账起始日期', form.value.date_range[0], '对账截止日期', form.value.date_range[1]];
+      const header3 = ['序号', '运输起点名', '运输品类名', '数量', '单位', '工地承接单价', '起点工地补贴金额', '终点工地补贴金额'];
+
+      const dataToExport = allDetails.map((detail, index) => ({
+        '序号': index + 1,
+        '运输起点名': detail.start_spot,
+        '运输品类名': detail.goods.name,
+        '数量': '', // Assuming this information is not available in the current details
+        '单位': '', // Assuming this information is not available in the current details
+        '工地承接单价': '', // Assuming this information is not available in the current details
+        '起点工地补贴金额': '', // Assuming this information is not available in the current details
+        '终点工地补贴金额': '' // Assuming this information is not available in the current details
       }));
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+      const footer1 = ['工地负责人（签字确认）：', '', '运输单位负责人（签字确认）：', ''];
+      const footer2 = ['经营范围：本公司承接土石方工程、渣土、建筑垃圾运输、砂石料、柴油配送等。'];
+
+      const worksheet = XLSX.utils.aoa_to_sheet([header1, header2, header3]);
+      XLSX.utils.sheet_add_json(worksheet, dataToExport, { skipHeader: true, origin: 'A4' });
+      XLSX.utils.sheet_add_aoa(worksheet, [footer1], { origin: `A${4 + dataToExport.length + 1}` });
+      XLSX.utils.sheet_add_aoa(worksheet, [footer2], { origin: `A${4 + dataToExport.length + 2}` });
+
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'TransportDetails');
       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });

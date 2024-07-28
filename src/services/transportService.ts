@@ -89,6 +89,7 @@ export const updatePaymentMethod = (data: { pay_id: number, method?: string }) =
 export const addTransportDetail = (data: {
     startsite_id: number;
     endsite_id: number;
+    start_spot?: string;
     vehicle_id: number;
     goods_id: number;
     start_date: string;
@@ -108,6 +109,7 @@ export const updateTransportDetail = (data: {
     item_id: number;
     startsite_id?: number;
     endsite_id?: number;
+    start_spot?: string;
     vehicle_id?: number;
     goods_id?: number;
     start_date?: string;
