@@ -11,7 +11,8 @@
         <FleetSelect v-model="form.vehicle_id" />
         <GoodsSelect v-model="form.goods_id" />
         <el-form-item label="日期范围">
-          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期"
+            end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
@@ -105,17 +106,18 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalDetails" />
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import StartSiteSelect from './add/StartSiteSelect.vue';
-import EndSiteSelect from './add/EndSiteSelect.vue';
-import FleetSelect from './add/FleetSelect.vue';
-import GoodsSelect from './add/GoodsSelect.vue';
+import StartSiteSelect from '@/components/add/StartSiteSelect.vue';
+import EndSiteSelect from '@/components/add/EndSiteSelect.vue';
+import FleetSelect from '@/components/add/FleetSelect.vue';
+import GoodsSelect from '@/components/add/GoodsSelect.vue';
 import {
   getTransportDetails,
   addTransportDetail,
