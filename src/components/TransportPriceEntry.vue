@@ -5,7 +5,7 @@
       <el-form @submit.prevent="fetchFilteredDetails">
         <el-form-item label="起点老板">
           <el-select v-model="filters.startOwner" placeholder="请选择起点老板" @visible-change="fetchStartOwners">
-            <el-option v-for="owner in startOwners" :key="owner.id" :label="owner.name" :value="owner.name"></el-option>
+            <el-option v-for="owner in startOwners" :key="owner" :label="owner" :value="owner"></el-option>
             <div class="pagination-container">
               <el-pagination @current-change="handleStartOwnerPageChange" :current-page="startOwnerCurrentPage"
                 :page-size="perPage" layout="prev, pager, next" :total="totalStartOwners" />
@@ -23,7 +23,7 @@
         </el-form-item>
         <el-form-item label="终点老板">
           <el-select v-model="filters.endOwner" placeholder="请选择终点老板" @visible-change="fetchEndOwners">
-            <el-option v-for="owner in endOwners" :key="owner.id" :label="owner.name" :value="owner.name"></el-option>
+            <el-option v-for="owner in endOwners" :key="owner" :label="owner" :value="owner"></el-option>
             <div class="pagination-container">
               <el-pagination @current-change="handleEndOwnerPageChange" :current-page="endOwnerCurrentPage"
                 :page-size="perPage" layout="prev, pager, next" :total="totalEndOwners" />
@@ -124,8 +124,8 @@ import {
 export default defineComponent({
   name: 'TransportPriceEntry',
   setup() {
-    const startOwners = ref<{ id: number, name: string }[]>([]);
-    const endOwners = ref<{ id: number, name: string }[]>([]);
+    const startOwners = ref<string[]>([]);
+    const endOwners = ref<string[]>([]);
     const startSites = ref<{ id: number, name: string }[]>([]);
     const endSites = ref<{ id: number, name: string }[]>([]);
     const goods = ref<{ id: number, name: string }[]>([]);
