@@ -1,12 +1,10 @@
 <template>
-  <el-form-item label="运输车队">
     <el-select v-model="localValue" placeholder="请选择运输车队" @visible-change="fetchFleets">
-      <el-option v-for="item in vehicles" :key="item.id" :label="item.driver" :value="item.id"></el-option>
+      <el-option v-for="item in vehicles" :key="item.id" :label="item.license" :value="item.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handleVehiclePageChange" :current-page="vehicleCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalVehicles" />
       </div>
     </el-select>
-  </el-form-item>
 </template>
 
 <script lang="ts">
@@ -22,7 +20,7 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const vehicles = ref<{ id: number, driver: string }[]>([]);
+    const vehicles = ref<{ id: number, license: string }[]>([]);
     const vehicleCurrentPage = ref(1);
     const perPage = ref(10);
     const totalVehicles = ref(0);

@@ -1,7 +1,5 @@
 <template>
-    <el-form-item label="运输起点描述">
-        <el-input v-model="localValue" placeholder="请输入运输起点描述"></el-input>
-    </el-form-item>
+        <el-input v-model="localValue" placeholder="请输入运输具体起点"></el-input>
 </template>
 
 <script lang="ts">

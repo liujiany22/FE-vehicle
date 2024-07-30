@@ -3,11 +3,21 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
+        <el-form-item label="运输起点">
         <StartSiteSelect v-model="form.start_site_id" />
+        </el-form-item>
+        <el-form-item label="具体起点">
         <StartSpotInput v-model="form.start_spot" />
+        </el-form-item>
+        <el-form-item label="运输终点">
         <EndSiteSelect v-model="form.end_site_id" />
+        </el-form-item>
+        <el-form-item label="运输车队">
         <FleetSelect v-model="form.vehicle_id" />
+      </el-form-item>
+        <el-form-item label="运输品类">
         <GoodsSelect v-model="form.goods_id" />
+      </el-form-item>
         <el-form-item label="时间范围">
           <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
@@ -28,7 +38,7 @@
             {{ scope.row.start_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="start_spot" label="运输起点描述" v-slot="scope">
+        <el-table-column prop="start_spot" label="运输具体起点" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
             <StartSpotInput v-model="editingDetail.start_spot" />
           </div>
@@ -44,12 +54,12 @@
             {{ scope.row.end_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="vehicle.driver" label="运输车队" v-slot="scope">
+        <el-table-column prop="vehicle.license" label="运输车队" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
             <FleetSelect v-model="editingDetail.vehicle_id" />
           </div>
           <div v-else>
-            {{ scope.row.vehicle?.driver || '无' }}
+            {{ scope.row.vehicle?.license || '无' }}
           </div>
         </el-table-column>
         <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
@@ -122,7 +132,7 @@ export default defineComponent({
       start_site: { name: string } | null,
       start_spot: string | null,
       end_site: { name: string } | null,
-      vehicle: { driver: string } | null,
+      vehicle: { license: string } | null,
       goods: { name: string } | null,
       start_date: string | null,
       end_date: string | null
@@ -158,7 +168,7 @@ export default defineComponent({
           ...item,
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
-          vehicle: item.vehicle || { driver: '' },
+          vehicle: item.vehicle || { license: '' },
           goods: item.goods || { name: '' },
         }));
         totalDetails.value = response.data.total_pages * perPage.value;

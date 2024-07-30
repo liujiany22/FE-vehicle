@@ -7,7 +7,9 @@
         <SiteSelect v-model="filters.startsite_id" label="起点工地" :owner="filters.startOwner" siteType="start" />
         <OwnerSelect v-model="filters.endOwner" label="终点老板" />
         <SiteSelect v-model="filters.endsite_id" label="终点工地" :owner="filters.endOwner" siteType="end" />
+        <el-form-item label="运输品类">
         <GoodsSelect v-model="filters.goods_id" />
+        </el-form-item>
         <el-form-item label="时间范围">
           <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
@@ -20,9 +22,16 @@
         <el-table-column prop="start_site.name" label="起点工地"></el-table-column>
         <el-table-column prop="end_site.name" label="终点工地"></el-table-column>
         <el-table-column prop="goods.name" label="运输品类"></el-table-column>
-        <el-table-column prop="start_date" label="开始日期"></el-table-column>
-        <el-table-column prop="end_date" label="结束日期"></el-table-column>
-        <el-table-column prop="unit" label="计量单位"></el-table-column>
+        <el-table-column
+          prop="start_date"
+          label="开始日期"
+          :formatter="(row: Detail) => formatDate(row.start_date)"
+        ></el-table-column>
+        <el-table-column
+          prop="end_date"
+          label="结束日期"
+          :formatter="(row: Detail) => formatDate(row.end_date)"
+        ></el-table-column>
         <el-table-column prop="contractorPrice" label="工地承接单价"></el-table-column>
         <el-table-column prop="startSubsidy" label="起点补贴金额"></el-table-column>
         <el-table-column prop="endSubsidy" label="终点补贴金额"></el-table-column>
@@ -40,9 +49,6 @@
       <el-card>
         <h2>修改选中的运输单价</h2>
         <el-form @submit.prevent="saveDetail">
-          <el-form-item label="计量单位">
-            <el-input v-model="editForm.unit" placeholder="请输入计量单位"></el-input>
-          </el-form-item>
           <el-form-item label="工地承接单价">
             <el-input v-model.number="editForm.contractorPrice" placeholder="请输入工地承接单价"></el-input>
           </el-form-item>
@@ -73,11 +79,26 @@ import { defineComponent, ref, onMounted } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import SiteSelect from '@/components/select/SiteSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
+import { formatDate } from '../utils/time';
 import {
   getTransportDetails,
   searchTransportDetails,
   updateTransportPrices
 } from '@/services/transportService';
+
+interface Detail {
+  id: number;
+  start_site: { name: string };
+  end_site: { name: string };
+  goods: { name: string };
+  start_date: string | null;
+  end_date: string | null;
+  contractorPrice: number;
+  startSubsidy: number;
+  endSubsidy: number;
+  endPayment: number;
+  driverPrice: number;
+}
 
 export default defineComponent({
   name: 'TransportPriceEntry',
@@ -87,7 +108,7 @@ export default defineComponent({
     GoodsSelect
   },
   setup() {
-    const details = ref<any[]>([]);
+    const details = ref<Detail[]>([]);
     const filters = ref({
       startOwner: '',
       endOwner: '',
@@ -96,9 +117,8 @@ export default defineComponent({
       goods_id: 0,
       dateRange: [],
     });
-    const selectedDetails = ref<any[]>([]);
+    const selectedDetails = ref<Detail[]>([]);
     const editForm = ref({
-      unit: '',
       contractorPrice: 0,
       startSubsidy: 0,
       endSubsidy: 0,
@@ -130,7 +150,7 @@ export default defineComponent({
       }
     };
 
-    const handleSelectionChange = (selection: any[]) => {
+    const handleSelectionChange = (selection: Detail[]) => {
       selectedDetails.value = selection;
     };
 
@@ -160,7 +180,6 @@ export default defineComponent({
     const cancelEdit = () => {
       isEditing.value = false;
       editForm.value = {
-        unit: '',
         contractorPrice: 0,
         startSubsidy: 0,
         endSubsidy: 0,
@@ -193,6 +212,7 @@ export default defineComponent({
       saveDetail,
       cancelEdit,
       handleDetailPageChange,
+      formatDate,
     };
   },
 });

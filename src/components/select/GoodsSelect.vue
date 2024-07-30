@@ -1,12 +1,10 @@
 <template>
-  <el-form-item label="运输品类">
     <el-select v-model="localValue" placeholder="请选择运输品类" @visible-change="fetchGoods">
       <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
       </div>
     </el-select>
-  </el-form-item>
 </template>
 
 <script lang="ts">

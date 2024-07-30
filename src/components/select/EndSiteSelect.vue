@@ -1,12 +1,10 @@
 <template>
-  <el-form-item label="运输终点">
     <el-select v-model="localValue" placeholder="请选择运输终点" @visible-change="fetchEndSites">
       <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalEndSites" />
       </div>
     </el-select>
-  </el-form-item>
 </template>
 
 <script lang="ts">
