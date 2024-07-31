@@ -1,11 +1,16 @@
 <template>
-    <el-select v-model="localValue" placeholder="请选择运输起点" @visible-change="fetchStartSites" class="custom-select">
-      <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
-      <div class="pagination-container">
-        <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
-          :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
-      </div>
-    </el-select>
+  <el-select v-model="localValue" placeholder="请选择运输起点" @visible-change="fetchStartSites" class="custom-select">
+    <el-option
+      v-for="item in start_sites"
+      :key="item.id"
+      :label="`${item.name} (${item.manager})`"
+      :value="item.id">
+    </el-option>
+    <div class="pagination-container">
+      <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
+        :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
+    </div>
+  </el-select>
 </template>
 
 <script lang="ts">
@@ -21,7 +26,8 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const start_sites = ref<{ id: number, name: string }[]>([]);
+    // 更新类型定义以包括 manager
+    const start_sites = ref<{ id: number, name: string, manager: string }[]>([]);
     const startSiteCurrentPage = ref(1);
     const perPage = ref(10);
     const totalStartSites = ref(0);

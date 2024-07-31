@@ -1,7 +1,12 @@
 <template>
   <el-form-item :label="label">
     <el-select v-model="localValue" placeholder="请选择" @visible-change="fetchSites" class="custom-select">
-      <el-option v-for="site in sites" :key="site.id" :label="site.name" :value="site.id"></el-option>
+      <el-option
+        v-for="site in sites"
+        :key="site.id"
+        :label="`${site.name} (${site.manager})`"
+        :value="site.id">
+      </el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
           layout="prev, pager, next" :total="totalSites" />
@@ -13,6 +18,12 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
 import { getStartSites, getEndSites, getOwner2Sites } from '@/services/transportService';
+
+interface Site {
+  id: number;
+  name: string;
+  manager: string; // 添加 manager 字段
+}
 
 export default defineComponent({
   name: 'SiteSelect',
@@ -35,7 +46,7 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const sites = ref<{ id: number, name: string }[]>([]);
+    const sites = ref<Site[]>([]);
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalSites = ref(0);
@@ -44,7 +55,7 @@ export default defineComponent({
     const fetchSites = async () => {
       try {
         let responseSites;
-        
+
         if (props.siteType === 'start') {
           responseSites = await getStartSites(perPage.value, currentPage.value, props.owner || undefined);
         } else {
@@ -58,8 +69,8 @@ export default defineComponent({
           const owner2Sites = responseOwner2Sites.data.site;
 
           // Find intersection of the two sets of sites
-          const siteSet = new Set(sitesFromService.map((site: { id: number }) => site.id));
-          sites.value = owner2Sites.filter((site: { id: number }) => siteSet.has(site.id));
+          const siteSet = new Set(sitesFromService.map((site: Site) => site.id));
+          sites.value = owner2Sites.filter((site: Site) => siteSet.has(site.id));
         } else {
           sites.value = sitesFromService;
         }

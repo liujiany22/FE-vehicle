@@ -7,10 +7,10 @@
       @visible-change="fetchFleets" 
       class="custom-select">
       <el-option 
-        v-for="item in vehicles" 
-        :key="item.id" 
-        :label="item.license" 
-        :value="item.id">
+        v-for="vehicle in vehicles" 
+        :key="vehicle.id" 
+        :label="`${vehicle.license} (${vehicle.driver})`" 
+        :value="vehicle.id">
       </el-option>
       <div class="pagination-container">
         <el-pagination 
@@ -27,6 +27,12 @@
   import { defineComponent, ref, watch } from 'vue';
   import { getFleets } from '@/services/transportService';
   
+  interface Vehicle {
+    id: number;
+    license: string;
+    driver: string; // 添加 driver 字段
+  }
+  
   export default defineComponent({
     name: 'FleetsSelect',
     props: {
@@ -36,7 +42,7 @@
       }
     },
     setup(props, { emit }) {
-      const vehicles = ref<{ id: number, license: string }[]>([]);
+      const vehicles = ref<Vehicle[]>([]);
       const vehicleCurrentPage = ref(1);
       const perPage = ref(10);
       const totalVehicles = ref(0);
@@ -74,7 +80,7 @@
         handleVehiclePageChange,
         localValue
       };
-    },
+    }
   });
   </script>
   
