@@ -1,5 +1,5 @@
 <template>
-    <el-select v-model="localValue" placeholder="请选择运输起点" @visible-change="fetchStartSites">
+    <el-select v-model="localValue" placeholder="请选择运输起点" @visible-change="fetchStartSites" class="custom-select">
       <el-option v-for="item in start_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
@@ -64,6 +64,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .pagination-container {
   padding: 10px;
   text-align: center;

@@ -4,10 +4,10 @@
       <h2>工地老板名参数</h2>
       <el-form @submit.prevent="addParameter">
         <el-form-item label="工地老板名">
-          <el-input v-model="newParameter.owner" placeholder="请输入工地老板名"></el-input>
+          <el-input v-model="newParameter.owner" placeholder="请输入工地老板名" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item label="联系电话">
-          <el-input v-model="newParameter.owner_phone" placeholder="请输入联系电话"></el-input>
+          <el-input v-model="newParameter.owner_phone" placeholder="请输入联系电话" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item label="下属工地">
           <SitesSelect v-model="selectedSites" />
@@ -222,6 +222,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .site-owner {
   padding: 20px;
 }

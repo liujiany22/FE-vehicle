@@ -10,7 +10,7 @@
         <el-form-item label="运输品类">
         <GoodsSelect v-model="filters.goods_id" />
         </el-form-item>
-        <el-form-item label="时间范围">
+        <el-form-item label="时间范围" class="custom-date-picker">
           <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -219,6 +219,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .transport-price-entry {
   padding: 20px;
 }

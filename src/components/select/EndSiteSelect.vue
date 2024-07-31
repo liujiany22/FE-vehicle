@@ -1,10 +1,24 @@
 <template>
-    <el-select v-model="localValue" placeholder="请选择运输终点" @visible-change="fetchEndSites">
-      <el-option v-for="item in end_sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
-      <div class="pagination-container">
-        <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalEndSites" />
-      </div>
-    </el-select>
+  <el-select 
+    v-model="localValue" 
+    placeholder="请选择运输终点" 
+    @visible-change="fetchEndSites" 
+    class="custom-select">
+    <el-option 
+      v-for="item in end_sites" 
+      :key="item.id" 
+      :label="item.name" 
+      :value="item.id">
+    </el-option>
+    <div class="pagination-container">
+      <el-pagination 
+        @current-change="handleEndSitePageChange" 
+        :current-page="endSiteCurrentPage" 
+        :page-size="perPage" 
+        layout="prev, pager, next" 
+        :total="totalEndSites" />
+    </div>
+  </el-select>
 </template>
 
 <script lang="ts">
@@ -63,6 +77,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
+
 .pagination-container {
   padding: 10px;
   text-align: center;

@@ -1,5 +1,5 @@
 <template>
-    <el-select v-model="localValue" placeholder="请选择运输品类" @visible-change="fetchGoods">
+    <el-select v-model="localValue" placeholder="请选择运输品类" @visible-change="fetchGoods" class="custom-select">
       <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
@@ -63,6 +63,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .pagination-container {
   padding: 10px;
   text-align: center;

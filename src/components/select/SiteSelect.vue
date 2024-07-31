@@ -1,6 +1,6 @@
 <template>
   <el-form-item :label="label">
-    <el-select v-model="localValue" placeholder="请选择" @visible-change="fetchSites">
+    <el-select v-model="localValue" placeholder="请选择" @visible-change="fetchSites" class="custom-select">
       <el-option v-for="site in sites" :key="site.id" :label="site.name" :value="site.id"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
@@ -102,6 +102,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .pagination-container {
   padding: 10px;
   text-align: center;

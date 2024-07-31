@@ -4,7 +4,7 @@
             <h2>付款方式参数</h2>
             <el-form @submit.prevent="addParameter">
                 <el-form-item label="方式">
-                    <el-input v-model="newParameter.method" placeholder="请输入付款方式"></el-input>
+                    <el-input v-model="newParameter.method" placeholder="请输入付款方式" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="addParameter">添加</el-button>
@@ -133,6 +133,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .payment-method {
     padding: 20px;
 }

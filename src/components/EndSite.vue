@@ -4,13 +4,13 @@
       <h2>运输终点参数</h2>
       <el-form @submit.prevent="addParameter">
         <el-form-item label="工地名称">
-          <el-input v-model="newParameter.name" placeholder="请输入工地名称"></el-input>
+          <el-input v-model="newParameter.name" placeholder="请输入工地名称" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item label="工地负责人">
-          <el-input v-model="newParameter.manager" placeholder="请输入工地负责人"></el-input>
+          <el-input v-model="newParameter.manager" placeholder="请输入工地负责人" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item label="联系电话">
-          <el-input v-model="newParameter.phone" placeholder="请输入联系电话"></el-input>
+          <el-input v-model="newParameter.phone" placeholder="请输入联系电话" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addParameter">添加</el-button>
@@ -159,6 +159,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .end-site {
   padding: 20px;
 }

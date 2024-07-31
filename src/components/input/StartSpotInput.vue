@@ -1,5 +1,5 @@
 <template>
-        <el-input v-model="localValue" placeholder="请输入运输具体起点"></el-input>
+    <el-input v-model="localValue" placeholder="请输入运输具体起点" class="custom-input"></el-input>
 </template>
 
 <script lang="ts">
@@ -32,7 +32,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.el-form-item {
-    margin-bottom: 20px;
-}
+@import '@/assets/select.css'; /* 引入共享样式 */
 </style>

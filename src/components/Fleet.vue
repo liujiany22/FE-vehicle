@@ -4,13 +4,13 @@
             <h2>运输车队参数</h2>
             <el-form @submit.prevent="addParameter">
                 <el-form-item label="司机车牌号">
-                    <el-input v-model="newParameter.license" placeholder="请输入司机车牌号"></el-input>
+                    <el-input v-model="newParameter.license" placeholder="请输入司机车牌号" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item label="司机名字">
-                    <el-input v-model="newParameter.driver" placeholder="请输入司机名字"></el-input>
+                    <el-input v-model="newParameter.driver" placeholder="请输入司机名字" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item label="司机电话号码">
-                    <el-input v-model="newParameter.phone" placeholder="请输入司机电话号码"></el-input>
+                    <el-input v-model="newParameter.phone" placeholder="请输入司机电话号码" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="addParameter">添加</el-button>
@@ -159,6 +159,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .fleet {
     padding: 20px;
 }

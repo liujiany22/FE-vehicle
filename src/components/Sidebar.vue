@@ -18,7 +18,7 @@
             <template v-slot:title>运输明细管理</template>
             <el-menu-item index="TransportDetailEntry">运输明细录入</el-menu-item>
             <el-menu-item index="TransportPriceEntry">运输单价录入</el-menu-item>
-            <el-menu-item index="SiteEntryM">工地月对账表</el-menu-item>
+            <el-menu-item index="SiteEntryM">工地对账表</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="4">
             <template v-slot:title>财务系统管理</template>

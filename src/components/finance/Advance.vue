@@ -6,14 +6,14 @@
         <el-form-item label="运输车队">
           <FleetSelect v-model="form.vehicle_id" />
         </el-form-item>
-        <el-form-item label="金额">
-          <el-input v-model="form.amount" type="number" placeholder="请输入金额" />
+        <el-form-item label="运输金额">
+          <el-input v-model="form.amount" type="number" placeholder="请输入金额"  class="custom-input"/>
         </el-form-item>
         <el-form-item label="预付款时间">
           <el-date-picker v-model="form.advance_time" type="datetime" placeholder="选择预付款时间" />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="form.note" placeholder="请输入备注" />
+        <el-form-item label="细节备注">
+          <el-input v-model="form.note" placeholder="请输入备注"  class="custom-input"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addParameter">提交</el-button>
@@ -198,6 +198,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '@/assets/select.css'; /* 引入共享样式 */
+
 .advance-entry {
   padding: 20px;
 }

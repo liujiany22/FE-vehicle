@@ -1,5 +1,5 @@
 <template>
-      <el-select v-model="localValue" multiple placeholder="请选择运输工地名称" @visible-change="fetchSites">
+      <el-select v-model="localValue" multiple placeholder="请选择运输工地名称" @visible-change="fetchSites" class="custom-select">
         <el-option v-for="item in sites" :key="item.id" :label="item.name" :value="item.id"></el-option>
         <div class="pagination-container">
           <el-pagination @current-change="handleSitePageChange" :current-page="siteCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalSites" />
@@ -68,6 +68,8 @@
   </script>
   
   <style scoped>
+  @import '@/assets/select.css'; /* 引入共享样式 */
+
   .pagination-container {
     padding: 10px;
     text-align: center;
