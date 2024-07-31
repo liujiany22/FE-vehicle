@@ -13,7 +13,7 @@
           <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
-          <FleetSelect v-model="form.vehicle_id" />
+          <FleetsSelect v-model="form.vehicle_ids" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
@@ -130,7 +130,7 @@ import { formatDate } from '../utils/time';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
 import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
-import FleetSelect from '@/components/select/FleetSelect.vue';
+import FleetsSelect from '@/components/select/FleetsSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import {
   getTransportDetails,
@@ -145,7 +145,7 @@ export default defineComponent({
     StartSiteSelect,
     StartSpotInput,
     EndSiteSelect,
-    FleetSelect,
+    FleetsSelect,
     GoodsSelect,
   },
   setup() {
@@ -165,7 +165,7 @@ export default defineComponent({
       start_site_id: 0,
       start_spot: '',
       end_site_id: 0,
-      vehicle_id: 0,
+      vehicle_ids: [] as number[], // 修改为数组
       goods_id: 0,
       quantity: 0,
       unit: '',
@@ -207,18 +207,20 @@ export default defineComponent({
 
     const addDetail = async () => {
       try {
-        const data = {
-          startsite_id: form.value.start_site_id,
-          start_spot: form.value.start_spot,
-          endsite_id: form.value.end_site_id,
-          vehicle_id: form.value.vehicle_id,
-          goods_id: form.value.goods_id,
-          quantity: form.value.quantity,
-          unit: form.value.unit,
-          start_date: form.value.date_range[0],
-          end_date: form.value.date_range[1],
-        };
-        await addTransportDetail(data);
+        for (const vehicleId of form.value.vehicle_ids) {
+          const data = {
+            startsite_id: form.value.start_site_id,
+            start_spot: form.value.start_spot,
+            endsite_id: form.value.end_site_id,
+            vehicle_id: vehicleId,
+            goods_id: form.value.goods_id,
+            quantity: form.value.quantity,
+            unit: form.value.unit,
+            start_date: form.value.date_range[0],
+            end_date: form.value.date_range[1],
+          };
+          await addTransportDetail(data);
+        }
         alert('运输明细录入成功');
         resetForm();
         fetchDetails(); // 刷新列表
@@ -289,7 +291,7 @@ export default defineComponent({
         start_site_id: 0,
         start_spot: '',
         end_site_id: 0,
-        vehicle_id: 0,
+        vehicle_ids: [], // 重新初始化为空数组
         goods_id: 0,
         quantity: 0,
         unit: '',
