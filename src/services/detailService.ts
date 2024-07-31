@@ -1,6 +1,6 @@
 import apiClient from './api';
 
-export const addDetail = (data: {
+export const addTransportDetail = (data: {
     startsite_id: number;
     endsite_id: number;
     start_spot?: string;
@@ -14,15 +14,15 @@ export const addDetail = (data: {
     return apiClient.post('/item/transport_item', data);
 };
 
-export const delDetail = (item_id: number) => {
+export const delTransportDetail = (item_id: number) => {
     return apiClient.delete(`/item/del_item/${item_id}`);
 };
 
-export const getDetails = (perPage: number, page: number) => {
+export const getTransportDetails = (perPage: number, page: number) => {
     return apiClient.get(`/item/item_list/${perPage}/${page}`);
 };
 
-export const updateDetail = (data: {
+export const updateTransportDetail = (data: {
     item_id: number;
     startsite_id?: number;
     endsite_id?: number;

@@ -4,20 +4,26 @@
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
         <el-form-item label="运输起点">
-        <StartSiteSelect v-model="form.start_site_id" />
+          <StartSiteSelect v-model="form.start_site_id" />
         </el-form-item>
         <el-form-item label="具体起点">
-        <StartSpotInput v-model="form.start_spot" />
+          <StartSpotInput v-model="form.start_spot" />
         </el-form-item>
         <el-form-item label="运输终点">
-        <EndSiteSelect v-model="form.end_site_id" />
+          <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
-        <FleetSelect v-model="form.vehicle_id" />
-      </el-form-item>
+          <FleetSelect v-model="form.vehicle_id" />
+        </el-form-item>
         <el-form-item label="运输品类">
-        <GoodsSelect v-model="form.goods_id" />
-      </el-form-item>
+          <GoodsSelect v-model="form.goods_id" />
+        </el-form-item>
+        <el-form-item label="数量">
+          <el-input v-model="form.quantity" type="number" placeholder="输入数量"  class="custom-input"/>
+        </el-form-item>
+        <el-form-item label="单位">
+          <el-input v-model="form.unit" placeholder="输入单位"  class="custom-input"/>
+        </el-form-item>
         <el-form-item label="时间范围" class="custom-date-picker">
           <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
@@ -70,6 +76,22 @@
             {{ scope.row.goods?.name || '无' }}
           </div>
         </el-table-column>
+        <el-table-column prop="quantity" label="数量" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-input v-model="editingDetail.quantity" type="number" placeholder="输入数量"/>
+          </div>
+          <div v-else>
+            {{ scope.row.quantity || '无' }}
+          </div>
+        </el-table-column>
+        <el-table-column prop="unit" label="单位" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-input v-model="editingDetail.unit" placeholder="输入单位"/>
+          </div>
+          <div v-else>
+            {{ scope.row.unit || '无' }}
+          </div>
+        </el-table-column>
         <el-table-column prop="start_date" label="开始日期" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
             <el-date-picker v-model="editingDetail.start_date" type="date" placeholder="选择开始日期"></el-date-picker>
@@ -115,7 +137,7 @@ import {
   addTransportDetail,
   delTransportDetail,
   updateTransportDetail
-} from '@/services/transportService';
+} from '@/services/detailService';
 
 export default defineComponent({
   name: 'TransportDetailEntry',
@@ -134,6 +156,8 @@ export default defineComponent({
       end_site: { name: string } | null,
       vehicle: { license: string } | null,
       goods: { name: string } | null,
+      quantity: number | null,
+      unit: string | null,
       start_date: string | null,
       end_date: string | null
     }[]>([]);
@@ -143,6 +167,8 @@ export default defineComponent({
       end_site_id: 0,
       vehicle_id: 0,
       goods_id: 0,
+      quantity: 0,
+      unit: '',
       date_range: ['', ''],
     });
     const editingDetail = ref({
@@ -151,6 +177,8 @@ export default defineComponent({
       end_site_id: 0,
       vehicle_id: 0,
       goods_id: 0,
+      quantity: 0,
+      unit: '',
       start_date: '',
       end_date: '',
     });
@@ -164,7 +192,7 @@ export default defineComponent({
     const fetchDetails = async () => {
       try {
         const response = await getTransportDetails(perPage.value, detailCurrentPage.value);
-        details.value = response.data.items.map((item: { start_site: any; end_site: any; vehicle: any; goods: any; }) => ({
+        details.value = response.data.items.map((item: any) => ({
           ...item,
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
@@ -185,6 +213,8 @@ export default defineComponent({
           endsite_id: form.value.end_site_id,
           vehicle_id: form.value.vehicle_id,
           goods_id: form.value.goods_id,
+          quantity: form.value.quantity,
+          unit: form.value.unit,
           start_date: form.value.date_range[0],
           end_date: form.value.date_range[1],
         };
@@ -214,6 +244,8 @@ export default defineComponent({
         end_site_id: detail.end_site?.id || 0,
         vehicle_id: detail.vehicle?.id || 0,
         goods_id: detail.goods?.id || 0,
+        quantity: detail.quantity || 0,
+        unit: detail.unit || '',
         start_date: detail.start_date || '',
         end_date: detail.end_date || '',
       };
@@ -229,6 +261,8 @@ export default defineComponent({
           endsite_id: editingDetail.value.end_site_id,
           vehicle_id: editingDetail.value.vehicle_id,
           goods_id: editingDetail.value.goods_id,
+          quantity: editingDetail.value.quantity,
+          unit: editingDetail.value.unit,
           start_date: editingDetail.value.start_date,
           end_date: editingDetail.value.end_date,
         };
@@ -257,6 +291,8 @@ export default defineComponent({
         end_site_id: 0,
         vehicle_id: 0,
         goods_id: 0,
+        quantity: 0,
+        unit: '',
         date_range: ['', ''],
       };
     };
@@ -268,6 +304,8 @@ export default defineComponent({
         end_site_id: 0,
         vehicle_id: 0,
         goods_id: 0,
+        quantity: 0,
+        unit: '',
         start_date: '',
         end_date: '',
       };
