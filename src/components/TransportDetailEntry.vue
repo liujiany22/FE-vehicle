@@ -3,11 +3,11 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
+        <el-form-item label="项目">
+          <ProjectSelect v-model="form.project_id" />
+        </el-form-item>
         <el-form-item label="运输起点">
           <StartSiteSelect v-model="form.start_site_id" />
-        </el-form-item>
-        <el-form-item label="具体起点">
-          <StartSpotInput v-model="form.start_spot" />
         </el-form-item>
         <el-form-item label="运输终点">
           <EndSiteSelect v-model="form.end_site_id" />
@@ -19,13 +19,20 @@
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
         <el-form-item label="数量">
-          <el-input v-model="form.quantity" type="number" placeholder="输入数量"  class="custom-input"/>
+          <el-input v-model="form.quantity" type="number" placeholder="输入数量" class="custom-input"/>
         </el-form-item>
         <el-form-item label="单位">
-          <el-input v-model="form.unit" placeholder="输入单位"  class="custom-input"/>
+          <el-input v-model="form.unit" placeholder="输入单位" class="custom-input"/>
         </el-form-item>
-        <el-form-item label="时间范围" class="custom-date-picker">
-          <el-date-picker v-model="form.date_range" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+        <el-form-item label="日期">
+          <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="装载方式">
+          <LoadSelect v-model="form.load" />
+        </el-form-item>
+
+        <el-form-item label="备注">
+          <el-input v-model="form.note" placeholder="输入备注" class="custom-input"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
@@ -36,20 +43,20 @@
     <el-card>
       <h2>已录入的运输明细</h2>
       <el-table :data="details" style="width: 100%">
+        <el-table-column prop="project.name" label="项目" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <ProjectSelect v-model="editingDetail.project_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.project?.name || '无' }}
+          </div>
+        </el-table-column>
         <el-table-column prop="start_site.name" label="运输起点" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
             <StartSiteSelect v-model="editingDetail.start_site_id" />
           </div>
           <div v-else>
             {{ scope.row.start_site?.name || '无' }}
-          </div>
-        </el-table-column>
-        <el-table-column prop="start_spot" label="运输具体起点" v-slot="scope">
-          <div v-if="isEditing(scope.row.id)">
-            <StartSpotInput v-model="editingDetail.start_spot" />
-          </div>
-          <div v-else>
-            {{ scope.row.start_spot || '无' }}
           </div>
         </el-table-column>
         <el-table-column prop="end_site.name" label="运输终点" v-slot="scope">
@@ -60,12 +67,16 @@
             {{ scope.row.end_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="vehicle.license" label="运输车队" v-slot="scope">
+        <el-table-column prop="vehicle_list" label="运输车队" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <FleetSelect v-model="editingDetail.vehicle_id" />
+            <FleetsSelect v-model="editingDetail.vehicle_ids" />
           </div>
           <div v-else>
-            {{ scope.row.vehicle?.license || '无' }}
+            <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
+              {{ vehicle.license }}
+              <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
+            </span>
+            <span v-if="scope.row.vehicle_list.length > 3">...</span>
           </div>
         </el-table-column>
         <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
@@ -92,20 +103,29 @@
             {{ scope.row.unit || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="start_date" label="开始日期" v-slot="scope">
+        <el-table-column prop="date" label="日期" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <el-date-picker v-model="editingDetail.start_date" type="date" placeholder="选择开始日期"></el-date-picker>
+            <el-date-picker v-model="editingDetail.date" type="date" placeholder="选择日期"></el-date-picker>
           </div>
           <div v-else>
-            {{ formatDate(scope.row.start_date) || '无' }}
+            {{ formatDate(scope.row.date) || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="end_date" label="结束日期" v-slot="scope">
+        <el-table-column prop="load" label="装载方式" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <el-date-picker v-model="editingDetail.end_date" type="date" placeholder="选择结束日期"></el-date-picker>
+            <LoadSelect v-model="editingDetail.load" />
           </div>
           <div v-else>
-            {{ formatDate(scope.row.end_date) || '无' }}
+            {{ formatLoad(scope.row.load) || '无' }}
+          </div>
+        </el-table-column>
+        
+        <el-table-column prop="note" label="备注" v-slot="scope">
+          <div v-if="isEditing(scope.row.id)">
+            <el-input v-model="editingDetail.note" placeholder="输入备注"/>
+          </div>
+          <div v-else>
+            {{ scope.row.note || '无' }}
           </div>
         </el-table-column>
         <el-table-column label="操作" v-slot="scope">
@@ -127,11 +147,13 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { formatDate } from '../utils/time';
+import { formatLoad } from '../utils/load';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
-import StartSpotInput from '@/components/input/StartSpotInput.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
-import FleetsSelect from '@/components/select/FleetsSelect.vue';
+import FleetsSelect from '@/components/select/FleetsSelect.vue'; // 使用 FleetsSelect
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
+import LoadSelect from '@/components/select/LoadSelect.vue';
+import ProjectSelect from '@/components/select/ProjectSelect.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -143,44 +165,37 @@ export default defineComponent({
   name: 'TransportDetailEntry',
   components: {
     StartSiteSelect,
-    StartSpotInput,
     EndSiteSelect,
-    FleetsSelect,
+    FleetsSelect, // 导入 FleetsSelect
     GoodsSelect,
+    LoadSelect,
+    ProjectSelect
   },
   setup() {
-    const details = ref<{
-      id: number,
-      start_site: { name: string } | null,
-      start_spot: string | null,
-      end_site: { name: string } | null,
-      vehicle: { license: string } | null,
-      goods: { name: string } | null,
-      quantity: number | null,
-      unit: string | null,
-      start_date: string | null,
-      end_date: string | null
-    }[]>([]);
+    const details = ref([]);
     const form = ref({
       start_site_id: 0,
-      start_spot: '',
       end_site_id: 0,
-      vehicle_ids: [] as number[], // 修改为数组
+      vehicle_ids: [] as number[], // 改为 vehicle_ids
       goods_id: 0,
       quantity: 0,
       unit: '',
-      date_range: ['', ''],
+      date: '',
+      load: '',
+      project_id: 0,
+      note: ''
     });
     const editingDetail = ref({
       start_site_id: 0,
-      start_spot: '',
       end_site_id: 0,
-      vehicle_id: 0,
+      vehicle_ids: [] as number[], // 改为 vehicle_ids
       goods_id: 0,
       quantity: 0,
       unit: '',
-      start_date: '',
-      end_date: '',
+      date: '',
+      load: '',
+      project_id: 0,
+      note: ''
     });
 
     const editingId = ref<number | null>(null);
@@ -196,8 +211,10 @@ export default defineComponent({
           ...item,
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
-          vehicle: item.vehicle || { license: '' },
+          vehicle_list: item.vehicle_list || [],
           goods: item.goods || { name: '' },
+          load: item.load || '',
+          project: item.project || { name: '' },
         }));
         totalDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
@@ -205,22 +222,25 @@ export default defineComponent({
       }
     };
 
+    const getDisplayVehicles = (vehicleList: { license: string }[]) => {
+      return vehicleList.length > 3 ? vehicleList.slice(0, 3) : vehicleList;
+    };
+
     const addDetail = async () => {
       try {
-        for (const vehicleId of form.value.vehicle_ids) {
-          const data = {
-            startsite_id: form.value.start_site_id,
-            start_spot: form.value.start_spot,
-            endsite_id: form.value.end_site_id,
-            vehicle_id: vehicleId,
-            goods_id: form.value.goods_id,
-            quantity: form.value.quantity,
-            unit: form.value.unit,
-            start_date: form.value.date_range[0],
-            end_date: form.value.date_range[1],
-          };
-          await addTransportDetail(data);
-        }
+        const data = {
+          startsite_id: form.value.start_site_id,
+          endsite_id: form.value.end_site_id,
+          vehicle_ids: form.value.vehicle_ids, // 传递 vehicle_ids
+          goods_id: form.value.goods_id,
+          load: form.value.load,
+          project_id: form.value.project_id,
+          quantity: form.value.quantity,
+          unit: form.value.unit,
+          date: form.value.date,
+          note: form.value.note,
+        };
+        await addTransportDetail(data);
         alert('运输明细录入成功');
         resetForm();
         fetchDetails(); // 刷新列表
@@ -242,14 +262,15 @@ export default defineComponent({
     const editDetail = (detail: any) => {
       editingDetail.value = {
         start_site_id: detail.start_site?.id || 0,
-        start_spot: detail.start_spot || '',
         end_site_id: detail.end_site?.id || 0,
-        vehicle_id: detail.vehicle?.id || 0,
+        vehicle_ids: detail.vehicle_list.map((vehicle: any) => vehicle.id), // 更新为数组
         goods_id: detail.goods?.id || 0,
         quantity: detail.quantity || 0,
         unit: detail.unit || '',
-        start_date: detail.start_date || '',
-        end_date: detail.end_date || '',
+        date: detail.date || '',
+        load: detail.load || '',
+        project_id: detail.project?.id || 0,
+        note: detail.note || ''
       };
       editingId.value = detail.id;
     };
@@ -259,14 +280,15 @@ export default defineComponent({
         const data = {
           item_id: itemId,
           startsite_id: editingDetail.value.start_site_id,
-          start_spot: editingDetail.value.start_spot,
           endsite_id: editingDetail.value.end_site_id,
-          vehicle_id: editingDetail.value.vehicle_id,
+          vehicle_ids: editingDetail.value.vehicle_ids, // 传递 vehicle_ids
           goods_id: editingDetail.value.goods_id,
+          load: editingDetail.value.load,
+          project_id: editingDetail.value.project_id,
           quantity: editingDetail.value.quantity,
           unit: editingDetail.value.unit,
-          start_date: editingDetail.value.start_date,
-          end_date: editingDetail.value.end_date,
+          date: editingDetail.value.date,
+          note: editingDetail.value.note
         };
         await updateTransportDetail(data);
         alert('运输明细更新成功');
@@ -289,27 +311,30 @@ export default defineComponent({
     const resetForm = () => {
       form.value = {
         start_site_id: 0,
-        start_spot: '',
         end_site_id: 0,
-        vehicle_ids: [], // 重新初始化为空数组
+        vehicle_ids: [],
         goods_id: 0,
         quantity: 0,
         unit: '',
-        date_range: ['', ''],
+        date: '',
+        load: '',
+        project_id: 0,
+        note: ''
       };
     };
 
     const resetEditingDetail = () => {
       editingDetail.value = {
         start_site_id: 0,
-        start_spot: '',
         end_site_id: 0,
-        vehicle_id: 0,
+        vehicle_ids: [],
         goods_id: 0,
         quantity: 0,
         unit: '',
-        start_date: '',
-        end_date: '',
+        date: '',
+        load: '',
+        project_id: 0,
+        note: ''
       };
       editingId.value = null;
     };
@@ -336,23 +361,9 @@ export default defineComponent({
       handleDetailPageChange,
       isEditing,
       formatDate,
+      formatLoad,
+      getDisplayVehicles,
     };
   },
 });
 </script>
-
-<style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
-
-.detail-entry {
-  padding: 20px;
-}
-
-.el-card {
-  margin-bottom: 20px;
-}
-
-.el-form-item {
-  margin-bottom: 20px;
-}
-</style>

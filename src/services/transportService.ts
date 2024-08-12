@@ -1,10 +1,11 @@
 import apiClient from './api';
 
+// 起点
 export const addStartSite = (data: { name: string, manager: string, phone: string }) => {
     return apiClient.post('/parameter/start_site', data);
 };
 export const delStartSite = (site_id: number) => {
-    return apiClient.delete(`/parameter/del_start_site/${site_id}`);
+    return apiClient.delete(`/parameter/del_site/${site_id}`);
 };
 export const getStartSites = (per_page: number, page: number, ownerName?: string) => {
     return apiClient.get(`/parameter/start_site_list/${per_page}/${page}?${ownerName}`);
@@ -13,11 +14,12 @@ export const updateStartSite = (data: { site_id: number, name?: string, manager?
     return apiClient.post('/parameter/change_site', data);
 };
 
+// 终点
 export const addEndSite = (data: { name: string, manager: string, phone: string }) => {
     return apiClient.post('/parameter/end_site', data);
 };
 export const delEndSite = (site_id: number) => {
-    return apiClient.delete(`/parameter/del_end_site/${site_id}`);
+    return apiClient.delete(`/parameter/del_site/${site_id}`);
 };
 export const getEndSites = (per_page: number, page: number, ownerName?: string) => {
     return apiClient.get(`/parameter/end_site_list/${per_page}/${page}?${ownerName}`);
@@ -26,7 +28,7 @@ export const updateEndSite = (data: { site_id: number, name?: string, manager?: 
     return apiClient.post('/parameter/change_site', data);
 };
 
-// 新增运输品类参数的 API 函数
+// 品类
 export const addCategory = (data: { name: string }) => {
     return apiClient.post('/parameter/new_goods', data);
 };
@@ -40,7 +42,7 @@ export const updateCategory = (data: { goods_id: number, name?: string }) => {
     return apiClient.post('/parameter/change_goods', data);
 };
 
-// 新增运输车队参数的 API 函数
+// 车队
 export const addFleet = (data: { license: string, driver: string, phone: string }) => {
     return apiClient.post('/parameter/new_vehicle', data);
 };
@@ -54,29 +56,21 @@ export const updateFleet = (data: { vehicle_id: number, license?: string, driver
     return apiClient.post('/parameter/change_vehicle', data);
 };
 
-// 新增工地老板名参数的 API 函数
-export const addSiteOwner = (data: { site_id: number, owner: string, owner_phone: string }) => {
-    return apiClient.post('/parameter/change_site', data);
+// 项目-老板
+export const addProjectOwner = (data: { site_id: number, owner: string, phone: string, name: string }) => {
+    return apiClient.post('/parameter/project', data);
 };
-export const getSites = (per_page: number, page: number) => {
-    return apiClient.get(`/parameter/site_list/${per_page}/${page}`);
+export const delProjectOwner = (project_id: number) => {
+    return apiClient.delete(`/parameter/del_project/${project_id}`);
 };
-export const getOwner2Sites = (ownerName: string, per_page: number, page: number) => {
-    return apiClient.get(`/parameter/owner2site/${per_page}/${page}`, {
-        params: { ownerName }
-    });
+export const updateProjectOwner = (data: { project_id: number, owner?: string, phone?: string, name?: string }) => {
+    return apiClient.post('/parameter/change_project', data);
 };
-export const delSiteOwner = (site_id: number) => {
-    return apiClient.delete(`/parameter/del_site2owner/${site_id}`);
-};
-export const updateOwner = (data: { site_id: number, owner?: string, owner_phone?: string }) => {
-    return apiClient.post('/parameter/change_site', data);
-};
-export const getOwners = (perPage: number, page: number) => {
-    return apiClient.get(`/parameter/owner_list/${perPage}/${page}`)
+export const getProjectOwners = (perPage: number, page: number) => {
+    return apiClient.get(`/parameter/project_list/${perPage}/${page}`)
 };
 
-// 新增付款方式参数的 API 函数
+// 付款方式
 export const addPaymentMethod = (data: { method: string }) => {
     return apiClient.post('/parameter/new_pay', data);
 };

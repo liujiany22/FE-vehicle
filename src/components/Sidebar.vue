@@ -11,14 +11,15 @@
             <el-menu-item index="EndSite">运输终点参数</el-menu-item>
             <el-menu-item index="Category">运输品类参数</el-menu-item>
             <el-menu-item index="Fleet">运输车队参数</el-menu-item>
-            <el-menu-item index="SiteOwner">工地老板名参数</el-menu-item>
+            <el-menu-item index="ProjectOwner">项目-老板参数</el-menu-item>
             <el-menu-item index="PaymentMethod">付款方式参数</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="3">
             <template v-slot:title>运输明细管理</template>
             <el-menu-item index="TransportDetailEntry">运输明细录入</el-menu-item>
             <el-menu-item index="TransportPriceEntry">运输单价录入</el-menu-item>
-            <el-menu-item index="SiteEntryM">工地对账表</el-menu-item>
+            <el-menu-item index="StartExcel">起点对账表</el-menu-item>
+            <el-menu-item index="EndExcel">终点对账表</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="4">
             <template v-slot:title>财务系统管理</template>

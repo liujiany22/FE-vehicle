@@ -1,6 +1,6 @@
 <template>
   <el-form-item :label="label">
-    <el-select v-model="localValue" placeholder="请选择" @visible-change="fetchOwners" class="custom-select">
+    <el-select v-model="localValue" placeholder="请选择老板" @visible-change="fetchOwners" class="custom-select">
       <el-option v-for="owner in owners" :key="owner" :label="owner" :value="owner"></el-option>
       <div class="pagination-container">
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import { getOwners } from '@/services/transportService';
+import { getOwners } from '@/services/detailService';
 
 export default defineComponent({
   name: 'OwnerSelect',
@@ -36,7 +36,7 @@ export default defineComponent({
     const fetchOwners = async () => {
       try {
         const response = await getOwners(perPage.value, currentPage.value);
-        owners.value = response.data.owner_list;
+        owners.value = response.data.owner_list; // 更新为从 response.data.owner_list 获取老板列表
         totalOwners.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch owners', error);

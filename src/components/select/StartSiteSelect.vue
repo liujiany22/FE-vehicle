@@ -1,14 +1,23 @@
 <template>
-  <el-select v-model="localValue" placeholder="请选择运输起点" @visible-change="fetchStartSites" class="custom-select">
+  <el-select 
+    v-model="localValue" 
+    placeholder="请选择运输起点" 
+    @visible-change="fetchStartSites" 
+    filterable
+    class="custom-select">
     <el-option
       v-for="item in start_sites"
       :key="item.id"
-      :label="`${item.name} (${item.manager})`"
+      :label="getLabel(item)"
       :value="item.id">
     </el-option>
     <div class="pagination-container">
-      <el-pagination @current-change="handleStartSitePageChange" :current-page="startSiteCurrentPage"
-        :page-size="perPage" layout="prev, pager, next" :total="totalStartSites" />
+      <el-pagination 
+        @current-change="handleStartSitePageChange" 
+        :current-page="startSiteCurrentPage"
+        :page-size="perPage" 
+        layout="prev, pager, next" 
+        :total="totalStartSites" />
     </div>
   </el-select>
 </template>
@@ -26,8 +35,7 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    // 更新类型定义以包括 manager
-    const start_sites = ref<{ id: number, name: string, manager: string }[]>([]);
+    const start_sites = ref<{ id: number, name: string, manager?: string }[]>([]);
     const startSiteCurrentPage = ref(1);
     const perPage = ref(10);
     const totalStartSites = ref(0);
@@ -48,6 +56,10 @@ export default defineComponent({
       fetchStartSites();
     };
 
+    const getLabel = (item: { name: string, manager?: string }) => {
+      return item.manager ? `${item.name} (${item.manager})` : item.name;
+    };
+
     watch(localValue, (newValue) => {
       emit('update:modelValue', newValue);
     });
@@ -63,6 +75,7 @@ export default defineComponent({
       totalStartSites,
       fetchStartSites,
       handleStartSitePageChange,
+      getLabel,
       localValue
     };
   },
@@ -70,7 +83,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
 
 .pagination-container {
   padding: 10px;
