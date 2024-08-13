@@ -23,6 +23,7 @@ import TransportPriceEntry from '@/components/TransportPriceEntry.vue';
 import StartExcel from '@/components/reports/StartExcel.vue';
 import EndExcel from '@/components/reports/EndExcel.vue';
 import Advance from '@/components/finance/Advance.vue';
+import Settlement from '@/components/finance/Settlement.vue';
 
 
 
@@ -42,6 +43,7 @@ export default defineComponent({
     StartExcel,
     EndExcel,
     Advance,
+    Settlement,
   },
   setup() {
     const currentModule = ref('Module1Feature1');

@@ -9,6 +9,9 @@
         <el-form-item label="运输金额">
           <el-input v-model="form.amount" type="number" placeholder="请输入金额"  class="custom-input"/>
         </el-form-item>
+        <el-form-item label="付款方式">
+          <PaymentSelect v-model="form.pay_id" />
+        </el-form-item>
         <el-form-item label="预付款时间">
           <el-date-picker v-model="form.advance_time" type="datetime" placeholder="选择预付款时间" />
         </el-form-item>
@@ -30,7 +33,7 @@
               <FleetSelect v-model="editingAdvance.vehicle_id" />
             </div>
             <div v-else>
-              {{ scope.row.vehicle.license }}
+              {{ scope.row.vehicle ? scope.row.vehicle.license : "无" }}
             </div>
           </template>
         </el-table-column>
@@ -40,7 +43,17 @@
               <el-input v-model="editingAdvance.amount" type="number" placeholder="请输入金额" />
             </div>
             <div v-else>
-              {{ scope.row.amount }}
+              {{ scope.row.amount || "无" }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="pay.method" label="付款方式">
+          <template v-slot="scope">
+            <div v-if="editingId === scope.row.id">
+              <PaymentSelect v-model="editingAdvance.pay_id" />
+            </div>
+            <div v-else>
+              {{ scope.row.pay ? scope.row.pay.method : '无' }}
             </div>
           </template>
         </el-table-column>
@@ -50,7 +63,7 @@
               <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预付款时间" />
             </div>
             <div v-else>
-              {{ formatDate(scope.row.advance_time) }}
+              {{ formatDate(scope.row.advance_time) || "无" }}
             </div>
           </template>
         </el-table-column>
@@ -60,7 +73,7 @@
               <el-input v-model="editingAdvance.note" placeholder="请输入备注" />
             </div>
             <div v-else>
-              {{ scope.row.note }}
+              {{ scope.row.note || "无" }}
             </div>
           </template>
         </el-table-column>
@@ -88,22 +101,25 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { addAdvance, delAdvance, getAdvances, updateAdvance } from '../../services/financeService';
 import { formatDate } from '../../utils/time';
 import FleetSelect from '@/components/select/FleetSelect.vue';
+import PaymentSelect from '@/components/select/PaymentSelect.vue';
 
 export default defineComponent({
   name: 'Advance',
   components: {
     FleetSelect,
+    PaymentSelect,
   },
   setup() {
     const form = ref({
       vehicle_id: 0,
       amount: 0,
+      pay_id: 0,
       advance_time: '',
       note: '', // Added note field
     });
 
-    const advances = ref<{ id: number, vehicle: { id: number, license: string }, amount: number, advance_time: string, note: string }[]>([]);
-    const editingAdvance = ref({ vehicle_id: 0, amount: 0, advance_time: '', note: '' });
+    const advances = ref<{ id: number, vehicle: { id: number, license: string }, amount: number, pay: { id: number, method: string }, advance_time: string, note: string }[]>([]);
+    const editingAdvance = ref({ vehicle_id: 0, amount: 0, pay_id: 0, advance_time: '', note: '' });
     const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(10);
@@ -140,9 +156,9 @@ export default defineComponent({
       }
     };
 
-    const editParameter = (advance: { id: number, vehicle: { id: number, license: string }, amount: number, advance_time: string, note: string }) => {
+    const editParameter = (advance: { id: number, vehicle: { id: number, license: string }, amount: number, pay: { id: number, method: string }, advance_time: string, note: string }) => {
       editingId.value = advance.id;
-      editingAdvance.value = { vehicle_id: advance.vehicle.id, amount: advance.amount, advance_time: advance.advance_time, note: advance.note };
+      editingAdvance.value = { vehicle_id: advance.vehicle.id, amount: advance.amount, pay_id: advance.pay.id, advance_time: advance.advance_time, note: advance.note };
     };
 
     const saveParameter = async (advanceId: number) => {
@@ -158,7 +174,7 @@ export default defineComponent({
 
     const cancelEdit = () => {
       editingId.value = null;
-      editingAdvance.value = { vehicle_id: 0, amount: 0, advance_time: '', note: '' };
+      editingAdvance.value = { vehicle_id: 0, amount: 0, pay_id: 0, advance_time: '', note: '' };
     };
 
     const handlePageChange = (page: number) => {
@@ -170,6 +186,7 @@ export default defineComponent({
       form.value = {
         vehicle_id: 0,
         amount: 0,
+        pay_id: 0,
         advance_time: '',
         note: '', // Reset note field
       };

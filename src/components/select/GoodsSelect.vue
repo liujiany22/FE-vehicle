@@ -1,10 +1,36 @@
 <template>
-    <el-select v-model="localValue" placeholder="请选择运输品类" @visible-change="fetchGoods" class="custom-select">
-      <el-option v-for="item in goods" :key="item.id" :label="item.name" :value="item.id"></el-option>
-      <div class="pagination-container">
-        <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalGoods" />
-      </div>
-    </el-select>
+  <el-select 
+    v-model="localValue" 
+    :placeholder="placeholderText" 
+    @visible-change="fetchGoods" 
+    @input="handleInput"
+    class="custom-select"
+    filterable
+    clearable>
+    <!-- 默认的取消选项 -->
+    <el-option 
+      v-if="allowClear" 
+      :key="null" 
+      :label="placeholderText" 
+      :value="null">
+    </el-option>
+
+    <el-option 
+      v-for="item in filteredGoods" 
+      :key="item.id" 
+      :label="item.name" 
+      :value="item.id">
+    </el-option>
+
+    <div class="pagination-container">
+      <el-pagination 
+        @current-change="handleGoodsPageChange" 
+        :current-page="goodsCurrentPage" 
+        :page-size="perPage" 
+        layout="prev, pager, next" 
+        :total="totalGoods" />
+    </div>
+  </el-select>
 </template>
 
 <script lang="ts">
@@ -24,7 +50,10 @@ export default defineComponent({
     const goodsCurrentPage = ref(1);
     const perPage = ref(10);
     const totalGoods = ref(0);
-    const localValue = ref(props.modelValue);
+    const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
+    const searchQuery = ref(''); // 存储搜索查询
+    const placeholderText = ref('请选择运输品类');
+    const allowClear = ref(true);  // 允许清除选项
 
     const fetchGoods = async () => {
       try {
@@ -41,12 +70,29 @@ export default defineComponent({
       fetchGoods();
     };
 
+    const handleInput = (query: string) => {
+      searchQuery.value = query;
+      filterGoods();
+    };
+
+    const filterGoods = () => {
+      return goods.value.filter(good => 
+        good.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    };
+
+    const filteredGoods = ref(filterGoods());
+
+    watch([searchQuery, goods], () => {
+      filteredGoods.value = filterGoods();
+    });
+
     watch(localValue, (newValue) => {
-      emit('update:modelValue', newValue);
+      emit('update:modelValue', newValue === null ? 0 : newValue);
     });
 
     watch(() => props.modelValue, (newValue) => {
-      localValue.value = newValue;
+      localValue.value = newValue === 0 ? null : newValue;
     });
 
     return {
@@ -56,7 +102,11 @@ export default defineComponent({
       totalGoods,
       fetchGoods,
       handleGoodsPageChange,
-      localValue
+      localValue,
+      placeholderText,
+      allowClear,
+      handleInput,
+      filteredGoods
     };
   },
 });

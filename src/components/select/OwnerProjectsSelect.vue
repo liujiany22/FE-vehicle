@@ -1,13 +1,36 @@
 <template>
-    <el-form-item :label="label">
-      <el-select v-model="localValue" placeholder="请选择项目" @visible-change="fetchProjects" class="custom-select">
-        <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"></el-option>
-        <div class="pagination-container">
-          <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
-            layout="prev, pager, next" :total="totalProjects" />
-        </div>
-      </el-select>
-    </el-form-item>
+    <el-select 
+      v-model="localValue" 
+      :placeholder="placeholderText" 
+      @visible-change="fetchProjects" 
+      @input="handleInput"
+      class="custom-select"
+      filterable
+      clearable>
+      <!-- 默认的取消选项 -->
+      <el-option 
+        v-if="allowClear" 
+        :key="null" 
+        :label="placeholderText" 
+        :value="null">
+      </el-option>
+  
+      <el-option 
+        v-for="project in filteredProjects" 
+        :key="project.id" 
+        :label="project.name" 
+        :value="project.id">
+      </el-option>
+  
+      <div class="pagination-container">
+        <el-pagination 
+          @current-change="handlePageChange" 
+          :current-page="currentPage" 
+          :page-size="perPage"
+          layout="prev, pager, next" 
+          :total="totalProjects" />
+      </div>
+    </el-select>
   </template>
   
   <script lang="ts">
@@ -26,17 +49,16 @@
         type: Number,
         required: true
       },
-      label: {
-        type: String,
-        required: true
-      }
     },
     setup(props, { emit }) {
       const projects = ref<{ id: number; name: string }[]>([]);
       const currentPage = ref(1);
       const perPage = ref(10);
       const totalProjects = ref(0);
-      const localValue = ref(props.modelValue);
+      const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
+      const searchQuery = ref(''); // 存储搜索查询
+      const placeholderText = ref('请选择项目');
+      const allowClear = ref(true);  // 允许清除选项
   
       const fetchProjects = async () => {
         try {
@@ -54,15 +76,34 @@
         fetchProjects();
       };
   
+      const handleInput = (query: string) => {
+        searchQuery.value = query;
+        filterProjects();
+      };
+  
+      const filterProjects = () => {
+        return projects.value.filter(project => 
+          project.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        );
+      };
+  
+      const filteredProjects = ref(filterProjects());
+  
+      watch([searchQuery, projects], () => {
+        filteredProjects.value = filterProjects();
+      });
+  
       watch(localValue, (newValue) => {
-        emit('update:modelValue', newValue);
+        emit('update:modelValue', newValue === null ? 0 : newValue);
       });
   
       watch(() => props.modelValue, (newValue) => {
-        localValue.value = newValue;
+        localValue.value = newValue === 0 ? null : newValue;
       });
   
       watch(() => props.ownerName, () => {
+        localValue.value = null; // 恢复默认值
+        searchQuery.value = ''; // 清空搜索查询
         fetchProjects();
       });
   
@@ -73,7 +114,11 @@
         totalProjects,
         fetchProjects,
         handlePageChange,
-        localValue
+        localValue,
+        placeholderText,
+        allowClear,
+        handleInput,
+        filteredProjects
       };
     }
   });

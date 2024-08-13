@@ -3,22 +3,26 @@
     <el-card>
       <h2>起点对账表</h2>
       <el-form @submit.prevent="fetchFilteredDetails">
-        <OwnerSelect v-model="filters.owner" label="老板" />
-        <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" label="项目" />
-
+        <el-form-item label="老板">
+          <OwnerSelect v-model="filters.owner" />
+        </el-form-item>
+        <el-form-item label="项目">
+          <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" />
+        </el-form-item>
         <!-- Add StartSiteSelect, EndSiteSelect, and GoodsSelect -->
         <el-form-item label="运输起点">
-          <StartSiteSelect v-model="filters.startsite_id" />
+          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
         </el-form-item>
         <el-form-item label="运输终点">
-          <EndSiteSelect v-model="filters.endsite_id" />
+          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId"/>
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="filters.goods_id" />
         </el-form-item>
 
         <el-form-item label="时间范围" class="custom-date-picker">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期"
+            end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
@@ -29,21 +33,58 @@
     <el-card v-if="details.length">
       <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable">
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="project.name" label="项目名称"></el-table-column>
-        <el-table-column prop="start_site.name" label="起点工地"></el-table-column>
-        <el-table-column prop="end_site.name" label="终点工地"></el-table-column>
-        <el-table-column prop="vehicle_list" label="车队" v-slot="scope">
-          <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
-            {{ vehicle.license }}
-            <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
-          </span>
-          <span v-if="scope.row.vehicle_list.length > 3">...</span>
+        <el-table-column prop="project.name" label="项目名称">
+          <template v-slot="scope">
+            {{ scope.row.project?.name || '无' }}
+          </template>
         </el-table-column>
-        <el-table-column prop="goods.name" label="品类"></el-table-column>
-        <el-table-column prop="quantity" label="数量"></el-table-column>
-        <el-table-column prop="unit" label="单位"></el-table-column>
-        <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)"></el-table-column>
-        <el-table-column prop="load" label="装载方式" :formatter="(row: Detail) => formatLoad(row.load)"></el-table-column>
+        <el-table-column prop="start_site.name" label="起点工地">
+          <template v-slot="scope">
+            {{ scope.row.start_site?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="end_site.name" label="终点工地">
+          <template v-slot="scope">
+            {{ scope.row.end_site?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="vehicle_list" label="车队">
+          <template v-slot="scope">
+            <span v-if="scope.row.vehicle_list.length">
+              <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
+                {{ vehicle.license }}
+                <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
+              </span>
+              <span v-if="scope.row.vehicle_list.length > 3">...</span>
+            </span>
+            <span v-else>无</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods.name" label="品类">
+          <template v-slot="scope">
+            {{ scope.row.goods?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="quantity" label="数量">
+          <template v-slot="scope">
+            {{ scope.row.quantity || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="unit" label="单位">
+          <template v-slot="scope">
+            {{ scope.row.unit || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="date" label="日期">
+          <template v-slot="scope">
+            {{ formatDate(scope.row.date) || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="load" label="装载方式">
+          <template v-slot="scope">
+            {{ formatLoad(scope.row.load) || '无' }}
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
@@ -54,13 +95,12 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import OwnerProjectsSelect from '@/components/select/OwnerProjectsSelect.vue';
-import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
-import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
+import OwnerStartSitesSelect from '../select/OwnerStartSitesSelect.vue';
+import OwnerEndSitesSelect from '../select/OwnerEndSitesSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import { searchTransportDetails } from '@/services/detailService';
 import { getStartExcel } from '@/services/export';
@@ -86,8 +126,8 @@ export default defineComponent({
   components: {
     OwnerSelect,
     OwnerProjectsSelect,
-    StartSiteSelect,
-    EndSiteSelect,
+    OwnerStartSitesSelect,
+    OwnerEndSitesSelect,
     GoodsSelect,
   },
   setup() {
@@ -191,3 +231,6 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+@import '@/assets/select.css';
+</style>

@@ -7,7 +7,6 @@
     class="custom-select"
     filterable
     clearable>
-    <!-- 默认的取消选项 -->
     <el-option 
       v-if="allowClear" 
       :key="null" 
@@ -16,17 +15,17 @@
     </el-option>
 
     <el-option 
-      v-for="item in filteredEndSites" 
-      :key="item.id" 
-      :label="item.name" 
-      :value="item.id">
+      v-for="site in filteredEndSites" 
+      :key="site.id" 
+      :label="site.name" 
+      :value="site.id">
     </el-option>
 
     <div class="pagination-container">
       <el-pagination 
-        @current-change="handleEndSitePageChange" 
-        :current-page="endSiteCurrentPage" 
-        :page-size="perPage" 
+        @current-change="handlePageChange" 
+        :current-page="currentPage" 
+        :page-size="perPage"
         layout="prev, pager, next" 
         :total="totalEndSites" />
     </div>
@@ -35,38 +34,50 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import { getEndSites } from '@/services/transportService';
+import { getEndSites } from '@/services/detailService';
 
 export default defineComponent({
-  name: 'EndSiteSelect',
+  name: 'OwnerEndSitesSelect',
   props: {
+    ownerName: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    project_id: {
+      type: Number,
+      required: false,
+      default: 0
+    },
     modelValue: {
       type: Number,
       required: true
-    }
+    },
   },
   setup(props, { emit }) {
-    const end_sites = ref<{ id: number, name: string }[]>([]);
-    const endSiteCurrentPage = ref(1);
+    const endSites = ref<{ id: number; name: string }[]>([]);
+    const currentPage = ref(1);
     const perPage = ref(10);
     const totalEndSites = ref(0);
     const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
-    const searchQuery = ref(''); // 存储搜索查询
-    const placeholderText = ref('请选择运输终点');
-    const allowClear = ref(true);  // 允许清除选项
+    const searchQuery = ref('');
+    const placeholderText = ref('请选择终点');
+    const allowClear = ref(true);
 
     const fetchEndSites = async () => {
       try {
-        const response = await getEndSites(perPage.value, endSiteCurrentPage.value);
-        end_sites.value = response.data.end_sites;
+        const ownerName = props.ownerName || null;
+        const projectId = props.project_id || null;
+        const response = await getEndSites(ownerName, projectId, perPage.value, currentPage.value);
+        endSites.value = response.data.end_sites;
         totalEndSites.value = response.data.total_pages * perPage.value;
       } catch (error) {
         console.error('Failed to fetch end sites', error);
       }
     };
 
-    const handleEndSitePageChange = (page: number) => {
-      endSiteCurrentPage.value = page;
+    const handlePageChange = (page: number) => {
+      currentPage.value = page;
       fetchEndSites();
     };
 
@@ -76,14 +87,14 @@ export default defineComponent({
     };
 
     const filterEndSites = () => {
-      return end_sites.value.filter(site => 
+      return endSites.value.filter(site => 
         site.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     };
 
     const filteredEndSites = ref(filterEndSites());
 
-    watch([searchQuery, end_sites], () => {
+    watch([searchQuery, endSites], () => {
       filteredEndSites.value = filterEndSites();
     });
 
@@ -95,25 +106,32 @@ export default defineComponent({
       localValue.value = newValue === 0 ? null : newValue;
     });
 
+    watch([() => props.ownerName, () => props.project_id], () => {
+      localValue.value = null; // 恢复默认值
+      searchQuery.value = '';  // 清空搜索查询
+      fetchEndSites();         // 重新获取终点站列表
+    });
+
     return {
-      end_sites,
-      endSiteCurrentPage,
+      endSites,
+      currentPage,
       perPage,
       totalEndSites,
       fetchEndSites,
-      handleEndSitePageChange,
+      handlePageChange,
       localValue,
       placeholderText,
       allowClear,
       handleInput,
       filteredEndSites
     };
-  },
+  }
 });
 </script>
 
+
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
 
 .pagination-container {
   padding: 10px;

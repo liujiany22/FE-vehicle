@@ -11,6 +11,12 @@ export const addTransportDetail = (data: {
     quantity: number;
     unit: string;
     date: string;
+
+    contractorPrice: number;
+    startSubsidy: number;
+    endSubsidy: number;
+    endPayment: number;
+    driverPrice: number;
     
     note?: string;
 }) => {
@@ -44,6 +50,7 @@ export const updateTransportDetail = (data: {
 
 export const searchTransportDetails = (
     params: {
+        ownerName?: string;
         project_id?: number;
         startsite_id?: number;
         endsite_id?: number;
@@ -56,6 +63,7 @@ export const searchTransportDetails = (
 ) => {
     const queryParams = new URLSearchParams();
 
+    if (params.ownerName && params.ownerName !== '') queryParams.append('ownerName', params.ownerName.toString());
     if (params.project_id && params.project_id !== 0) queryParams.append('project_id', params.project_id.toString());
     if (params.startsite_id && params.startsite_id !== 0) queryParams.append('startsite_id', params.startsite_id.toString());
     if (params.endsite_id && params.endsite_id !== 0) queryParams.append('endsite_id', params.endsite_id.toString());
@@ -65,10 +73,6 @@ export const searchTransportDetails = (
 
     return apiClient.get(`/item/search4item/${perPage}/${page}?${queryParams.toString()}`);
 };
-
-
-
-
 
 export const getOwners = (perPage: number, page: number) => {
     return apiClient.get(`/parameter/owner_list/${perPage}/${page}`)
@@ -82,6 +86,27 @@ export const getOwner2Projects = (ownerName: string | null, per_page: number, pa
     return apiClient.get(`/parameter/owner2project/${per_page}/${page}`, { params });
 };
 
+export const getStartSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number) => {
+    const params: any = {};
+    if (ownerName) {
+        params.ownerName = ownerName;
+    }
+    if (project_id) {
+        params.project_id = project_id;
+    }
+    return apiClient.get(`/parameter/start_site_list/${per_page}/${page}`, { params });
+}
+
+export const getEndSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number) => {
+    const params: any = {};
+    if (ownerName) {
+        params.ownerName = ownerName;
+    }
+    if (project_id) {
+        params.project_id = project_id;
+    }
+    return apiClient.get(`/parameter/end_site_list/${per_page}/${page}`, { params });
+}
 
 export const getOwnerEntry = (data : {
     item_ids: number[], 
@@ -91,3 +116,15 @@ export const getOwnerEntry = (data : {
 }) => {
     return apiClient.post('/item/item2excel_boss', data, { responseType: 'blob' });
 }
+
+export const updateTransportPrices = (data: {
+    item_id: number;
+    contractorPrice?: number;
+    startSubsidy?: number;
+    endSubsidy?: number;
+    endPayment?: number;
+    driverPrice?: number;
+    unit? : string;
+}[]) => {
+    return apiClient.post('/item/item_price', { items: data });
+};

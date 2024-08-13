@@ -1,15 +1,27 @@
 <template>
   <el-select 
     v-model="localValue" 
-    placeholder="请选择运输车队" 
+    :placeholder="placeholderText" 
     @visible-change="fetchFleets" 
-    class="custom-select">
+    @input="handleInput"
+    class="custom-select"
+    filterable
+    clearable>
+    <!-- 默认的取消选项 -->
     <el-option 
-      v-for="vehicle in vehicles" 
+      v-if="allowClear" 
+      :key="null" 
+      :label="placeholderText" 
+      :value="null">
+    </el-option>
+
+    <el-option 
+      v-for="vehicle in filteredVehicles" 
       :key="vehicle.id" 
       :label="`${vehicle.license} (${vehicle.driver})`" 
       :value="vehicle.id">
     </el-option>
+
     <div class="pagination-container">
       <el-pagination 
         @current-change="handleVehiclePageChange" 
@@ -28,7 +40,7 @@ import { getFleets } from '@/services/transportService';
 interface Vehicle {
   id: number;
   license: string;
-  driver: string; // 添加 driver 字段
+  driver: string;
 }
 
 export default defineComponent({
@@ -44,7 +56,10 @@ export default defineComponent({
     const vehicleCurrentPage = ref(1);
     const perPage = ref(10);
     const totalVehicles = ref(0);
-    const localValue = ref(props.modelValue);
+    const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
+    const searchQuery = ref(''); // 存储搜索查询
+    const placeholderText = ref('请选择运输车队');
+    const allowClear = ref(true);  // 允许清除选项
 
     const fetchFleets = async () => {
       try {
@@ -61,12 +76,30 @@ export default defineComponent({
       fetchFleets();
     };
 
+    const handleInput = (query: string) => {
+      searchQuery.value = query;
+      filterVehicles();
+    };
+
+    const filterVehicles = () => {
+      return vehicles.value.filter(vehicle => 
+        vehicle.license.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        vehicle.driver.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    };
+
+    const filteredVehicles = ref(filterVehicles());
+
+    watch([searchQuery, vehicles], () => {
+      filteredVehicles.value = filterVehicles();
+    });
+
     watch(localValue, (newValue) => {
-      emit('update:modelValue', newValue);
+      emit('update:modelValue', newValue === null ? 0 : newValue);
     });
 
     watch(() => props.modelValue, (newValue) => {
-      localValue.value = newValue;
+      localValue.value = newValue === 0 ? null : newValue;
     });
 
     return {
@@ -76,7 +109,11 @@ export default defineComponent({
       totalVehicles,
       fetchFleets,
       handleVehiclePageChange,
-      localValue
+      localValue,
+      placeholderText,
+      allowClear,
+      handleInput,
+      filteredVehicles
     };
   }
 });

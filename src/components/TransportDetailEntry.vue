@@ -3,8 +3,11 @@
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail">
+        <el-form-item label="老板">
+          <OwnerSelect v-model="form.owner" />
+        </el-form-item>
         <el-form-item label="项目">
-          <ProjectSelect v-model="form.project_id" />
+          <OwnerProjectsSelect v-model="form.project_id" :ownerName="form.owner" />
         </el-form-item>
         <el-form-item label="运输起点">
           <StartSiteSelect v-model="form.start_site_id" />
@@ -19,10 +22,10 @@
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
         <el-form-item label="数量">
-          <el-input v-model="form.quantity" type="number" placeholder="输入数量" class="custom-input"/>
+          <el-input v-model="form.quantity" type="number" placeholder="输入数量" class="custom-input" />
         </el-form-item>
         <el-form-item label="单位">
-          <el-input v-model="form.unit" placeholder="输入单位" class="custom-input"/>
+          <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
@@ -30,9 +33,24 @@
         <el-form-item label="装载方式">
           <LoadSelect v-model="form.load" />
         </el-form-item>
+        <el-form-item label="工地承接单价">
+          <el-input v-model="form.contractorPrice" type="number" placeholder="输入承包价格" class="custom-input" />
+        </el-form-item>
+        <el-form-item label="起点补贴金额">
+          <el-input v-model="form.startSubsidy" type="number" placeholder="输入起点补贴" class="custom-input" />
+        </el-form-item>
+        <el-form-item label="终点补贴金额">
+          <el-input v-model="form.endSubsidy" type="number" placeholder="输入终点补贴" class="custom-input" />
+        </el-form-item>
+        <el-form-item label="弃点付费金额">
+          <el-input v-model="form.endPayment" type="number" placeholder="输入终点支付" class="custom-input" />
+        </el-form-item>
+        <el-form-item label="给司机单价">
+          <el-input v-model="form.driverPrice" type="number" placeholder="输入司机价格" class="custom-input" />
+        </el-form-item>
 
         <el-form-item label="备注">
-          <el-input v-model="form.note" placeholder="输入备注" class="custom-input"/>
+          <el-input v-model="form.note" placeholder="输入备注" class="custom-input" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail">提交</el-button>
@@ -72,11 +90,14 @@
             <FleetsSelect v-model="editingDetail.vehicle_ids" />
           </div>
           <div v-else>
-            <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
-              {{ vehicle.license }}
-              <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
+            <span v-if="scope.row.vehicle_list.length > 0">
+              <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
+                {{ vehicle.license }}
+                <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
+              </span>
+              <span v-if="scope.row.vehicle_list.length > 3">...</span>
             </span>
-            <span v-if="scope.row.vehicle_list.length > 3">...</span>
+            <span v-else>无</span> <!-- 当vehicle_list为空时显示"无" -->
           </div>
         </el-table-column>
         <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
@@ -89,7 +110,7 @@
         </el-table-column>
         <el-table-column prop="quantity" label="数量" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <el-input v-model="editingDetail.quantity" type="number" placeholder="输入数量"/>
+            <el-input v-model="editingDetail.quantity" type="number" placeholder="输入数量" />
           </div>
           <div v-else>
             {{ scope.row.quantity || '无' }}
@@ -97,7 +118,7 @@
         </el-table-column>
         <el-table-column prop="unit" label="单位" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <el-input v-model="editingDetail.unit" placeholder="输入单位"/>
+            <el-input v-model="editingDetail.unit" placeholder="输入单位" />
           </div>
           <div v-else>
             {{ scope.row.unit || '无' }}
@@ -119,10 +140,10 @@
             {{ formatLoad(scope.row.load) || '无' }}
           </div>
         </el-table-column>
-        
+
         <el-table-column prop="note" label="备注" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <el-input v-model="editingDetail.note" placeholder="输入备注"/>
+            <el-input v-model="editingDetail.note" placeholder="输入备注" />
           </div>
           <div v-else>
             {{ scope.row.note || '无' }}
@@ -139,7 +160,8 @@
           </div>
         </el-table-column>
       </el-table>
-      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage" layout="prev, pager, next" :total="totalDetails" />
+      <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalDetails" />
     </el-card>
   </div>
 </template>
@@ -153,7 +175,8 @@ import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetsSelect from '@/components/select/FleetsSelect.vue'; // 使用 FleetsSelect
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import LoadSelect from '@/components/select/LoadSelect.vue';
-import ProjectSelect from '@/components/select/ProjectSelect.vue';
+import OwnerSelect from './select/OwnerSelect.vue';
+import OwnerProjectsSelect from './select/OwnerProjectsSelect.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -169,20 +192,27 @@ export default defineComponent({
     FleetsSelect, // 导入 FleetsSelect
     GoodsSelect,
     LoadSelect,
-    ProjectSelect
+    OwnerProjectsSelect,
+    OwnerSelect,
   },
   setup() {
     const details = ref([]);
     const form = ref({
+      owner: '', // 新增
+      project_id: 0,
       start_site_id: 0,
       end_site_id: 0,
-      vehicle_ids: [] as number[], // 改为 vehicle_ids
+      vehicle_ids: [] as number[],
       goods_id: 0,
       quantity: 0,
       unit: '',
       date: '',
       load: '',
-      project_id: 0,
+      contractorPrice: 0,
+      startSubsidy: 0,
+      endSubsidy: 0,
+      endPayment: 0,
+      driverPrice: 0,
       note: ''
     });
     const editingDetail = ref({
@@ -238,6 +268,11 @@ export default defineComponent({
           quantity: form.value.quantity,
           unit: form.value.unit,
           date: form.value.date,
+          contractorPrice: form.value.contractorPrice,
+          startSubsidy: form.value.startSubsidy,
+          endSubsidy: form.value.endSubsidy,
+          endPayment: form.value.endPayment,
+          driverPrice: form.value.driverPrice,
           note: form.value.note,
         };
         await addTransportDetail(data);
@@ -318,7 +353,13 @@ export default defineComponent({
         unit: '',
         date: '',
         load: '',
+        owner: '',
         project_id: 0,
+        contractorPrice: 0, 
+        startSubsidy: 0,
+        endSubsidy: 0, 
+        endPayment: 0,
+        driverPrice: 0, 
         note: ''
       };
     };
@@ -367,3 +408,7 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+@import '@/assets/select.css';
+</style>

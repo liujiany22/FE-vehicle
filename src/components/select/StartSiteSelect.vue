@@ -1,16 +1,26 @@
 <template>
   <el-select 
     v-model="localValue" 
-    placeholder="请选择运输起点" 
+    :placeholder="placeholderText" 
     @visible-change="fetchStartSites" 
+    class="custom-select"
     filterable
-    class="custom-select">
+    clearable>
+    <!-- 默认的取消选项 -->
+    <el-option 
+      v-if="allowClear" 
+      :key="null" 
+      :label="placeholderText" 
+      :value="null">
+    </el-option>
+
     <el-option
       v-for="item in start_sites"
       :key="item.id"
-      :label="getLabel(item)"
+      :label="`${item.name} ${item.manager ? `(${item.manager})` : ''}`"
       :value="item.id">
     </el-option>
+
     <div class="pagination-container">
       <el-pagination 
         @current-change="handleStartSitePageChange" 
@@ -35,11 +45,14 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const start_sites = ref<{ id: number, name: string, manager?: string }[]>([]);
+    const start_sites = ref<{ id: number, name: string, manager: string }[]>([]);
     const startSiteCurrentPage = ref(1);
     const perPage = ref(10);
     const totalStartSites = ref(0);
-    const localValue = ref(props.modelValue);
+    const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
+
+    const placeholderText = ref('请选择运输起点');
+    const allowClear = ref(true);  // 允许清除选项
 
     const fetchStartSites = async () => {
       try {
@@ -56,16 +69,12 @@ export default defineComponent({
       fetchStartSites();
     };
 
-    const getLabel = (item: { name: string, manager?: string }) => {
-      return item.manager ? `${item.name} (${item.manager})` : item.name;
-    };
-
     watch(localValue, (newValue) => {
-      emit('update:modelValue', newValue);
+      emit('update:modelValue', newValue === null ? 0 : newValue);
     });
 
     watch(() => props.modelValue, (newValue) => {
-      localValue.value = newValue;
+      localValue.value = newValue === 0 ? null : newValue;
     });
 
     return {
@@ -75,15 +84,16 @@ export default defineComponent({
       totalStartSites,
       fetchStartSites,
       handleStartSitePageChange,
-      getLabel,
-      localValue
+      localValue,
+      placeholderText,
+      allowClear
     };
   },
 });
 </script>
 
 <style scoped>
-@import '@/assets/select.css';
+@import '@/assets/select.css'; /* 引入共享样式 */
 
 .pagination-container {
   padding: 10px;

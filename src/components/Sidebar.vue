@@ -24,6 +24,7 @@
         <el-sub-menu index="4">
             <template v-slot:title>财务系统管理</template>
             <el-menu-item index="Advance">预支录入</el-menu-item>
+            <el-menu-item index="Settlement">工地结算明细</el-menu-item>
         </el-sub-menu>
     </el-menu>
 </template>

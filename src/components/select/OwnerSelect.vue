@@ -1,13 +1,36 @@
 <template>
-  <el-form-item :label="label">
-    <el-select v-model="localValue" placeholder="请选择老板" @visible-change="fetchOwners" class="custom-select">
-      <el-option v-for="owner in owners" :key="owner" :label="owner" :value="owner"></el-option>
-      <div class="pagination-container">
-        <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
-          layout="prev, pager, next" :total="totalOwners" />
-      </div>
-    </el-select>
-  </el-form-item>
+  <el-select 
+    v-model="localValue" 
+    :placeholder="placeholderText" 
+    @visible-change="fetchOwners" 
+    @input="handleInput"
+    class="custom-select"
+    filterable
+    clearable>
+    <!-- 默认的取消选项 -->
+    <el-option 
+      v-if="allowClear" 
+      :key="null" 
+      :label="placeholderText" 
+      :value="null">
+    </el-option>
+
+    <el-option 
+      v-for="owner in filteredOwners" 
+      :key="owner" 
+      :label="owner" 
+      :value="owner">
+    </el-option>
+
+    <div class="pagination-container">
+      <el-pagination 
+        @current-change="handlePageChange" 
+        :current-page="currentPage" 
+        :page-size="perPage"
+        layout="prev, pager, next" 
+        :total="totalOwners" />
+    </div>
+  </el-select>
 </template>
 
 <script lang="ts">
@@ -21,17 +44,16 @@ export default defineComponent({
       type: String,
       required: true
     },
-    label: {
-      type: String,
-      required: true
-    }
   },
   setup(props, { emit }) {
     const owners = ref<string[]>([]);
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalOwners = ref(0);
-    const localValue = ref(props.modelValue);
+    const localValue = ref<string | null>(props.modelValue || null);
+    const searchQuery = ref(''); // 存储搜索查询
+    const placeholderText = ref('请选择老板');
+    const allowClear = ref(true);  // 允许清除选项
 
     const fetchOwners = async () => {
       try {
@@ -48,12 +70,29 @@ export default defineComponent({
       fetchOwners();
     };
 
+    const handleInput = (query: string) => {
+      searchQuery.value = query;
+      filterOwners();
+    };
+
+    const filterOwners = () => {
+      return owners.value.filter(owner => 
+        owner.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    };
+
+    const filteredOwners = ref(filterOwners());
+
+    watch([searchQuery, owners], () => {
+      filteredOwners.value = filterOwners();
+    });
+
     watch(localValue, (newValue) => {
-      emit('update:modelValue', newValue);
+      emit('update:modelValue', newValue === null ? '' : newValue);
     });
 
     watch(() => props.modelValue, (newValue) => {
-      localValue.value = newValue;
+      localValue.value = newValue || null;
     });
 
     return {
@@ -63,7 +102,11 @@ export default defineComponent({
       totalOwners,
       fetchOwners,
       handlePageChange,
-      localValue
+      localValue,
+      placeholderText,
+      allowClear,
+      handleInput,
+      filteredOwners
     };
   }
 });

@@ -3,13 +3,17 @@
     <el-card>
       <h2>运输单价录入</h2>
       <el-form @submit.prevent="fetchFilteredDetails">
-        <OwnerSelect v-model="filters.owner" label="老板" />
-        <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" label="项目" />
+        <el-form-item label="老板">
+          <OwnerSelect v-model="filters.owner" />
+        </el-form-item>
+        <el-form-item label="项目">
+          <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" />
+        </el-form-item>
         <el-form-item label="运输起点">
-          <StartSiteSelect v-model="filters.startsite_id" />
+          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
         </el-form-item>
         <el-form-item label="运输终点">
-          <EndSiteSelect v-model="filters.endsite_id" />
+          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
         </el-form-item>
 
         <el-form-item label="运输品类">
@@ -29,6 +33,8 @@
         <el-table-column prop="project.name" label="项目名称"></el-table-column>
         <el-table-column prop="goods.name" label="运输品类"></el-table-column>
         <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)"></el-table-column>
+        <el-table-column prop="quantity" label="数量"></el-table-column>
+        <el-table-column prop="unit" label="单位"></el-table-column>
         <el-table-column prop="contractorPrice" label="工地承接单价"></el-table-column>
         <el-table-column prop="startSubsidy" label="起点补贴金额"></el-table-column>
         <el-table-column prop="endSubsidy" label="弃点付费金额"></el-table-column>
@@ -76,17 +82,18 @@ import { defineComponent, ref, onMounted } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import OwnerProjectsSelect from '@/components/select/OwnerProjectsSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
-import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
-import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
+import OwnerStartSitesSelect from '@/components/select/OwnerStartSitesSelect.vue';
+import OwnerEndSitesSelect from '@/components/select/OwnerEndSitesSelect.vue';
 import { formatDate } from '../utils/time';
-import { searchTransportDetails } from '@/services/detailService';
-import { updateTransportPrices } from '@/services/transportService';
+import { searchTransportDetails, updateTransportPrices } from '@/services/detailService';
 
 interface Detail {
   id: number;
   project: { name: string };
   goods: { name: string };
   date: string | null;
+  quantity: number;
+  unit: string;
   contractorPrice: number;
   startSubsidy: number;
   endSubsidy: number;
@@ -100,8 +107,8 @@ export default defineComponent({
     OwnerSelect,
     OwnerProjectsSelect,
     GoodsSelect,
-    StartSiteSelect,
-    EndSiteSelect
+    OwnerStartSitesSelect,
+    OwnerEndSitesSelect
   },
   setup() {
     const details = ref<Detail[]>([]);
@@ -131,6 +138,7 @@ export default defineComponent({
     const fetchFilteredDetails = async () => {
       try {
         const params = {
+          ownerName: filters.value.owner,
           project_id: filters.value.projectId,
           goods_id: filters.value.goods_id,
           startsite_id: filters.value.startsite_id,
@@ -214,3 +222,7 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+@import '@/assets/select.css';
+</style>
