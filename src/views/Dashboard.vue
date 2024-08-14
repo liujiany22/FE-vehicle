@@ -24,8 +24,8 @@ import StartExcel from '@/components/reports/StartExcel.vue';
 import EndExcel from '@/components/reports/EndExcel.vue';
 import Advance from '@/components/finance/Advance.vue';
 import Settlement from '@/components/finance/Settlement.vue';
-
-
+import DriverExcel from '@/components/reports/DriverExcel.vue';
+import AdvanceSearch from '@/components/finance/AdvanceSearch.vue';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -44,6 +44,8 @@ export default defineComponent({
     EndExcel,
     Advance,
     Settlement,
+    DriverExcel,
+    AdvanceSearch,
   },
   setup() {
     const currentModule = ref('Module1Feature1');

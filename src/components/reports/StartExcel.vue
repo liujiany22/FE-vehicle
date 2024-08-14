@@ -11,10 +11,12 @@
         </el-form-item>
         <!-- Add StartSiteSelect, EndSiteSelect, and GoodsSelect -->
         <el-form-item label="运输起点">
-          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
+          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner"
+            :project_id="filters.projectId" />
         </el-form-item>
         <el-form-item label="运输终点">
-          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId"/>
+          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner"
+            :project_id="filters.projectId" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="filters.goods_id" />
@@ -48,18 +50,12 @@
             {{ scope.row.end_site?.name || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="vehicle_list" label="车队">
+        <el-table-column prop="vehicle" label="车队">
           <template v-slot="scope">
-            <span v-if="scope.row.vehicle_list.length">
-              <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
-                {{ vehicle.license }}
-                <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
-              </span>
-              <span v-if="scope.row.vehicle_list.length > 3">...</span>
-            </span>
-            <span v-else>无</span>
+            {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
           </template>
         </el-table-column>
+
         <el-table-column prop="goods.name" label="品类">
           <template v-slot="scope">
             {{ scope.row.goods?.name || '无' }}
@@ -113,7 +109,7 @@ interface Detail {
   project: { name: string };
   start_site: { name: string };
   end_site: { name: string };
-  vehicle_list: { license: string }[];
+  vehicle: { license: string };
   goods: { name: string };
   quantity: number;
   unit: string;
@@ -161,7 +157,7 @@ export default defineComponent({
           project: item.project || { name: '' },
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
-          vehicle_list: item.vehicle_list || [],
+          vehicle: item.vehicle || { license: '', driver: '' },  // 这里改为处理单个 vehicle 对象
           goods: item.goods || { name: '' },
           quantity: item.quantity || 0,
           unit: item.unit || '',
@@ -173,6 +169,7 @@ export default defineComponent({
         console.error('Failed to fetch details', error);
       }
     };
+
 
     const handleSelectionChange = (selection: Detail[]) => {
       selectedDetails.value = selection;
@@ -205,10 +202,6 @@ export default defineComponent({
       }
     };
 
-    const getDisplayVehicles = (vehicleList: { license: string }[]) => {
-      return vehicleList.length > 3 ? vehicleList.slice(0, 3) : vehicleList;
-    };
-
     onMounted(() => {
       fetchFilteredDetails();
     });
@@ -224,7 +217,6 @@ export default defineComponent({
       handleSelectionChange,
       handleExport,
       handleDetailPageChange,
-      getDisplayVehicles,
       formatDate,
       formatLoad,
     };

@@ -53,19 +53,19 @@
         <h2>修改选中的运输单价</h2>
         <el-form @submit.prevent="saveDetail">
           <el-form-item label="工地承接单价">
-            <el-input v-model.number="editForm.contractorPrice" placeholder="请输入工地承接单价" class="custom-input"></el-input>
+            <el-input v-model="editForm.contractorPrice" type="number" placeholder="请输入工地承接单价" class="custom-input"/>
           </el-form-item>
           <el-form-item label="起点补贴金额">
-            <el-input v-model.number="editForm.startSubsidy" placeholder="请输入起点补贴金额" class="custom-input"></el-input>
+            <el-input v-model="editForm.startSubsidy" type="number" placeholder="请输入起点补贴金额" class="custom-input"></el-input>
           </el-form-item>
           <el-form-item label="弃点付费金额">
-            <el-input v-model.number="editForm.endSubsidy" placeholder="请输入弃点付费金额" class="custom-input"></el-input>
+            <el-input v-model="editForm.endSubsidy" type="number" placeholder="请输入弃点付费金额" class="custom-input"></el-input>
           </el-form-item>
           <el-form-item label="终点付费金额">
-            <el-input v-model.number="editForm.endPayment" placeholder="请输入终点付费金额" class="custom-input"></el-input>
+            <el-input v-model="editForm.endPayment" type="number" placeholder="请输入终点付费金额" class="custom-input"></el-input>
           </el-form-item>
           <el-form-item label="给司机单价">
-            <el-input v-model.number="editForm.driverPrice" placeholder="请输入给司机单价" class="custom-input"></el-input>
+            <el-input v-model="editForm.driverPrice" type="number" placeholder="请输入给司机单价" class="custom-input"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="saveDetail">保存</el-button>

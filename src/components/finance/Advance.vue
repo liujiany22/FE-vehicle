@@ -27,13 +27,13 @@
     <el-card>
       <h2>已录入的预付款</h2>
       <el-table :data="advances" style="width: 100%">
-        <el-table-column prop="vehicle.license" label="司机">
+        <el-table-column prop="vehicle" label="运输车队">
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <FleetSelect v-model="editingAdvance.vehicle_id" />
             </div>
             <div v-else>
-              {{ scope.row.vehicle ? scope.row.vehicle.license : "无" }}
+              {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
             </div>
           </template>
         </el-table-column>
@@ -118,7 +118,7 @@ export default defineComponent({
       note: '', // Added note field
     });
 
-    const advances = ref<{ id: number, vehicle: { id: number, license: string }, amount: number, pay: { id: number, method: string }, advance_time: string, note: string }[]>([]);
+    const advances = ref<{ id: number, vehicle: { id: number, license: string, driver: string }, amount: number, pay: { id: number, method: string }, advance_time: string, note: string }[]>([]);
     const editingAdvance = ref({ vehicle_id: 0, amount: 0, pay_id: 0, advance_time: '', note: '' });
     const editingId = ref<number | null>(null);
     const currentPage = ref(1);

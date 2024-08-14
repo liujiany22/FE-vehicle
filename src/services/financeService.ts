@@ -35,3 +35,21 @@ export const getSettlement = (
 
     return apiClient.get(`/finance/total_amount?${queryParams.toString()}`);
 };
+
+export const searchAdvances = (
+    params: {
+        vehicle_id?: number,
+        start_date?: string | null, 
+        end_date?: string | null,
+    },
+    perPage: number,
+    page: number
+) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.vehicle_id && params.vehicle_id !== 0) queryParams.append('vehicle_id', params.vehicle_id.toString());
+    if (params.start_date) queryParams.append('start_date', params.start_date);
+    if (params.end_date) queryParams.append('end_date', params.end_date);
+
+    return apiClient.get(`/finance/search4advance/${perPage}/${page}?${queryParams.toString()}`);
+};

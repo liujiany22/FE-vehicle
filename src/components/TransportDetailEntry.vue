@@ -21,9 +21,7 @@
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
-        <el-form-item label="数量">
-          <el-input v-model="form.quantity" type="number" placeholder="输入数量" class="custom-input" />
-        </el-form-item>
+
         <el-form-item label="单位">
           <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
         </el-form-item>
@@ -85,21 +83,15 @@
             {{ scope.row.end_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="vehicle_list" label="运输车队" v-slot="scope">
+        <el-table-column prop="vehicle" label="运输车队" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
-            <FleetsSelect v-model="editingDetail.vehicle_ids" />
+            <FleetSelect v-model="editingDetail.vehicle_id" />
           </div>
           <div v-else>
-            <span v-if="scope.row.vehicle_list.length > 0">
-              <span v-for="(vehicle, index) in getDisplayVehicles(scope.row.vehicle_list)" :key="index">
-                {{ vehicle.license }}
-                <span v-if="index < scope.row.vehicle_list.length - 1 && index < 2">, </span>
-              </span>
-              <span v-if="scope.row.vehicle_list.length > 3">...</span>
-            </span>
-            <span v-else>无</span> <!-- 当vehicle_list为空时显示"无" -->
+            {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
           </div>
         </el-table-column>
+
         <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
           <div v-if="isEditing(scope.row.id)">
             <GoodsSelect v-model="editingDetail.goods_id" />
@@ -170,9 +162,11 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { formatDate } from '../utils/time';
 import { formatLoad } from '../utils/load';
+import ProjectSelect from './select/ProjectSelect.vue';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
-import FleetsSelect from '@/components/select/FleetsSelect.vue'; // 使用 FleetsSelect
+import FleetsSelect from '@/components/select/FleetsSelect.vue';
+import FleetSelect from './select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import LoadSelect from '@/components/select/LoadSelect.vue';
 import OwnerSelect from './select/OwnerSelect.vue';
@@ -187,9 +181,11 @@ import {
 export default defineComponent({
   name: 'TransportDetailEntry',
   components: {
+    ProjectSelect,
     StartSiteSelect,
     EndSiteSelect,
-    FleetsSelect, // 导入 FleetsSelect
+    FleetsSelect,
+    FleetSelect,
     GoodsSelect,
     LoadSelect,
     OwnerProjectsSelect,
@@ -218,7 +214,7 @@ export default defineComponent({
     const editingDetail = ref({
       start_site_id: 0,
       end_site_id: 0,
-      vehicle_ids: [] as number[], // 改为 vehicle_ids
+      vehicle_id: 0,
       goods_id: 0,
       quantity: 0,
       unit: '',
@@ -241,7 +237,7 @@ export default defineComponent({
           ...item,
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
-          vehicle_list: item.vehicle_list || [],
+          vehicle: item.vehicle || { license:'', driver:''},
           goods: item.goods || { name: '' },
           load: item.load || '',
           project: item.project || { name: '' },
@@ -258,24 +254,27 @@ export default defineComponent({
 
     const addDetail = async () => {
       try {
-        const data = {
-          startsite_id: form.value.start_site_id,
-          endsite_id: form.value.end_site_id,
-          vehicle_ids: form.value.vehicle_ids, // 传递 vehicle_ids
-          goods_id: form.value.goods_id,
-          load: form.value.load,
-          project_id: form.value.project_id,
-          quantity: form.value.quantity,
-          unit: form.value.unit,
-          date: form.value.date,
-          contractorPrice: form.value.contractorPrice,
-          startSubsidy: form.value.startSubsidy,
-          endSubsidy: form.value.endSubsidy,
-          endPayment: form.value.endPayment,
-          driverPrice: form.value.driverPrice,
-          note: form.value.note,
-        };
-        await addTransportDetail(data);
+        // 遍历每个 vehicle_id 并发送单独的请求
+        for (const vehicle_id of form.value.vehicle_ids) {
+          const data = {
+            startsite_id: form.value.start_site_id,
+            endsite_id: form.value.end_site_id,
+            vehicle_id, // 传递单个 vehicle_id
+            goods_id: form.value.goods_id,
+            load: form.value.load,
+            project_id: form.value.project_id,
+            quantity: form.value.quantity,
+            unit: form.value.unit,
+            date: form.value.date,
+            contractorPrice: form.value.contractorPrice,
+            startSubsidy: form.value.startSubsidy,
+            endSubsidy: form.value.endSubsidy,
+            endPayment: form.value.endPayment,
+            driverPrice: form.value.driverPrice,
+            note: form.value.note,
+          };
+          await addTransportDetail(data);
+        }
         alert('运输明细录入成功');
         resetForm();
         fetchDetails(); // 刷新列表
@@ -283,6 +282,7 @@ export default defineComponent({
         console.error('Failed to add transport detail', error);
       }
     };
+
 
     const removeDetail = async (itemId: number) => {
       try {
@@ -298,7 +298,7 @@ export default defineComponent({
       editingDetail.value = {
         start_site_id: detail.start_site?.id || 0,
         end_site_id: detail.end_site?.id || 0,
-        vehicle_ids: detail.vehicle_list.map((vehicle: any) => vehicle.id), // 更新为数组
+        vehicle_id: detail.vehicle?.id || 0,
         goods_id: detail.goods?.id || 0,
         quantity: detail.quantity || 0,
         unit: detail.unit || '',
@@ -316,7 +316,7 @@ export default defineComponent({
           item_id: itemId,
           startsite_id: editingDetail.value.start_site_id,
           endsite_id: editingDetail.value.end_site_id,
-          vehicle_ids: editingDetail.value.vehicle_ids, // 传递 vehicle_ids
+          vehicle_id: editingDetail.value.vehicle_id, 
           goods_id: editingDetail.value.goods_id,
           load: editingDetail.value.load,
           project_id: editingDetail.value.project_id,
@@ -355,11 +355,11 @@ export default defineComponent({
         load: '',
         owner: '',
         project_id: 0,
-        contractorPrice: 0, 
+        contractorPrice: 0,
         startSubsidy: 0,
-        endSubsidy: 0, 
+        endSubsidy: 0,
         endPayment: 0,
-        driverPrice: 0, 
+        driverPrice: 0,
         note: ''
       };
     };
@@ -368,7 +368,7 @@ export default defineComponent({
       editingDetail.value = {
         start_site_id: 0,
         end_site_id: 0,
-        vehicle_ids: [],
+        vehicle_id: 0,
         goods_id: 0,
         quantity: 0,
         unit: '',

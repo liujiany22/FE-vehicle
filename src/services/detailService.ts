@@ -5,7 +5,7 @@ export const addTransportDetail = (data: {
     startsite_id: number;
     endsite_id: number;
     
-    vehicle_ids: number[];
+    vehicle_id: number;
     goods_id: number;
     load: string;
     quantity: number;
@@ -37,7 +37,7 @@ export const updateTransportDetail = (data: {
     startsite_id?: number;
     endsite_id?: number;
     
-    vehicle_ids?: number[];
+    vehicle_id?: number;
     goods_id?: number;
     load?: string;
     quantity: number;
