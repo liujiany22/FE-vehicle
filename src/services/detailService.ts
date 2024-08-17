@@ -40,8 +40,8 @@ export const updateTransportDetail = (data: {
     vehicle_id?: number;
     goods_id?: number;
     load?: string;
-    quantity: number;
-    unit: string;
+    quantity?: number;
+    unit?: string;
     date?: string;
     note?: string;
 }) => {

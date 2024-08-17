@@ -28,6 +28,11 @@
             <el-menu-item index="Settlement">工地结算明细</el-menu-item>
             <el-menu-item index="DriverExcel">驾驶员对账表</el-menu-item>
         </el-sub-menu>
+        <el-sub-menu index="5">
+            <template v-slot:title>付款明细管理</template>
+            <el-menu-item index="PaymentDetailEntry">付款明细录入</el-menu-item>
+            <el-menu-item index="PaymentDetailSearch">付款明细查询</el-menu-item>
+        </el-sub-menu>
     </el-menu>
 </template>
 

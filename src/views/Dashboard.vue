@@ -26,6 +26,8 @@ import Advance from '@/components/finance/Advance.vue';
 import Settlement from '@/components/finance/Settlement.vue';
 import DriverExcel from '@/components/reports/DriverExcel.vue';
 import AdvanceSearch from '@/components/finance/AdvanceSearch.vue';
+import PaymentDetailEntry from '@/components/Payment/PaymentDetailEntry.vue';
+import PaymentDetailSearch from '@/components/Payment/PaymentDetailSearch.vue';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -46,6 +48,8 @@ export default defineComponent({
     Settlement,
     DriverExcel,
     AdvanceSearch,
+    PaymentDetailEntry,
+    PaymentDetailSearch,
   },
   setup() {
     const currentModule = ref('Module1Feature1');
