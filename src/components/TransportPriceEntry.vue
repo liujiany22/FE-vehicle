@@ -28,8 +28,8 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable">
-        <el-table-column type="selection" width="55"></el-table-column>
+      <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
+        <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
         <el-table-column prop="project.name" label="项目名称"></el-table-column>
         <el-table-column prop="goods.name" label="运输品类"></el-table-column>
         <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)"></el-table-column>
@@ -135,6 +135,10 @@ export default defineComponent({
 
     const isEditing = ref(false);
 
+    const getRowKey = (row: Detail) => {
+  return row.id;
+};
+
     const fetchFilteredDetails = async () => {
       try {
         const params = {
@@ -211,6 +215,7 @@ export default defineComponent({
       perPage,
       totalDetails,
       isEditing,
+      getRowKey,
       fetchFilteredDetails,
       handleSelectionChange,
       toggleEditMode,
