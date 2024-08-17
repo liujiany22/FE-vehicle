@@ -16,13 +16,10 @@
           <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
-          <FleetsSelect v-model="form.vehicle_ids" />
+          <FleetsSelect v-model="form.vehicles" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
-        </el-form-item>
-        <el-form-item label="数量">
-          <el-input v-model="form.quantity" placeholder="输入数量" class="custom-input" />
         </el-form-item>
         <el-form-item label="单位">
           <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
@@ -196,13 +193,12 @@ export default defineComponent({
   setup() {
     const details = ref([]);
     const form = ref({
-      owner: '', // 新增
+      owner: '',
       project_id: 0,
       start_site_id: 0,
       end_site_id: 0,
-      vehicle_ids: [] as number[],
+      vehicles: [] as { id: number; quantity: number }[], // 修改为车辆对象数组
       goods_id: 0,
-      quantity: 0,
       unit: '',
       date: '',
       load: '',
@@ -250,22 +246,18 @@ export default defineComponent({
       }
     };
 
-    const getDisplayVehicles = (vehicleList: { license: string }[]) => {
-      return vehicleList.length > 3 ? vehicleList.slice(0, 3) : vehicleList;
-    };
-
     const addDetail = async () => {
       try {
-        // 遍历每个 vehicle_id 并发送单独的请求
-        for (const vehicle_id of form.value.vehicle_ids) {
+        // 遍历每个 vehicle 对象并发送单独的请求
+        for (const vehicle of form.value.vehicles) {
           const data = {
             startsite_id: form.value.start_site_id,
             endsite_id: form.value.end_site_id,
-            vehicle_id, // 传递单个 vehicle_id
+            vehicle_id: vehicle.id, // 传递单个 vehicle_id
             goods_id: form.value.goods_id,
             load: form.value.load,
             project_id: form.value.project_id,
-            quantity: form.value.quantity,
+            quantity: vehicle.quantity, // 对应车辆的数量
             unit: form.value.unit,
             date: form.value.date,
             contractorPrice: form.value.contractorPrice,
@@ -284,7 +276,6 @@ export default defineComponent({
         console.error('Failed to add transport detail', error);
       }
     };
-
 
     const removeDetail = async (itemId: number) => {
       try {
@@ -349,9 +340,8 @@ export default defineComponent({
       form.value = {
         start_site_id: 0,
         end_site_id: 0,
-        vehicle_ids: [],
+        vehicles: [],
         goods_id: 0,
-        quantity: 0,
         unit: '',
         date: '',
         load: '',
@@ -405,11 +395,12 @@ export default defineComponent({
       isEditing,
       formatDate,
       formatLoad,
-      getDisplayVehicles,
     };
   },
 });
 </script>
+
+
 
 <style scoped>
 @import '@/assets/select.css';
