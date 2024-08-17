@@ -21,7 +21,9 @@
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
-
+        <el-form-item label="数量">
+          <el-input v-model="form.quantity" placeholder="输入数量" class="custom-input" />
+        </el-form-item>
         <el-form-item label="单位">
           <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
         </el-form-item>
