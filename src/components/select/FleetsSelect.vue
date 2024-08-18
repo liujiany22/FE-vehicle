@@ -80,20 +80,25 @@ export default defineComponent({
     };
 
     const addVehicle = () => {
-      if (canAddVehicle.value) {
-        const vehicle = vehicles.value.find(v => v.id === selectedVehicleId.value);
-        if (vehicle) {
-          addedVehicles.value.push({
-            id: vehicle.id,
-            license: vehicle.license,
-            quantity: vehicleQuantity.value as number // 必定有值
-          });
-          selectedVehicleId.value = null;
-          vehicleQuantity.value = null;
-          emit('update:modelValue', addedVehicles.value);
-        }
-      }
-    };
+  console.log('canAddVehicle:', canAddVehicle.value);
+  if (canAddVehicle.value) {
+    const vehicle = vehicles.value.find(v => v.id === selectedVehicleId.value);
+    if (vehicle) {
+      console.log('Adding vehicle:', vehicle);
+      addedVehicles.value.push({
+        id: vehicle.id,
+        license: vehicle.license,
+        quantity: vehicleQuantity.value as number // 必定有值
+      });
+      selectedVehicleId.value = null;
+      vehicleQuantity.value = null;
+      emit('update:modelValue', addedVehicles.value);
+    }
+  } else {
+    console.log('Cannot add vehicle. Check selectedVehicleId and vehicleQuantity.');
+  }
+};
+
 
     const removeVehicle = (index: number) => {
       addedVehicles.value.splice(index, 1);
