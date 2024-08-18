@@ -116,9 +116,16 @@ export default defineComponent({
     };
   },
   watch: {
-    selectedVehicleId: 'validateAddVehicle',
-    vehicleQuantity: 'validateAddVehicle'
+  selectedVehicleId: {
+    handler: 'validateAddVehicle',
+    immediate: true // 确保在组件挂载时立即验证
+  },
+  vehicleQuantity: {
+    handler: 'validateAddVehicle',
+    immediate: true // 确保在组件挂载时立即验证
   }
+}
+
 });
 </script>
 
