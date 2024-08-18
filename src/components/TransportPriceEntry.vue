@@ -15,7 +15,6 @@
         <el-form-item label="运输终点">
           <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
         </el-form-item>
-
         <el-form-item label="运输品类">
           <GoodsSelect v-model="filters.goods_id" />
         </el-form-item>
