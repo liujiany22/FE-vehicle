@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { getFleets } from '@/services/transportService';
 
 interface Vehicle {
@@ -58,7 +58,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const vehicles = ref<Vehicle[]>([]);
     const selectedVehicleId = ref<number | null>(null);
-    const vehicleQuantity = ref<number | null>(null); // 默认为 null
+    const vehicleQuantity = ref<number | null>(null);
     const vehicleCurrentPage = ref(1);
     const perPage = ref(10);
     const totalVehicles = ref(0);
@@ -74,31 +74,32 @@ export default defineComponent({
       }
     };
 
-    const canAddVehicle = ref(false);
-    const validateAddVehicle = () => {
-      canAddVehicle.value = selectedVehicleId.value !== null && vehicleQuantity.value !== null && vehicleQuantity.value > 0;
-    };
+    onMounted(() => {
+      fetchFleets();
+    });
+
+    const canAddVehicle = computed(() => {
+      return selectedVehicleId.value !== null && vehicleQuantity.value !== null && vehicleQuantity.value > 0;
+    });
 
     const addVehicle = () => {
-  console.log('canAddVehicle:', canAddVehicle.value);
-  if (canAddVehicle.value) {
-    const vehicle = vehicles.value.find(v => v.id === selectedVehicleId.value);
-    if (vehicle) {
-      console.log('Adding vehicle:', vehicle);
-      addedVehicles.value.push({
-        id: vehicle.id,
-        license: vehicle.license,
-        quantity: vehicleQuantity.value as number // 必定有值
-      });
+      if (canAddVehicle.value) {
+        const vehicle = vehicles.value.find(v => v.id === selectedVehicleId.value);
+        if (vehicle) {
+          addedVehicles.value.push({
+            id: vehicle.id,
+            license: vehicle.license,
+            quantity: vehicleQuantity.value as number
+          });
+          resetSelections();
+        }
+      }
+    };
+
+    const resetSelections = () => {
       selectedVehicleId.value = null;
       vehicleQuantity.value = null;
-      emit('update:modelValue', addedVehicles.value);
-    }
-  } else {
-    console.log('Cannot add vehicle. Check selectedVehicleId and vehicleQuantity.');
-  }
-};
-
+    };
 
     const removeVehicle = (index: number) => {
       addedVehicles.value.splice(index, 1);
@@ -116,26 +117,14 @@ export default defineComponent({
       fetchFleets,
       addVehicle,
       removeVehicle,
-      canAddVehicle,
-      validateAddVehicle
+      canAddVehicle
     };
-  },
-  watch: {
-  selectedVehicleId: {
-    handler: 'validateAddVehicle',
-    immediate: true // 确保在组件挂载时立即验证
-  },
-  vehicleQuantity: {
-    handler: 'validateAddVehicle',
-    immediate: true // 确保在组件挂载时立即验证
   }
-}
-
 });
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
 
 .fleets-select {
   margin-bottom: 20px;
