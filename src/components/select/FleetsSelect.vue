@@ -50,8 +50,12 @@ interface Vehicle {
 export default defineComponent({
   name: 'FleetsSelect',
   props: {
-    modelValue: {
-      type: Array as () => { id: number; quantity: number }[],
+    vehicleIds: {
+      type: Array as () => number[],
+      required: true
+    },
+    quantities: {
+      type: Array as () => number[],
       required: true
     }
   },
@@ -93,6 +97,8 @@ export default defineComponent({
           });
           resetSelections();
         }
+        emit('update:vehicleIds', addedVehicles.value.map(v => v.id));
+        emit('update:quantities', addedVehicles.value.map(v => v.quantity));
       }
     };
 
@@ -103,7 +109,8 @@ export default defineComponent({
 
     const removeVehicle = (index: number) => {
       addedVehicles.value.splice(index, 1);
-      emit('update:modelValue', addedVehicles.value);
+      emit('update:vehicleIds', addedVehicles.value.map(v => v.id));
+      emit('update:quantities', addedVehicles.value.map(v => v.quantity));
     };
 
     return {
@@ -122,41 +129,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-@import '@/assets/select.css';
-
-.fleets-select {
-  margin-bottom: 20px;
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.vehicle-select {
-  width: 300px;
-}
-
-.quantity-input {
-  width: 150px;
-}
-
-.added-vehicles-list {
-  margin-top: 20px;
-}
-
-.added-vehicles-list ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.added-vehicles-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-}
-</style>

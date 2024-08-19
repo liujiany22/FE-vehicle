@@ -16,7 +16,7 @@
           <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
-          <FleetsSelect v-model="form.vehicles" />
+          <FleetsSelect v-model:vehicleIds="form.vehicle_ids" v-model:quantities="form.quantities" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
@@ -197,7 +197,8 @@ export default defineComponent({
       project_id: 0,
       start_site_id: 0,
       end_site_id: 0,
-      vehicles: [] as { id: number; quantity: number }[], // 修改为车辆对象数组
+      vehicle_ids: [] as number[],  // 存储车辆ID数组
+      quantities: [] as number[], // 存储数量数组
       goods_id: 0,
       unit: '',
       date: '',
@@ -248,16 +249,20 @@ export default defineComponent({
 
     const addDetail = async () => {
       try {
+        if (form.value.vehicle_ids.length === 0) {
+          alert('请先添加至少一辆车辆及其数量');
+          return;
+        }
         // 遍历每个 vehicle 对象并发送单独的请求
-        for (const vehicle of form.value.vehicles) {
+        for (let i = 0; i < form.value.vehicle_ids.length; i++) {
           const data = {
             startsite_id: form.value.start_site_id,
             endsite_id: form.value.end_site_id,
-            vehicle_id: vehicle.id, // 传递单个 vehicle_id
+            vehicle_id: form.value.vehicle_ids[i],
             goods_id: form.value.goods_id,
             load: form.value.load,
             project_id: form.value.project_id,
-            quantity: vehicle.quantity, // 对应车辆的数量
+            quantity: form.value.quantities[i],
             unit: form.value.unit,
             date: form.value.date,
             contractorPrice: form.value.contractorPrice,
@@ -340,7 +345,8 @@ export default defineComponent({
       form.value = {
         start_site_id: 0,
         end_site_id: 0,
-        vehicles: [],
+        vehicle_ids: form.value.vehicle_ids,
+        quantities: form.value.quantities,
         goods_id: 0,
         unit: '',
         date: '',
