@@ -30,8 +30,8 @@
     </el-card>
 
     <el-card v-if="details.length">
-      <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable">
-        <el-table-column type="selection" width="55"></el-table-column>
+      <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
+        <el-table-column type="selection" width="55" :reserve-selecti="true"></el-table-column>
         <el-table-column prop="project.name" label="项目名称">
           <template v-slot="scope">
             {{ scope.row.project?.name || '无' }}
@@ -137,6 +137,10 @@ export default defineComponent({
     const perPage = ref(10);
     const totalDetails = ref(0);
 
+    const getRowKey = (row: Detail) => {
+  return row.id;
+};
+
     const fetchFilteredDetails = async () => {
       try {
         const params = {
@@ -208,6 +212,7 @@ export default defineComponent({
       detailCurrentPage,
       perPage,
       totalDetails,
+      getRowKey,
       fetchFilteredDetails,
       handleSelectionChange,
       handleExport,
