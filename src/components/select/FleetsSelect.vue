@@ -13,6 +13,14 @@
           :label="`${vehicle.license} (${vehicle.driver})`" 
           :value="vehicle.id">
         </el-option>
+        <div class="pagination-container">
+          <el-pagination 
+            @current-change="handleVehiclePageChange" 
+            :current-page="vehicleCurrentPage" 
+            :page-size="perPage" 
+            layout="prev, pager, next" 
+            :total="totalVehicles" />
+        </div>
       </el-select>
       <el-input 
         v-model="vehicleQuantity" 
@@ -78,6 +86,11 @@ export default defineComponent({
       }
     };
 
+    const handleVehiclePageChange = (page: number) => {
+      vehicleCurrentPage.value = page;
+      fetchFleets();
+    };
+
     onMounted(() => {
       fetchFleets();
     });
@@ -122,6 +135,7 @@ export default defineComponent({
       perPage,
       totalVehicles,
       fetchFleets,
+      handleVehiclePageChange,
       addVehicle,
       removeVehicle,
       canAddVehicle
@@ -129,3 +143,10 @@ export default defineComponent({
   }
 });
 </script>
+
+<style scoped>
+.pagination-container {
+  padding: 10px;
+  text-align: center;
+}
+</style>
