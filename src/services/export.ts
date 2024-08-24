@@ -34,3 +34,20 @@ export const getStartPDF = (data: {
 }) => {
     return apiClient.post('/item/start_excel_pdf', data, { responseType: 'blob' });
 };
+
+export const getEndPDF = (data: {
+    item_ids: number[],
+    project_id: number,
+    start_date: string,
+    end_date: string,
+}) => {
+    return apiClient.post('/item/end_excel_pdf', data, { responseType: 'blob' });
+};
+
+export const getDriverPDF = (data: {
+    vehicle_id: number,
+    start_date: string,
+    end_date: string
+}) => {
+    return apiClient.post('/finance/driver_excel_pdf', data, { responseType: 'blob' });
+};

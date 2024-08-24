@@ -83,6 +83,9 @@
       <el-button type="primary" @click="handleExport" :disabled="!selectedDetails.length">
         导出
       </el-button>
+      <el-button type="primary" @click="handlePrint" :disabled="!selectedDetails.length">
+        打印
+      </el-button>
     </el-card>
   </div>
 </template>
@@ -95,7 +98,7 @@ import OwnerStartSitesSelect from '../select/OwnerStartSitesSelect.vue';
 import OwnerEndSitesSelect from '../select/OwnerEndSitesSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import { searchTransportDetails } from '@/services/detailService';
-import { getEndExcel } from '@/services/export';
+import { getEndExcel, getEndPDF } from '@/services/export';
 import { saveAs } from 'file-saver';
 import { formatLoad } from '@/utils/load';
 import { formatDate } from '@/utils/time';
@@ -138,8 +141,8 @@ export default defineComponent({
     const totalDetails = ref(0);
 
     const getRowKey = (row: Detail) => {
-  return row.id;
-};
+      return row.id;
+    };
 
     const fetchFilteredDetails = async () => {
       try {
@@ -201,6 +204,39 @@ export default defineComponent({
       }
     };
 
+    const handlePrint = async () => {
+      const item_ids = selectedDetails.value.map(detail => detail.id);
+
+      const exportData = {
+        item_ids: item_ids,
+        project_id: filters.value.projectId,
+        start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : '',
+        end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : '',
+        startsite_id: filters.value.startsite_id,
+        endsite_id: filters.value.endsite_id,
+        goods_id: filters.value.goods_id,
+      };
+
+      try {
+        const pdfResponse = await getEndPDF(exportData);
+        const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
+        const pdfURL = URL.createObjectURL(blob);
+
+        const printWindow = window.open(pdfURL);
+        if (printWindow) {
+          printWindow.addEventListener('load', () => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.onafterprint = () => {
+              printWindow.close();
+            };
+          });
+        }
+      } catch (error) {
+        console.error('Error printing site entry:', error);
+      }
+    };
+
     onMounted(() => {
       fetchFilteredDetails();
     });
@@ -216,6 +252,7 @@ export default defineComponent({
       fetchFilteredDetails,
       handleSelectionChange,
       handleExport,
+      handlePrint,
       handleDetailPageChange,
       formatDate,
       formatLoad,
