@@ -16,7 +16,7 @@
           <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
-          <FleetsSelect v-model:vehicleIds="form.vehicle_ids" v-model:quantities="form.quantities" />
+          <FleetsSelect ref="fleetsSelect" v-model:vehicleIds="form.vehicle_ids" v-model:quantities="form.quantities" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="form.goods_id" />
@@ -228,6 +228,7 @@ export default defineComponent({
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalDetails = ref(0);
+    const fleetsSelect = ref<InstanceType<typeof FleetsSelect> | null>(null);
 
     const fetchDetails = async () => {
       try {
@@ -276,6 +277,10 @@ export default defineComponent({
         }
         alert('运输明细录入成功');
         resetForm();
+        if(fleetsSelect.value){
+          
+          fleetsSelect.value.addedVehicles = [];
+        }
         fetchDetails(); // 刷新列表
       } catch (error) {
         console.error('Failed to add transport detail', error);
@@ -345,8 +350,8 @@ export default defineComponent({
       form.value = {
         start_site_id: 0,
         end_site_id: 0,
-        vehicle_ids: form.value.vehicle_ids,
-        quantities: form.value.quantities,
+        vehicle_ids: [],
+        quantities: [],
         goods_id: 0,
         unit: '',
         date: '',
@@ -392,6 +397,7 @@ export default defineComponent({
       detailCurrentPage,
       perPage,
       totalDetails,
+      fleetsSelect,
       addDetail,
       removeDetail,
       editDetail,
