@@ -184,7 +184,7 @@
   
       const saveParameter = async (id: number) => {
         try {
-          await updatePaymentDetail({ item_id: id, ...editingPayment.value });
+          await updatePaymentDetail({ payment_id: id, ...editingPayment.value });
           alert('付款详情更新成功');
           cancelEdit();
           fetchPaymentDetails(); // 刷新列表

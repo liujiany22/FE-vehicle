@@ -22,7 +22,7 @@ export const getPaymentDetails = (perPage: number, page: number) => {
 };
 
 export const updatePaymentDetail = (data: {
-    item_id: number;
+    payment_id: number;
     owner?: string;
     
     pay_id?: number;
