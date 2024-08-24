@@ -195,7 +195,7 @@ export default defineComponent({
       try {
         const exportResponse = await getEndExcel(exportData);
         const blob = new Blob([exportResponse.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, 'end_transport_statement.xlsx');
+        saveAs(blob, '终点对账表.xlsx');
       } catch (error) {
         console.error('Error exporting site entry:', error);
       }

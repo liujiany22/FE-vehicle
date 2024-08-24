@@ -132,7 +132,7 @@ export default defineComponent({
         await updateProjectOwner({
           project_id: id,
           owner: editingParameter.value.owner,
-          phone: editingParameter.value.owner_phone,
+          owner_phone: editingParameter.value.owner_phone,
           name: editingParameter.value.name,
         });
         fetchParameters();

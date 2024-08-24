@@ -55,6 +55,7 @@ export const searchTransportDetails = (
         startsite_id?: number;
         endsite_id?: number;
         goods_id?: number;
+        vehicle_id?: number;
         start_date?: string | null;
         end_date?: string | null;
     },
@@ -68,6 +69,7 @@ export const searchTransportDetails = (
     if (params.startsite_id && params.startsite_id !== 0) queryParams.append('startsite_id', params.startsite_id.toString());
     if (params.endsite_id && params.endsite_id !== 0) queryParams.append('endsite_id', params.endsite_id.toString());
     if (params.goods_id && params.goods_id !== 0) queryParams.append('goods_id', params.goods_id.toString());
+    if (params.vehicle_id && params.vehicle_id !== 0) queryParams.append('vehicle_id', params.vehicle_id.toString());
     if (params.start_date) queryParams.append('start_date', params.start_date);
     if (params.end_date) queryParams.append('end_date', params.end_date);
 

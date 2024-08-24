@@ -63,7 +63,7 @@ export const addProjectOwner = (data: { site_id: number, owner: string, phone: s
 export const delProjectOwner = (project_id: number) => {
     return apiClient.delete(`/parameter/del_project/${project_id}`);
 };
-export const updateProjectOwner = (data: { project_id: number, owner?: string, phone?: string, name?: string }) => {
+export const updateProjectOwner = (data: { project_id: number, owner?: string, owner_phone?: string, name?: string }) => {
     return apiClient.post('/parameter/change_project', data);
 };
 export const getProjectOwners = (perPage: number, page: number) => {
