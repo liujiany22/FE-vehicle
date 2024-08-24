@@ -90,7 +90,7 @@
         导出
       </el-button>
       <el-button type="primary" @click="handlePrint" :disabled="!selectedDetails.length">
-        打印
+        打印(未完成)
       </el-button>
     </el-card>
   </div>
