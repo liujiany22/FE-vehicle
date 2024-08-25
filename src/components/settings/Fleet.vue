@@ -3,13 +3,13 @@
         <el-card>
             <h2>运输车队参数</h2>
             <el-form @submit.prevent="addParameter">
-                <el-form-item label="司机车牌号">
+                <el-form-item label="司机车牌号" :error="errors.license">
                     <el-input v-model="newParameter.license" placeholder="请输入司机车牌号" class="custom-input"></el-input>
                 </el-form-item>
-                <el-form-item label="司机名字">
+                <el-form-item label="司机名字" :error="errors.driver">
                     <el-input v-model="newParameter.driver" placeholder="请输入司机名字" class="custom-input"></el-input>
                 </el-form-item>
-                <el-form-item label="司机电话号码">
+                <el-form-item label="司机电话号码" :error="errors.phone">
                     <el-input v-model="newParameter.phone" placeholder="请输入司机电话号码" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -80,6 +80,11 @@ export default defineComponent({
         const currentPage = ref(1);
         const perPage = ref(20);
         const totalPages = ref(0);
+        const errors = ref<{ license: string | null; driver: string | null; phone: string | null }>({
+            license: null,
+            driver: null,
+            phone: null,
+        });
 
         const fetchParameters = async () => {
             try {
@@ -91,8 +96,16 @@ export default defineComponent({
             }
         };
 
+        const validateInputs = () => {
+            errors.value.license = newParameter.value.license.trim() ? null : '司机车牌号不能为空';
+            errors.value.driver = newParameter.value.driver.trim() ? null : '司机名字不能为空';
+            errors.value.phone = newParameter.value.phone.trim() ? null : '司机电话号码不能为空';
+
+            return !errors.value.license && !errors.value.driver && !errors.value.phone;
+        };
+
         const addParameter = async () => {
-            if (newParameter.value.license.trim() && newParameter.value.driver.trim() && newParameter.value.phone.trim()) {
+            if (validateInputs()) {
                 try {
                     await addFleet(newParameter.value);
                     fetchParameters();
@@ -147,6 +160,7 @@ export default defineComponent({
             currentPage,
             perPage,
             totalPages,
+            errors,
             addParameter,
             removeParameter,
             editParameter,

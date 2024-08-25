@@ -2,18 +2,18 @@
   <div class="driver-excel">
     <el-card>
       <h2>司机对账表</h2>
-      <el-form @submit.prevent="fetchFilteredDetails">
-        <el-form-item label="车队">
-          <FleetSelect v-model="filters.vehicle_id" />
+      <el-form @submit.prevent="validateAndFetchDetails">
+        <el-form-item label="车队" :error="errors.vehicle_id">
+          <FleetSelect v-model="filters.vehicle_id" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输品类">
-          <GoodsSelect v-model="filters.goods_id" />
+          <GoodsSelect v-model="filters.goods_id" @change="handleFilterChange" />
         </el-form-item>
-        <el-form-item label="时间范围" class="custom-date-picker">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" />
+        <el-form-item label="时间范围" class="custom-date-picker" :error="errors.dateRange">
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
+          <el-button type="primary" @click="validateAndFetchDetails">筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -53,10 +53,10 @@
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
-      <el-button type="primary" @click="handleExport">
+      <el-button type="primary" @click="handleExport" :disabled="isExportDisabled">
         导出
       </el-button>
-      <el-button type="primary" @click="handlePrint" :disabled="!details.length">
+      <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !details.length">
         打印
       </el-button>
     </el-card>
@@ -93,14 +93,46 @@ export default defineComponent({
     const filters = ref({
       vehicle_id: 0,
       goods_id: 0,
-      dateRange: [],
+      dateRange: [null, null] as [Date | null, Date | null],
+    });
+    const errors = ref({
+      vehicle_id: null as string | null,
+      dateRange: null as string | null,
     });
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalDetails = ref(0);
+    const isExportDisabled = ref(true);
 
     const getRowKey = (row: Detail) => {
       return row.id;
+    };
+
+    const handleFilterChange = () => {
+      isExportDisabled.value = true; // Disable export and print when filters are changed
+    };
+
+    const validateAndFetchDetails = async () => {
+      let valid = true;
+
+      if (!filters.value.vehicle_id) {
+        errors.value.vehicle_id = '请选择车队';
+        valid = false;
+      } else {
+        errors.value.vehicle_id = null;
+      }
+
+      if (!filters.value.dateRange || !filters.value.dateRange[0] || !filters.value.dateRange[1]) {
+        errors.value.dateRange = '请选择时间范围';
+        valid = false;
+      } else {
+        errors.value.dateRange = null;
+      }
+
+      if (valid) {
+        await fetchFilteredDetails();
+        isExportDisabled.value = false; // Enable export and print after successful filtering
+      }
     };
 
     const fetchFilteredDetails = async () => {
@@ -108,8 +140,8 @@ export default defineComponent({
         const params = {
           vehicle_id: filters.value.vehicle_id,
           goods_id: filters.value.goods_id,
-          start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null,
-          end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null,
+          start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null,
+          end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null,
         };
         const response = await searchTransportDetails(params, perPage.value, detailCurrentPage.value);
         details.value = response.data.items.map((item: any) => ({
@@ -135,8 +167,8 @@ export default defineComponent({
     const handleExport = async () => {
       const exportData = {
         vehicle_id: filters.value.vehicle_id,
-        start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : '',
-        end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : '',
+        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
+        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
         goods_id: filters.value.goods_id,
       };
 
@@ -152,8 +184,8 @@ export default defineComponent({
     const handlePrint = async () => {
       const printData = {
         vehicle_id: filters.value.vehicle_id,
-        start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : '',
-        end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : '',
+        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
+        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
         goods_id: filters.value.goods_id,
       };
 
@@ -183,12 +215,15 @@ export default defineComponent({
 
     return {
       filters,
+      errors,
       details,
       detailCurrentPage,
       perPage,
       totalDetails,
+      isExportDisabled,
       getRowKey,
-      fetchFilteredDetails,
+      handleFilterChange,
+      validateAndFetchDetails,
       handleExport,
       handlePrint,
       handleDetailPageChange,

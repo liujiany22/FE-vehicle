@@ -3,13 +3,13 @@
     <el-card>
       <h2>运输终点参数</h2>
       <el-form @submit.prevent="addParameter">
-        <el-form-item label="工地名称">
+        <el-form-item label="工地名称" :error="errors.name">
           <el-input v-model="newParameter.name" placeholder="请输入工地名称" class="custom-input"></el-input>
         </el-form-item>
-        <el-form-item label="工地负责人">
+        <el-form-item label="工地负责人" :error="errors.manager">
           <el-input v-model="newParameter.manager" placeholder="请输入工地负责人" class="custom-input"></el-input>
         </el-form-item>
-        <el-form-item label="联系电话">
+        <el-form-item label="联系电话" :error="errors.phone">
           <el-input v-model="newParameter.phone" placeholder="请输入联系电话" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item>
@@ -80,6 +80,11 @@ export default defineComponent({
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalPages = ref(0);
+    const errors = ref<{ name: string | null; manager: string | null; phone: string | null }>({
+      name: null,
+      manager: null,
+      phone: null,
+    });
 
     const fetchParameters = async () => {
       try {
@@ -91,8 +96,16 @@ export default defineComponent({
       }
     };
 
+    const validateInputs = () => {
+      errors.value.name = newParameter.value.name.trim() ? null : '工地名称不能为空';
+      errors.value.manager = newParameter.value.manager.trim() ? null : '工地负责人不能为空';
+      errors.value.phone = newParameter.value.phone.trim() ? null : '联系电话不能为空';
+
+      return !errors.value.name && !errors.value.manager && !errors.value.phone;
+    };
+
     const addParameter = async () => {
-      if (newParameter.value.name.trim() && newParameter.value.manager.trim() && newParameter.value.phone.trim()) {
+      if (validateInputs()) {
         try {
           await addEndSite(newParameter.value);
           fetchParameters();
@@ -147,6 +160,7 @@ export default defineComponent({
       currentPage,
       perPage,
       totalPages,
+      errors,
       addParameter,
       removeParameter,
       editParameter,

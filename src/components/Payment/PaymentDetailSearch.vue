@@ -59,8 +59,9 @@
       const totalRecords = ref(0);
   
       const fetchFilteredPayments = async () => {
-        const start_date = filters.value.dateRange[0] ? filters.value.dateRange[0].toISOString().split('T')[0] : null;
-        const end_date = filters.value.dateRange[1] ? filters.value.dateRange[1].toISOString().split('T')[0] : null;
+        const check_date = filters.value.dateRange;
+        const start_date = check_date ? (filters.value.dateRange[0] ? filters.value.dateRange[0].toISOString().split('T')[0] : null) : null;
+        const end_date = check_date ? (filters.value.dateRange[1] ? filters.value.dateRange[1].toISOString().split('T')[0] : null) : null;
   
         try {
           const response = await searchPaymentDetails({

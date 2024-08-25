@@ -103,14 +103,15 @@
   
       const fetchFilteredDetailsAndSettlement = async () => {
         try {
+          const check_date = filters.value.dateRange;
           const params = {
             ownerName: filters.value.owner,
             project_id: filters.value.projectId,
             goods_id: filters.value.goods_id,
             startsite_id: filters.value.startsite_id,
             endsite_id: filters.value.endsite_id,
-            start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null,
-            end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null,
+            start_date: check_date ? (filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null) : null,
+            end_date: check_date ? (filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null) : null,
           };
   
           // Fetching transport details

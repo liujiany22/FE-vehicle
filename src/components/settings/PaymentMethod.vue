@@ -3,7 +3,7 @@
         <el-card>
             <h2>付款方式参数</h2>
             <el-form @submit.prevent="addParameter">
-                <el-form-item label="方式">
+                <el-form-item label="方式" :error="errors.method">
                     <el-input v-model="newParameter.method" placeholder="请输入付款方式" class="custom-input"></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -54,6 +54,9 @@ export default defineComponent({
         const currentPage = ref(1);
         const perPage = ref(20);
         const totalPages = ref(0);
+        const errors = ref<{ method: string | null }>({
+            method: null,
+        });
 
         const fetchParameters = async () => {
             try {
@@ -65,8 +68,13 @@ export default defineComponent({
             }
         };
 
+        const validateInputs = () => {
+            errors.value.method = newParameter.value.method.trim() ? null : '付款方式不能为空';
+            return !errors.value.method;
+        };
+
         const addParameter = async () => {
-            if (newParameter.value.method.trim()) {
+            if (validateInputs()) {
                 try {
                     await addPaymentMethod(newParameter.value);
                     fetchParameters();
@@ -121,6 +129,7 @@ export default defineComponent({
             currentPage,
             perPage,
             totalPages,
+            errors,
             addParameter,
             removeParameter,
             editParameter,

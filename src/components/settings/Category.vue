@@ -3,7 +3,7 @@
     <el-card>
       <h2>运输品类参数</h2>
       <el-form @submit.prevent="addParameter">
-        <el-form-item label="名称">
+        <el-form-item label="名称" :error="errors.name">
           <el-input v-model="newParameter.name" placeholder="请输入运输品类名称" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item>
@@ -59,6 +59,9 @@ export default defineComponent({
     const currentPage = ref(1);
     const perPage = ref(20);
     const totalPages = ref(0);
+    const errors = ref<{ name: string | null }>({
+      name: null,
+    });
 
     const fetchParameters = async () => {
       try {
@@ -70,8 +73,13 @@ export default defineComponent({
       }
     };
 
+    const validateInputs = () => {
+      errors.value.name = newParameter.value.name.trim() ? null : '名称不能为空';
+      return !errors.value.name;
+    };
+
     const addParameter = async () => {
-      if (newParameter.value.name.trim()) {
+      if (validateInputs()) {
         try {
           await addCategory(newParameter.value);
           fetchParameters();
@@ -126,6 +134,7 @@ export default defineComponent({
       currentPage,
       perPage,
       totalPages,
+      errors,
       addParameter,
       removeParameter,
       editParameter,

@@ -6,25 +6,25 @@
         <el-form-item label="老板">
           <OwnerSelect v-model="form.owner" />
         </el-form-item>
-        <el-form-item label="项目">
+        <el-form-item label="项目" :error="errors.project_id">
           <OwnerProjectsSelect v-model="form.project_id" :ownerName="form.owner" />
         </el-form-item>
-        <el-form-item label="运输起点">
+        <el-form-item label="运输起点" :error="errors.start_site_id">
           <StartSiteSelect v-model="form.start_site_id" />
         </el-form-item>
-        <el-form-item label="运输终点">
+        <el-form-item label="运输终点" :error="errors.end_site_id">
           <EndSiteSelect v-model="form.end_site_id" />
         </el-form-item>
         <el-form-item label="运输车队">
           <FleetsSelect ref="fleetsSelect" v-model:vehicleIds="form.vehicle_ids" v-model:quantities="form.quantities" />
         </el-form-item>
-        <el-form-item label="运输品类">
+        <el-form-item label="运输品类" :error="errors.goods_id">
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
-        <el-form-item label="单位">
+        <el-form-item label="单位" :error="errors.unit">
           <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
         </el-form-item>
-        <el-form-item label="日期">
+        <el-form-item label="日期" :error="errors.date">
           <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
         </el-form-item>
         <el-form-item label="装载方式">
@@ -224,6 +224,21 @@ export default defineComponent({
     });
 
     const editingId = ref<number | null>(null);
+    const errors = ref<{
+      project_id: string | null,
+      start_site_id: string | null,
+      end_site_id: string | null,
+      goods_id: string | null,
+      unit: string | null,
+      date: string | null,
+    }>({
+      project_id: null,
+      start_site_id: null,
+      end_site_id: null,
+      goods_id: null,
+      unit: null,
+      date: null,
+    });
 
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
@@ -248,8 +263,23 @@ export default defineComponent({
       }
     };
 
+    const validateInputs = () => {
+      errors.value.project_id = form.value.project_id ? null : '项目不能为空';
+      errors.value.start_site_id = form.value.start_site_id ? null : '运输起点不能为空';
+      errors.value.end_site_id = form.value.end_site_id ? null : '运输终点不能为空';
+      errors.value.goods_id = form.value.goods_id ? null : '运输品类不能为空';
+      errors.value.unit = form.value.unit.trim() ? null : '单位不能为空';
+      errors.value.date = form.value.date ? null : '日期不能为空';
+
+      return !errors.value.project_id && !errors.value.start_site_id && !errors.value.end_site_id && !errors.value.goods_id && !errors.value.unit && !errors.value.date;
+    };
+
     const addDetail = async () => {
       try {
+        if (!validateInputs()) {
+          return;
+        }
+
         if (form.value.vehicle_ids.length === 0) {
           alert('请先添加至少一辆车辆及其数量');
           return;
@@ -407,11 +437,11 @@ export default defineComponent({
       isEditing,
       formatDate,
       formatLoad,
+      errors,
     };
   },
 });
 </script>
-
 
 
 <style scoped>

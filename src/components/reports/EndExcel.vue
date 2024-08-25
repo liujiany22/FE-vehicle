@@ -2,36 +2,35 @@
   <div class="end-excel">
     <el-card>
       <h2>终点对账表</h2>
-      <el-form @submit.prevent="fetchFilteredDetails">
+      <el-form @submit.prevent="validateAndFetchDetails">
         <el-form-item label="老板">
-          <OwnerSelect v-model="filters.owner" />
+          <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
         </el-form-item>
-        <el-form-item label="项目">
-          <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" />
+        <el-form-item label="项目" :error="errors.projectId">
+          <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输起点">
-          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
+          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输终点">
-          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId" />
+          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输品类">
-          <GoodsSelect v-model="filters.goods_id" />
+          <GoodsSelect v-model="filters.goods_id" @change="handleFilterChange" />
         </el-form-item>
 
-        <el-form-item label="时间范围" class="custom-date-picker">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期"
-            end-placeholder="结束日期"></el-date-picker>
+        <el-form-item label="时间范围" class="custom-date-picker" :error="errors.dateRange">
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
+          <el-button type="primary" @click="validateAndFetchDetails">筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card v-if="details.length">
       <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
-        <el-table-column type="selection" width="55" :reserve-selecti="true"></el-table-column>
+        <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
         <el-table-column prop="project.name" label="项目名称">
           <template v-slot="scope">
             {{ scope.row.project?.name || '无' }}
@@ -80,10 +79,10 @@
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
-      <el-button type="primary" @click="handleExport" :disabled="!selectedDetails.length">
+      <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length">
         导出
       </el-button>
-      <el-button type="primary" @click="handlePrint" :disabled="!selectedDetails.length">
+      <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length">
         打印
       </el-button>
     </el-card>
@@ -108,7 +107,7 @@ interface Detail {
   project: { name: string };
   start_site: { name: string };
   end_site: { name: string };
-  vehicle: { license: string };  // 修改为单个 vehicle 对象
+  vehicle: { license: string };
   goods: { name: string };
   quantity: number;
   unit: string;
@@ -133,15 +132,43 @@ export default defineComponent({
       startsite_id: 0,
       endsite_id: 0,
       goods_id: 0,
-      dateRange: [],
+      dateRange: [null, null] as [Date | null, Date | null],
+    });
+    const errors = ref({
+      projectId: null as string | null,
+      dateRange: null as string | null,
     });
     const selectedDetails = ref<Detail[]>([]);
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalDetails = ref(0);
+    const isExportDisabled = ref(true);
 
     const getRowKey = (row: Detail) => {
       return row.id;
+    };
+
+    const handleFilterChange = () => {
+      isExportDisabled.value = true;
+    };
+
+    const validateAndFetchDetails = async () => {
+      if (!filters.value.projectId) {
+        errors.value.projectId = '请选择项目';
+        return;
+      } else {
+        errors.value.projectId = null;
+      }
+
+      if (!filters.value.dateRange || !filters.value.dateRange[0] || !filters.value.dateRange[1]) {
+        errors.value.dateRange = '请选择时间范围';
+        return;
+      } else {
+        errors.value.dateRange = null;
+      }
+
+      await fetchFilteredDetails();
+      isExportDisabled.value = false;
     };
 
     const fetchFilteredDetails = async () => {
@@ -151,8 +178,8 @@ export default defineComponent({
           startsite_id: filters.value.startsite_id,
           endsite_id: filters.value.endsite_id,
           goods_id: filters.value.goods_id,
-          start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : null,
-          end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : null,
+          start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null,
+          end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null,
         };
         const response = await searchTransportDetails(params, perPage.value, detailCurrentPage.value);
         details.value = response.data.items.map((item: any) => ({
@@ -160,7 +187,7 @@ export default defineComponent({
           project: item.project || { name: '' },
           start_site: item.start_site || { name: '' },
           end_site: item.end_site || { name: '' },
-          vehicle: item.vehicle || { license: '', driver: '' },  // 修改为处理单个 vehicle 对象
+          vehicle: item.vehicle || { license: '', driver: '' },
           goods: item.goods || { name: '' },
           quantity: item.quantity || 0,
           unit: item.unit || '',
@@ -188,8 +215,8 @@ export default defineComponent({
       const exportData = {
         item_ids: item_ids,
         project_id: filters.value.projectId,
-        start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : '',
-        end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : '',
+        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
+        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
         startsite_id: filters.value.startsite_id,
         endsite_id: filters.value.endsite_id,
         goods_id: filters.value.goods_id,
@@ -210,8 +237,8 @@ export default defineComponent({
       const exportData = {
         item_ids: item_ids,
         project_id: filters.value.projectId,
-        start_date: filters.value.dateRange[0] ? new Date(filters.value.dateRange[0]).toISOString() : '',
-        end_date: filters.value.dateRange[1] ? new Date(filters.value.dateRange[1]).toISOString() : '',
+        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
+        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
         startsite_id: filters.value.startsite_id,
         endsite_id: filters.value.endsite_id,
         goods_id: filters.value.goods_id,
@@ -243,13 +270,16 @@ export default defineComponent({
 
     return {
       filters,
+      errors,
       details,
       selectedDetails,
       detailCurrentPage,
       perPage,
       totalDetails,
+      isExportDisabled,
       getRowKey,
-      fetchFilteredDetails,
+      handleFilterChange,
+      validateAndFetchDetails,
       handleSelectionChange,
       handleExport,
       handlePrint,
@@ -260,6 +290,7 @@ export default defineComponent({
   },
 });
 </script>
+
 
 <style scoped>
 @import '@/assets/select.css';

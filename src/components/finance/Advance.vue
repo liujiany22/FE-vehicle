@@ -3,21 +3,32 @@
     <el-card>
       <h2>预付款录入</h2>
       <el-form @submit.prevent="addParameter">
-        <el-form-item label="运输车队">
+        <!-- 运输车队输入限制 -->
+        <el-form-item label="运输车队" :error="errors.vehicle_id">
           <FleetSelect v-model="form.vehicle_id" />
         </el-form-item>
+
+        <!-- 运输金额 -->
         <el-form-item label="运输金额">
           <el-input v-model="form.amount" type="number" placeholder="请输入金额"  class="custom-input"/>
         </el-form-item>
-        <el-form-item label="付款方式">
+
+        <!-- 付款方式输入限制 -->
+        <el-form-item label="付款方式" :error="errors.pay_id">
           <PaymentSelect v-model="form.pay_id" />
         </el-form-item>
-        <el-form-item label="预付款时间">
+
+        <!-- 预付款时间输入限制 -->
+        <el-form-item label="预付款时间" :error="errors.advance_time">
           <el-date-picker v-model="form.advance_time" type="datetime" placeholder="选择预付款时间" />
         </el-form-item>
+
+        <!-- 细节备注 -->
         <el-form-item label="细节备注">
           <el-input v-model="form.note" placeholder="请输入备注"  class="custom-input"/>
         </el-form-item>
+
+        <!-- 提交按钮 -->
         <el-form-item>
           <el-button type="primary" @click="addParameter">提交</el-button>
         </el-form-item>
@@ -118,6 +129,24 @@ export default defineComponent({
       note: '', // Added note field
     });
 
+    const errors = ref<{
+      vehicle_id: string | null,
+      pay_id: string | null,
+      advance_time: string | null,
+    }>({
+      vehicle_id: null,
+      pay_id: null,
+      advance_time: null,
+    });
+
+    const validateInputs = () => {
+      errors.value.vehicle_id = form.value.vehicle_id ? null : '运输车队不能为空';
+      errors.value.pay_id = form.value.pay_id ? null : '付款方式不能为空';
+      errors.value.advance_time = form.value.advance_time ? null : '预付款时间不能为空';
+
+      return !errors.value.vehicle_id && !errors.value.pay_id && !errors.value.advance_time;
+    };
+
     const advances = ref<{ id: number, vehicle: { id: number, license: string, driver: string }, amount: number, pay: { id: number, method: string }, advance_time: string, note: string }[]>([]);
     const editingAdvance = ref({ vehicle_id: 0, amount: 0, pay_id: 0, advance_time: '', note: '' });
     const editingId = ref<number | null>(null);
@@ -137,6 +166,10 @@ export default defineComponent({
 
     const addParameter = async () => {
       try {
+        if (!validateInputs()) {
+          return;
+        }
+
         await addAdvance(form.value);
         alert('预付款录入成功');
         resetForm();
@@ -196,6 +229,8 @@ export default defineComponent({
 
     return {
       form,
+      errors,
+      validateInputs,
       advances,
       editingAdvance,
       editingId,

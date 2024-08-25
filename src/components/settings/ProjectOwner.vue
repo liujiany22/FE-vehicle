@@ -3,13 +3,13 @@
     <el-card>
       <h2>项目-老板参数</h2>
       <el-form @submit.prevent="addParameter">
-        <el-form-item label="老板名">
+        <el-form-item label="老板名" :error="errors.owner">
           <el-input v-model="newParameter.owner" placeholder="请输入老板名" class="custom-input"></el-input>
         </el-form-item>
-        <el-form-item label="联系电话">
+        <el-form-item label="联系电话" :error="errors.phone">
           <el-input v-model="newParameter.phone" placeholder="请输入联系电话" class="custom-input"></el-input>
         </el-form-item>
-        <el-form-item label="项目名">
+        <el-form-item label="项目名" :error="errors.name">
           <el-input v-model="newParameter.name" placeholder="请输入项目名" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item>
@@ -85,6 +85,11 @@ export default defineComponent({
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalPages = ref(0);
+    const errors = ref<{ owner: string | null; phone: string | null; name: string | null }>({
+      owner: null,
+      phone: null,
+      name: null,
+    });
 
     const fetchParameters = async () => {
       try {
@@ -96,11 +101,19 @@ export default defineComponent({
       }
     };
 
+    const validateInputs = () => {
+      errors.value.owner = newParameter.value.owner.trim() ? null : '老板名不能为空';
+      errors.value.phone = newParameter.value.phone.trim() ? null : '联系电话不能为空';
+      errors.value.name = newParameter.value.name.trim() ? null : '项目名不能为空';
+
+      return !errors.value.owner && !errors.value.phone && !errors.value.name;
+    };
+
     const addParameter = async () => {
-      if (newParameter.value.owner.trim() && newParameter.value.phone.trim() && newParameter.value.name.trim()) {
+      if (validateInputs()) {
         try {
           await addProjectOwner({
-            site_id: 0, // Assuming site_id is not needed, adjust if necessary
+            site_id: 0, // 如果需要调整，请根据实际情况修改
             owner: newParameter.value.owner,
             phone: newParameter.value.phone,
             name: newParameter.value.name,
@@ -162,6 +175,7 @@ export default defineComponent({
       currentPage,
       perPage,
       totalPages,
+      errors,
       addParameter,
       removeParameter,
       editParameter,
