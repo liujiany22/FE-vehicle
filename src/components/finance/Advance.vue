@@ -1,7 +1,7 @@
 <template>
   <div class="advance-entry">
     <el-card>
-      <h2>预付款录入</h2>
+      <h2>预支录入</h2>
       <el-form @submit.prevent="addParameter">
         <!-- 运输车队输入限制 -->
         <el-form-item label="运输车队" :error="errors.vehicle_id">
@@ -18,9 +18,9 @@
           <PaymentSelect v-model="form.pay_id" />
         </el-form-item>
 
-        <!-- 预付款时间输入限制 -->
-        <el-form-item label="预付款时间" :error="errors.advance_time">
-          <el-date-picker v-model="form.advance_time" type="datetime" placeholder="选择预付款时间" />
+        <!-- 预支时间输入限制 -->
+        <el-form-item label="预支时间" :error="errors.advance_time">
+          <el-date-picker v-model="form.advance_time" type="datetime" placeholder="选择预支时间" />
         </el-form-item>
 
         <!-- 细节备注 -->
@@ -36,7 +36,7 @@
     </el-card>
 
     <el-card>
-      <h2>已录入的预付款</h2>
+      <h2>已录入的预支</h2>
       <el-table :data="advances" style="width: 100%">
         <el-table-column prop="vehicle" label="运输车队">
           <template v-slot="scope">
@@ -68,10 +68,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="advance_time" label="预付款时间">
+        <el-table-column prop="advance_time" label="预支时间">
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
-              <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预付款时间" />
+              <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预支时间" />
             </div>
             <div v-else>
               {{ formatDate(scope.row.advance_time) || "无" }}
@@ -142,7 +142,7 @@ export default defineComponent({
     const validateInputs = () => {
       errors.value.vehicle_id = form.value.vehicle_id ? null : '运输车队不能为空';
       errors.value.pay_id = form.value.pay_id ? null : '付款方式不能为空';
-      errors.value.advance_time = form.value.advance_time ? null : '预付款时间不能为空';
+      errors.value.advance_time = form.value.advance_time ? null : '预支时间不能为空';
 
       return !errors.value.vehicle_id && !errors.value.pay_id && !errors.value.advance_time;
     };
@@ -171,7 +171,7 @@ export default defineComponent({
         }
 
         await addAdvance(form.value);
-        alert('预付款录入成功');
+        alert('预支录入成功');
         resetForm();
         fetchParameters(); // 刷新列表
       } catch (error) {
@@ -182,7 +182,7 @@ export default defineComponent({
     const removeParameter = async (advanceId: number) => {
       try {
         await delAdvance(advanceId);
-        alert('预付款删除成功');
+        alert('预支删除成功');
         fetchParameters(); // 刷新列表
       } catch (error) {
         console.error('Failed to delete advance', error);
@@ -197,7 +197,7 @@ export default defineComponent({
     const saveParameter = async (advanceId: number) => {
       try {
         await updateAdvance({ advance_id: advanceId, ...editingAdvance.value });
-        alert('预付款更新成功');
+        alert('预支更新成功');
         cancelEdit();
         fetchParameters(); // 刷新列表
       } catch (error) {

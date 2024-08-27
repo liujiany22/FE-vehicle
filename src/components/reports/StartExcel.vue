@@ -28,9 +28,9 @@
       </el-form>
     </el-card>
 
-    <el-card v-if="details.length">
-      <el-table :data="details" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
-        <el-table-column type="selection" width="55" :reserve-selecti="true"></el-table-column>
+    <el-card v-if="currentDetails.length">
+      <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
+        <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
         <el-table-column prop="project.name" label="项目名称">
           <template v-slot="scope">
             {{ scope.row.project?.name || '无' }}
@@ -79,18 +79,21 @@
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
-      <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length">
-        导出
-      </el-button>
-      <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length">
-        打印
-      </el-button>
+      <div style="margin-top: 10px;">
+        <el-button type="primary" @click="toggleAllSelection">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
+        <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length">
+          导出
+        </el-button>
+        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length">
+          打印
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import OwnerProjectsSelect from '@/components/select/OwnerProjectsSelect.vue';
 import OwnerStartSitesSelect from '../select/OwnerStartSitesSelect.vue';
@@ -101,6 +104,8 @@ import { getStartExcel, getStartPDF } from '@/services/export';
 import { saveAs } from 'file-saver';
 import { formatLoad } from '@/utils/load';
 import { formatDate } from '@/utils/time';
+import { ElMessage, ElLoading } from 'element-plus';
+import { ElTable } from 'element-plus';
 
 interface Detail {
   id: number;
@@ -125,7 +130,7 @@ export default defineComponent({
     GoodsSelect,
   },
   setup() {
-    const details = ref<Detail[]>([]);
+    // 筛选条件
     const filters = ref({
       owner: '',
       projectId: 0,
@@ -134,14 +139,25 @@ export default defineComponent({
       goods_id: 0,
       dateRange: [null, null] as [Date | null, Date | null],
     });
+    // 缺失信息报错
     const errors = ref({
       projectId: null as string | null,
       dateRange: null as string | null,
     });
+
+    // 筛选结果
+    const details = ref<Detail[]>([]);
+    const currentDetails = ref<Detail[]>([]);
+    // 选中结果
     const selectedDetails = ref<Detail[]>([]);
+    // 表格引用
+    const detailTable = ref<InstanceType<typeof ElTable>>();
+
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalDetails = ref(0);
+
+    // 按钮是否可用
     const isExportDisabled = ref(true);
 
     const getRowKey = (row: Detail) => {
@@ -166,9 +182,13 @@ export default defineComponent({
       } else {
         errors.value.dateRange = null;
       }
-      
+
       await fetchFilteredDetails();
       isExportDisabled.value = false;
+      selectedDetails.value = [];
+      if (detailTable.value) {
+        detailTable.value.clearSelection(); // 清除表格中的选择状态
+      }
     };
 
     const fetchFilteredDetails = async () => {
@@ -181,20 +201,11 @@ export default defineComponent({
           start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null,
           end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null,
         };
-        const response = await searchTransportDetails(params, perPage.value, detailCurrentPage.value);
-        details.value = response.data.items.map((item: any) => ({
-          id: item.id,
-          project: item.project || { name: '' },
-          start_site: item.start_site || { name: '' },
-          end_site: item.end_site || { name: '' },
-          vehicle: item.vehicle || { license: '', driver: '' },
-          goods: item.goods || { name: '' },
-          quantity: item.quantity || 0,
-          unit: item.unit || '',
-          date: item.date || null,
-          load: item.load || '',
-        }));
-        totalDetails.value = response.data.total_pages * perPage.value;
+        const response = await searchTransportDetails(params, 100000, 1);
+        details.value = response.data.items;
+        totalDetails.value = details.value.length;
+
+        currentDetails.value = details.value.slice((detailCurrentPage.value - 1) * perPage.value, detailCurrentPage.value * perPage.value);
       } catch (error) {
         console.error('Failed to fetch details', error);
       }
@@ -204,12 +215,37 @@ export default defineComponent({
       selectedDetails.value = selection;
     };
 
+    // 全选与取消全选
+    const isAllSelected = computed(() => {
+      return selectedDetails.value.length === details.value.length && details.value.length > 0;
+    });
+    const toggleAllSelection = () => {
+      if (detailTable.value) {
+        if (isAllSelected.value) {
+          details.value.forEach(row => {
+            detailTable.value!.toggleRowSelection(row, false);
+          });
+        } else {
+          details.value.forEach(row => {
+            detailTable.value!.toggleRowSelection(row, true);
+          });
+        }
+      }
+    };
+
+    // 翻页
     const handleDetailPageChange = (page: number) => {
       detailCurrentPage.value = page;
-      fetchFilteredDetails();
+      currentDetails.value = details.value.slice((detailCurrentPage.value - 1) * perPage.value, detailCurrentPage.value * perPage.value);
     };
 
     const handleExport = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在导出，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
+
       const item_ids = selectedDetails.value.map(detail => detail.id);
 
       const exportData = {
@@ -226,12 +262,20 @@ export default defineComponent({
         const exportResponse = await getStartExcel(exportData);
         const blob = new Blob([exportResponse.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, '起点对账表.xlsx');
+        loadingInstance.close(); // 关闭加载框
       } catch (error) {
+        loadingInstance.close(); // 确保在捕获错误时关闭加载框
         console.error('Error exporting site entry:', error);
       }
     };
 
     const handlePrint = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在生成打印文件，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
+
       const item_ids = selectedDetails.value.map(detail => detail.id);
 
       const exportData = {
@@ -252,6 +296,7 @@ export default defineComponent({
         const printWindow = window.open(pdfURL);
         if (printWindow) {
           printWindow.addEventListener('load', () => {
+            loadingInstance.close(); // 关闭加载框
             printWindow.focus();
             printWindow.print();
             printWindow.onafterprint = () => {
@@ -260,6 +305,8 @@ export default defineComponent({
           });
         }
       } catch (error) {
+        loadingInstance.close(); // 确保在捕获错误时关闭加载框
+        ElMessage.error('生成打印文件失败，请稍后再试');
         console.error('Error printing site entry:', error);
       }
     };
@@ -269,14 +316,18 @@ export default defineComponent({
     });
 
     return {
+      detailTable,
       filters,
       errors,
       details,
+      currentDetails,
       selectedDetails,
       detailCurrentPage,
       perPage,
       totalDetails,
       isExportDisabled,
+      isAllSelected,
+      toggleAllSelection,
       getRowKey,
       handleFilterChange,
       validateAndFetchDetails,

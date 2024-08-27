@@ -1,7 +1,7 @@
 <template>
     <div class="advance-search">
       <el-card>
-        <h2>预付款查询</h2>
+        <h2>预支查询</h2>
         <el-form @submit.prevent="fetchFilteredAdvances">
           <el-form-item label="运输车队">
             <FleetSelect v-model="filters.vehicle_id" />
@@ -48,10 +48,10 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="advance_time" label="预付款时间">
+          <el-table-column prop="advance_time" label="预支时间">
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
-                <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预付款时间" />
+                <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预支时间" />
               </div>
               <div v-else>
                 {{ formatDate(scope.row.advance_time) || "无" }}
@@ -156,7 +156,7 @@ import { isNullishCoalesce } from 'typescript';
       const saveParameter = async (advanceId: number) => {
         try {
           await updateAdvance({ advance_id: advanceId, ...editingAdvance.value });
-          alert('预付款更新成功');
+          alert('预支更新成功');
           cancelEdit();
           fetchFilteredAdvances();
         } catch (error) {
@@ -172,7 +172,7 @@ import { isNullishCoalesce } from 'typescript';
       const removeParameter = async (advanceId: number) => {
         try {
           await delAdvance(advanceId);
-          alert('预付款删除成功');
+          alert('预支删除成功');
           fetchFilteredAdvances();
         } catch (error) {
           console.error('Failed to delete advance', error);
