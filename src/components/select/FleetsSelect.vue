@@ -2,7 +2,7 @@
   <div class="fleets-select">
     <div class="input-group">
       <el-select v-model="selectedVehicleId" filterable placeholder="请选择车辆" @visible-change="fetchFleets"
-        class="vehicle-select">
+        class="vehicle-select" clearable>
         <el-option v-for="vehicle in vehicles" :key="vehicle.id" :label="`${vehicle.license} (${vehicle.driver})`"
           :value="vehicle.id">
         </el-option>

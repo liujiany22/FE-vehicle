@@ -1,34 +1,16 @@
 <template>
-  <el-select 
-    v-model="localValue" 
-    :placeholder="placeholderText" 
-    @visible-change="fetchGoods" 
-    @input="handleInput"
-    class="custom-select"
-    filterable
-    clearable>
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchGoods" @input="handleInput"
+    class="custom-select" filterable clearable>
     <!-- 默认的取消选项 -->
-    <el-option 
-      v-if="allowClear" 
-      :key="null" 
-      :label="placeholderText" 
-      :value="null">
+    <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
     </el-option>
 
-    <el-option 
-      v-for="item in filteredGoods" 
-      :key="item.id" 
-      :label="item.name" 
-      :value="item.id">
+    <el-option v-for="item in filteredGoods" :key="item.id" :label="item.name" :value="item.id">
     </el-option>
 
     <div class="pagination-container">
-      <el-pagination 
-        @current-change="handleGoodsPageChange" 
-        :current-page="goodsCurrentPage" 
-        :page-size="perPage" 
-        layout="prev, pager, next" 
-        :total="totalGoods" />
+      <el-pagination @current-change="handleGoodsPageChange" :current-page="goodsCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalGoods" />
     </div>
   </el-select>
 </template>
@@ -76,7 +58,7 @@ export default defineComponent({
     };
 
     const filterGoods = () => {
-      return goods.value.filter(good => 
+      return goods.value.filter(good =>
         good.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     };
@@ -113,7 +95,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
+/* 引入共享样式 */
 
 .pagination-container {
   padding: 10px;
