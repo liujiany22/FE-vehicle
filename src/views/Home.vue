@@ -7,29 +7,21 @@
       </el-col>
     </el-row>
     <el-row class="info-section">
-      <el-col :span="8">
-        <el-card shadow="hover">
-          <h2>公司简介</h2>
-          <p>待定: 宏图渣土清运有限公司致力于提供专业、高效的清运服务，专注客户需求，提供全方位的解决方案。</p>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card shadow="hover">
-          <h2>经营范围</h2>
-          <p>建筑垃圾清运，砂石料运输及销售，供应铺路石渣，云梯车租赁。</p>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card shadow="hover">
-          <h2>联系我们</h2>
-          <p>电话：待定</p>
-        </el-card>
+      <el-col :span="24">
+        <el-carousel :interval="5000" type="card" height="250px">
+          <el-carousel-item v-for="(item, index) in carouselItems" :key="index">
+            <el-card shadow="hover">
+              <h2>{{ item.title }}</h2>
+              <p>{{ item.content }}</p>
+            </el-card>
+          </el-carousel-item>
+        </el-carousel>
       </el-col>
     </el-row>
     <el-row class="action-buttons">
       <el-col :span="24">
-        <el-button type="primary" size="large" @click="goToLogin">登录</el-button>
-        <el-button type="success" size="large" @click="goToSignup">注册</el-button>
+        <el-button type="primary" size="large" @click="goToLogin" plain>登录</el-button>
+        <el-button type="success" size="large" @click="goToSignup" plain>注册</el-button>
       </el-col>
     </el-row>
   </div>
@@ -52,9 +44,25 @@ export default defineComponent({
       router.push('/signup');
     };
 
+    const carouselItems = [
+      {
+        title: '公司简介',
+        content: '待定: 宏图渣土清运有限公司致力于提供专业、高效的清运服务，专注客户需求，提供全方位的解决方案。',
+      },
+      {
+        title: '经营范围',
+        content: '建筑垃圾清运，砂石料运输及销售，供应铺路石渣，云梯车租赁。',
+      },
+      {
+        title: '联系我们',
+        content: '电话：待定',
+      },
+    ];
+
     return {
       goToLogin,
       goToSignup,
+      carouselItems,
     };
   },
 });
@@ -67,7 +75,7 @@ export default defineComponent({
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .header {
@@ -87,16 +95,21 @@ export default defineComponent({
 }
 
 .info-section {
-  display: flex;
-  justify-content: space-around;
   margin-bottom: 20px;
-  flex-grow: 1;
+}
+
+.el-carousel {
+  width: 100%;
 }
 
 .el-card {
   text-align: center;
   background-color: #fff;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .el-card h2 {
@@ -113,6 +126,7 @@ export default defineComponent({
 .action-buttons {
   text-align: center;
   margin-top: 20px;
+  margin-bottom: 40px; /* Optional: To add some space below the buttons */
 }
 
 .el-button {
