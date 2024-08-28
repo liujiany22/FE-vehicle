@@ -262,8 +262,13 @@ export default defineComponent({
       }
     };
 
+    const showExportNotSupportedMessage = () => {
+      ElMessage.warning('暂不支持选中导出功能')
+    };
+
     onMounted(() => {
       fetchFilteredDetails();
+      showExportNotSupportedMessage();
     });
 
     return {
@@ -278,6 +283,7 @@ export default defineComponent({
       isExportDisabled,
       isAllSelected,
       detailTable,
+      showExportNotSupportedMessage,
       toggleAllSelection,
       getRowKey,
       handleFilterChange,
