@@ -1,7 +1,7 @@
 <template>
   <div class="detail-excel">
     <el-card>
-      <h2>运输详情对账表</h2>
+      <h2>运输明细导出</h2>
       <el-form @submit.prevent="validateAndFetchDetails" label-position="left" label-width="auto">
         <el-form-item label="老板">
           <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
@@ -112,9 +112,9 @@
         <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length" plain>
           导出
         </el-button>
-        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length" plain>
+        <!-- <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length" plain>
           打印
-        </el-button>
+        </el-button> -->
       </div>
     </el-card>
   </div>
@@ -316,7 +316,7 @@ export default defineComponent({
       }
     };
     const showExportNotSupportedMessage = () => {
-      ElMessage.warning('暂不支持此功能')
+      // ElMessage.warning('暂不支持此功能')
     };
     onMounted(() => {
       fetchFilteredDetails();

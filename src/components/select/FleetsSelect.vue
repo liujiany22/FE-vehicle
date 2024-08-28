@@ -1,49 +1,38 @@
 <template>
   <div class="fleets-select">
     <div class="input-group">
-      <el-select 
-        v-model="selectedVehicleId" 
-        filterable 
-        placeholder="请选择车辆" 
-        @visible-change="fetchFleets" 
+      <el-select v-model="selectedVehicleId" filterable placeholder="请选择车辆" @visible-change="fetchFleets"
         class="vehicle-select">
-        <el-option 
-          v-for="vehicle in vehicles" 
-          :key="vehicle.id" 
-          :label="`${vehicle.license} (${vehicle.driver})`" 
+        <el-option v-for="vehicle in vehicles" :key="vehicle.id" :label="`${vehicle.license} (${vehicle.driver})`"
           :value="vehicle.id">
         </el-option>
         <div class="pagination-container">
-          <el-pagination 
-            @current-change="handleVehiclePageChange" 
-            :current-page="vehicleCurrentPage" 
-            :page-size="perPage" 
-            layout="prev, pager, next" 
-            :total="totalVehicles" />
+          <el-pagination @current-change="handleVehiclePageChange" :current-page="vehicleCurrentPage"
+            :page-size="perPage" layout="prev, pager, next" :total="totalVehicles" />
         </div>
       </el-select>
-      <el-input 
-        v-model="vehicleQuantity" 
-        type="number" 
-        placeholder="输入数量" 
-        class="quantity-input" />
-      <el-button 
-        type="primary" 
-        @click="addVehicle" 
-        :disabled="!canAddVehicle" 
-        plain>添加</el-button>
+      <el-input v-model="vehicleQuantity" type="number" placeholder="输入数量" class="quantity-input" />
+      <el-button type="primary" @click="addVehicle" :disabled="!canAddVehicle" plain>添加</el-button>
     </div>
 
     <el-collapse v-if="addedVehicles.length" class="added-vehicles-list">
       <el-collapse-item title="已添加的车辆">
-        <ul>
-          <li v-for="(vehicle, index) in addedVehicles" :key="index">
-            车辆: {{ vehicle.license }} - 数量: {{ vehicle.quantity }}
-            <el-button type="danger" @click="removeVehicle(index)" plain>删除</el-button>
-          </li>
-        </ul>
+        <el-descriptions border column="1">
+          <el-descriptions-item v-for="(vehicle, index) in addedVehicles" :key="index" :label="'车辆 ' + (index + 1)">
+            <div style="display: flex; align-items: center;">
+              <span>{{ vehicle.license }}({{vehicle.driver}})</span>
+              <span style="margin-left: 20px;">数量: {{ vehicle.quantity }}</span>
+              <el-button type="danger" @click="removeVehicle(index)" plain size="small" style="margin-left: 20px;">
+                删除
+              </el-button>
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
       </el-collapse-item>
     </el-collapse>
+
+
+
   </div>
 </template>
 
@@ -76,7 +65,7 @@ export default defineComponent({
     const vehicleCurrentPage = ref(1);
     const perPage = ref(10);
     const totalVehicles = ref(0);
-    const addedVehicles = ref<{ id: number; license: string; quantity: number }[]>([]);
+    const addedVehicles = ref<{ id: number; license: string; driver: string; quantity: number }[]>([]);
 
     const fetchFleets = async () => {
       try {
@@ -108,6 +97,7 @@ export default defineComponent({
           addedVehicles.value.push({
             id: vehicle.id,
             license: vehicle.license,
+            driver: vehicle.driver,
             quantity: vehicleQuantity.value as number
           });
           resetSelections();
@@ -150,7 +140,8 @@ export default defineComponent({
 .input-group {
   display: flex;
   align-items: center;
-  gap: 10px; /* 设置两个框之间的间距 */
+  gap: 10px;
+  /* 设置两个框之间的间距 */
 }
 
 .pagination-container {

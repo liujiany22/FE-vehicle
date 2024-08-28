@@ -2,7 +2,7 @@
   <div class="project-owner">
     <el-card>
       <h2>项目-老板参数</h2>
-      <el-form @submit.prevent="addParameter">
+      <el-form @submit.prevent="addParameter" label-width="auto" label-position="left">
         <el-form-item label="老板名" :error="errors.owner">
           <el-input v-model="newParameter.owner" placeholder="请输入老板名" class="custom-input"></el-input>
         </el-form-item>
@@ -13,11 +13,11 @@
           <el-input v-model="newParameter.name" placeholder="请输入项目名" class="custom-input"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addParameter">添加</el-button>
+          <el-button type="primary" @click="addParameter" plain>添加</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="parameters" style="width: 100%">
-        <el-table-column prop="owner" label="老板名">
+      <el-table :data="parameters" style="width: 100%" border>
+        <el-table-column prop="owner" label="老板名" show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingParameter.owner" />
@@ -27,7 +27,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="owner_phone" label="联系电话">
+        <el-table-column prop="owner_phone" label="联系电话" show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingParameter.owner_phone" />
@@ -37,7 +37,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="项目名">
+        <el-table-column prop="name" label="项目名" show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingParameter.name" />
@@ -47,15 +47,15 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
-              <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
-              <el-button @click="cancelEdit">取消</el-button>
+              <el-button type="primary" @click="saveParameter(scope.row.id)" plain size="small">保存</el-button>
+              <el-button @click="cancelEdit" plain size="small">取消</el-button>
             </div>
             <div v-else>
-              <el-button @click="editParameter(scope.row)">修改</el-button>
-              <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+              <el-button @click="editParameter(scope.row)" plain size="small">修改</el-button>
+              <el-button type="danger" @click="removeParameter(scope.row.id)" plain size="small">删除</el-button>
             </div>
           </template>
         </el-table-column>
