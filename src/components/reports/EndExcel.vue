@@ -2,7 +2,7 @@
   <div class="end-excel">
     <el-card>
       <h2>终点对账表</h2>
-      <el-form @submit.prevent="validateAndFetchDetails">
+      <el-form @submit.prevent="validateAndFetchDetails" label-position="left" label-width="auto">
         <el-form-item label="老板">
           <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
         </el-form-item>
@@ -23,50 +23,50 @@
           <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="validateAndFetchDetails">筛选</el-button>
+          <el-button type="primary" @click="validateAndFetchDetails" plain>筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card v-if="currentDetails.length">
-      <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
+      <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey" border>
         <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
-        <el-table-column prop="start_site.name" label="起点工地">
+        <el-table-column prop="start_site.name" label="起点工地" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.start_site?.name || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="end_site.name" label="终点工地">
+        <el-table-column prop="end_site.name" label="终点工地" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.end_site?.name || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="vehicle" label="车队">
+        <el-table-column prop="vehicle" label="车队" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="goods.name" label="品类">
+        <el-table-column prop="goods.name" label="品类" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.goods?.name || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="数量">
+        <el-table-column prop="quantity" label="数量" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.quantity || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="unit" label="单位">
+        <el-table-column prop="unit" label="单位" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.unit || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="date" label="日期">
+        <el-table-column prop="date" label="日期" show-overflow-tooltip>
           <template v-slot="scope">
             {{ formatDate(scope.row.date) || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式">
+        <el-table-column prop="load" label="装载方式" show-overflow-tooltip>
           <template v-slot="scope">
             {{ formatLoad(scope.row.load) || '无' }}
           </template>
@@ -75,11 +75,11 @@
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
       <div style="margin-top: 10px;">
-        <el-button type="primary" @click="toggleAllSelection">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
-        <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length">
+        <el-button type="primary" @click="toggleAllSelection" plain>{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
+        <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length" plain>
           导出
         </el-button>
-        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length">
+        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length" plain>
           打印
         </el-button>
       </div>

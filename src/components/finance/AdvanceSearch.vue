@@ -11,14 +11,14 @@
               end-placeholder="结束日期"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="fetchFilteredAdvances">筛选</el-button>
+            <el-button type="primary" @click="fetchFilteredAdvances" plain>筛选</el-button>
           </el-form-item>
         </el-form>
       </el-card>
   
       <el-card v-if="advances.length">
-        <el-table :data="advances" style="width: 100%">
-          <el-table-column prop="vehicle" label="运输车队">
+        <el-table :data="advances" style="width: 100%" border>
+          <el-table-column prop="vehicle" label="运输车队" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
                 <FleetSelect v-model="editingAdvance.vehicle_id" />
@@ -28,7 +28,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="amount" label="金额">
+          <el-table-column prop="amount" label="金额" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
                 <el-input v-model="editingAdvance.amount" type="number" placeholder="请输入金额" />
@@ -38,7 +38,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="pay.method" label="付款方式">
+          <el-table-column prop="pay.method" label="付款方式" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
                 <PaymentSelect v-model="editingAdvance.pay_id" />
@@ -48,7 +48,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="advance_time" label="预支时间">
+          <el-table-column prop="advance_time" label="预支时间" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
                 <el-date-picker v-model="editingAdvance.advance_time" type="datetime" placeholder="选择预支时间" />
@@ -58,7 +58,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="note" label="备注">
+          <el-table-column prop="note" label="备注" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
                 <el-input v-model="editingAdvance.note" placeholder="请输入备注" />
@@ -68,15 +68,15 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" show-overflow-tooltip>
             <template v-slot="scope">
               <div v-if="editingId === scope.row.id">
-                <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
-                <el-button @click="cancelEdit">取消</el-button>
+                <el-button type="primary" @click="saveParameter(scope.row.id)" size="small" plain>保存</el-button>
+                <el-button @click="cancelEdit" size="small" plain>取消</el-button>
               </div>
               <div v-else>
-                <el-button @click="editParameter(scope.row)">修改</el-button>
-                <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+                <el-button @click="editParameter(scope.row)" size="small" plain>修改</el-button>
+                <el-button type="danger" @click="removeParameter(scope.row.id)" size="small" plain>删除</el-button>
               </div>
             </template>
           </el-table-column>

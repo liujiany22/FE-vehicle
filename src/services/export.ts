@@ -27,6 +27,12 @@ export const getDriverExcel = (data: {
     return apiClient.post('/finance/driver_excel', data, { responseType: 'blob' });
 }
 
+export const getDetailExcel = (data: {
+    item_ids: number[]
+}) => {
+    return apiClient.post('/item/detail_excel', data, {responseType: 'blob'});
+}
+
 export const getStartPDF = (data: {
     item_ids: number[],
     project_id: number,
@@ -52,4 +58,10 @@ export const getDriverPDF = (data: {
     end_date: string
 }) => {
     return apiClient.post('/finance/driver_excel_pdf', data, { responseType: 'blob' });
+};
+
+export const getDetailPDF = (data: {
+    item_ids: number[],
+}) => {
+    return apiClient.post('/item/detail_excel_pdf', data, { responseType: 'blob' });
 };

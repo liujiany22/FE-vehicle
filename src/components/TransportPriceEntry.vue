@@ -25,39 +25,39 @@
             @change="handleFilterChange"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="fetchFilteredDetails">筛选</el-button>
+          <el-button type="primary" @click="fetchFilteredDetails" plain>筛选</el-button>
         </el-form-item>
       </el-form>
 
       <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable"
-        :row-key="getRowKey">
+        :row-key="getRowKey" border>
         <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
-        <el-table-column prop="project.name" label="项目名称"></el-table-column>
-        <el-table-column prop="goods.name" label="运输品类"></el-table-column>
-        <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)"></el-table-column>
-        <el-table-column prop="quantity" label="数量"></el-table-column>
-        <el-table-column prop="unit" label="单位"></el-table-column>
-        <el-table-column prop="contractorPrice" label="工地承接单价"></el-table-column>
-        <el-table-column prop="startSubsidy" label="起点补贴金额"></el-table-column>
-        <el-table-column prop="endSubsidy" label="弃点付费金额"></el-table-column>
-        <el-table-column prop="endPayment" label="终点付费金额"></el-table-column>
-        <el-table-column prop="driverPrice" label="给司机单价"></el-table-column>
+        <el-table-column prop="project.name" label="项目名称" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="goods.name" label="运输品类" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="quantity" label="数量" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="unit" label="单位" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="contractorPrice" label="工地承接单价" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="startSubsidy" label="起点补贴金额" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="endSubsidy" label="弃点付费金额" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="endPayment" label="终点付费金额" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip></el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
       <div style="margin-top: 10px;">
-        <el-button type="primary" @click="toggleAllSelection">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
+        <el-button type="primary" @click="toggleAllSelection" plain>{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
         <el-button v-if="!isEditing" type="primary" @click="toggleEditMode"
-          :disabled="!selectedDetails.length || isEditingDisabled">
+          :disabled="!selectedDetails.length || isEditingDisabled" plain>
           修改
         </el-button>
       </div>
     </el-card>
 
-    <div v-if="isEditing" class="edit-form">
+    <div v-if="isEditing" class="edit-form" >
       <el-card>
         <h2>修改选中的运输单价</h2>
-        <el-form @submit.prevent="saveDetail">
+        <el-form @submit.prevent="saveDetail" label-position="left" label-width="auto">
           <el-form-item label="工地承接单价">
             <el-input v-model="editForm.contractorPrice" type="number" placeholder="请输入工地承接单价" class="custom-input" />
           </el-form-item>
@@ -77,8 +77,8 @@
             <el-input v-model="editForm.driverPrice" type="number" placeholder="请输入给司机单价"
               class="custom-input"></el-input>
           </el-form-item>
-          <el-button type="primary" @click="saveDetail">保存</el-button>
-          <el-button @click="cancelEdit">取消</el-button>
+          <el-button type="primary" @click="saveDetail" plain>保存</el-button>
+          <el-button @click="cancelEdit" plain>取消</el-button>
         </el-form>
       </el-card>
     </div>

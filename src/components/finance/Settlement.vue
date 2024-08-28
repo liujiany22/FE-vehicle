@@ -2,7 +2,7 @@
     <div class="settlement-entry">
       <el-card>
         <h2>运输结算查询</h2>
-        <el-form @submit.prevent="fetchFilteredDetailsAndSettlement">
+        <el-form @submit.prevent="fetchFilteredDetailsAndSettlement" label-width="auto" label-position="left">
           <el-form-item label="老板">
             <OwnerSelect v-model="filters.owner" />
           </el-form-item>
@@ -24,7 +24,7 @@
               end-placeholder="结束日期"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="fetchFilteredDetailsAndSettlement">筛选</el-button>
+            <el-button type="primary" @click="fetchFilteredDetailsAndSettlement" plain>筛选</el-button>
           </el-form-item>
         </el-form>
 
@@ -32,17 +32,17 @@
           <h3>结算总金额：{{ settlementAmount }}</h3>
         </div>
 
-        <el-table :data="details" style="width: 100%">
-          <el-table-column prop="project.name" label="项目名称"></el-table-column>
-          <el-table-column prop="goods.name" label="运输品类"></el-table-column>
-          <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)"></el-table-column>
-          <el-table-column prop="quantity" label="数量"></el-table-column>
-          <el-table-column prop="unit" label="单位"></el-table-column>
-          <el-table-column prop="contractorPrice" label="工地承接单价"></el-table-column>
-          <el-table-column prop="startSubsidy" label="起点补贴金额"></el-table-column>
-          <el-table-column prop="endSubsidy" label="弃点付费金额"></el-table-column>
-          <el-table-column prop="endPayment" label="终点付费金额"></el-table-column>
-          <el-table-column prop="driverPrice" label="给司机单价"></el-table-column>
+        <el-table :data="details" style="width: 100%" border>
+          <el-table-column prop="project.name" label="项目名称" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="goods.name" label="运输品类" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="date" label="日期" :formatter="(row: Detail) => formatDate(row.date)" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="quantity" label="数量" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="unit" label="单位" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="contractorPrice" label="工地承接单价" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="startSubsidy" label="起点补贴金额" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="endSubsidy" label="弃点付费金额" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="endPayment" label="终点付费金额" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip></el-table-column>
         </el-table>
         <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
           layout="prev, pager, next" :total="totalDetails" />

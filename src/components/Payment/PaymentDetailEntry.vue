@@ -2,7 +2,7 @@
   <div class="payment-detail-entry">
     <el-card>
       <h2>付款详情录入</h2>
-      <el-form @submit.prevent="addParameter">
+      <el-form @submit.prevent="addParameter" label-width="auto" label-position="left">
         <!-- 老板输入限制 -->
         <el-form-item label="老板" :error="errors.owner">
           <OwnerSelect v-model="form.owner" />
@@ -35,15 +35,15 @@
 
         <!-- 提交按钮 -->
         <el-form-item>
-          <el-button type="primary" @click="addParameter">提交</el-button>
+          <el-button type="primary" @click="addParameter" plain>提交</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <h2>已录入的付款详情</h2>
-      <el-table :data="paymentDetails" style="width: 100%">
-        <el-table-column prop="owner" label="老板">
+      <el-table :data="paymentDetails" style="width: 100%" border>
+        <el-table-column prop="owner" label="老板" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <OwnerSelect v-model="editingPayment.owner" />
@@ -53,7 +53,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="pay.method" label="付款方式">
+        <el-table-column prop="pay.method" label="付款方式" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <PaymentSelect v-model="editingPayment.pay_id" />
@@ -63,7 +63,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="amount" label="付款金额">
+        <el-table-column prop="amount" label="付款金额" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingPayment.amount" type="number" placeholder="请输入金额" />
@@ -73,7 +73,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="balance_amount" label="尾款数额">
+        <el-table-column prop="balance_amount" label="尾款数额" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingPayment.balance_amount" type="number" placeholder="请输入余额金额" />
@@ -83,7 +83,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="date" label="付款日期">
+        <el-table-column prop="date" label="付款日期" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <el-date-picker v-model="editingPayment.date" type="date" placeholder="选择付款日期" />
@@ -93,7 +93,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="note" label="备注">
+        <el-table-column prop="note" label="备注" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
               <el-input v-model="editingPayment.note" placeholder="请输入备注" />
@@ -103,15 +103,15 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" show-overflow-tooltip>
           <template v-slot="scope">
             <div v-if="editingId === scope.row.id">
-              <el-button type="primary" @click="saveParameter(scope.row.id)">保存</el-button>
-              <el-button @click="cancelEdit">取消</el-button>
+              <el-button type="primary" @click="saveParameter(scope.row.id)" size="small" plain>保存</el-button>
+              <el-button @click="cancelEdit" size="small" plain>取消</el-button>
             </div>
             <div v-else>
-              <el-button @click="editParameter(scope.row)">修改</el-button>
-              <el-button type="danger" @click="removeParameter(scope.row.id)">删除</el-button>
+              <el-button @click="editParameter(scope.row)" size="small" plain>修改</el-button>
+              <el-button type="danger" @click="removeParameter(scope.row.id)" size="small" plain>删除</el-button>
             </div>
           </template>
         </el-table-column>

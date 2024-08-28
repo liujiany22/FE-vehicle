@@ -1,16 +1,28 @@
 <template>
-  <div class="driver-excel">
+  <div class="detail-excel">
     <el-card>
-      <h2>司机对账表</h2>
-      <el-form @submit.prevent="validateAndFetchDetails" label-width="auto" label-position="left">
-        <el-form-item label="车队" :error="errors.vehicle_id">
-          <FleetSelect v-model="filters.vehicle_id" @change="handleFilterChange" />
+      <h2>运输详情对账表</h2>
+      <el-form @submit.prevent="validateAndFetchDetails" label-position="left" label-width="auto">
+        <el-form-item label="老板">
+          <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
+        </el-form-item>
+        <el-form-item label="项目">
+          <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" @change="handleFilterChange" />
+        </el-form-item>
+        <el-form-item label="运输起点">
+          <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner"
+            :project_id="filters.projectId" @change="handleFilterChange" />
+        </el-form-item>
+        <el-form-item label="运输终点">
+          <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId"
+            @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="filters.goods_id" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="时间范围" class="custom-date-picker" :error="errors.dateRange">
-          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" @change="handleFilterChange" />
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"
+            @change="handleFilterChange" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="validateAndFetchDetails" plain>筛选</el-button>
@@ -19,21 +31,42 @@
     </el-card>
 
     <el-card v-if="currentDetails.length">
-      <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey" border>
+      <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable"
+        :row-key="getRowKey" border>
         <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
-        <el-table-column prop="vehicle" label="车队" show-overflow-tooltip>
+        <el-table-column prop="project.owner" label="老板" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
+            {{ scope.row.project?.owner || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="goods.name" label="品类" show-overflow-tooltip>
+        <el-table-column prop="project.name" label="项目名称" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.project?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="start_site.name" label="运输起点" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.start_site?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="end_site.name" label="运输终点" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.end_site?.name || '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="vehicle.license" label="运输车队" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle.driver || '无司机'})` : '无' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods.name" label="运输品类" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.goods?.name || '无' }}
           </template>
         </el-table-column>
         <el-table-column prop="quantity" label="数量" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ scope.row.quantity || '无' }}
+            {{ scope.row.quantity }}
           </template>
         </el-table-column>
         <el-table-column prop="unit" label="单位" show-overflow-tooltip>
@@ -41,14 +74,34 @@
             {{ scope.row.unit || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式" show-overflow-tooltip>
+        <el-table-column prop="contractorPrice" label="工地承接单价" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ formatLoad(scope.row.load) || '无' }}
+            {{ scope.row.contractorPrice }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="startSubsidy" label="起点补贴金额" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.startSubsidy }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="endSubsidy" label="弃点付费金额" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.endSubsidy }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="endPayment" label="终点付费金额" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ scope.row.endPayment }}
           </template>
         </el-table-column>
         <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ scope.row.driverPrice || '无' }}
+            {{ scope.row.driverPrice }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="date" label="日期" show-overflow-tooltip>
+          <template v-slot="scope">
+            {{ formatDate(scope.row.date) || '无' }}
           </template>
         </el-table-column>
       </el-table>
@@ -69,41 +122,59 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, computed } from 'vue';
-import FleetSelect from '@/components/select/FleetSelect.vue';
+import OwnerSelect from '@/components/select/OwnerSelect.vue';
+import OwnerProjectsSelect from '@/components/select/OwnerProjectsSelect.vue';
+import OwnerStartSitesSelect from '../select/OwnerStartSitesSelect.vue';
+import OwnerEndSitesSelect from '../select/OwnerEndSitesSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import { searchTransportDetails } from '@/services/detailService';
-import { getDriverExcel, getDriverPDF } from '@/services/export';
+import { getDetailExcel, getDetailPDF } from '@/services/export';
 import { saveAs } from 'file-saver';
-import { formatLoad } from '@/utils/load';
+import { formatDate } from '@/utils/time';
 import { ElMessage, ElLoading } from 'element-plus';
 import { ElTable } from 'element-plus';
 
 interface Detail {
   id: number;
+  owner: { name: string };
+  project: { name: string };
+  start_site: { name: string };
+  end_site: { name: string };
   vehicle: { license: string };
   goods: { name: string };
   quantity: number;
   unit: string;
-  load: string;
-  driverPrice: number;
+  start_site_price: number;
+  start_subsidy: number;
+  end_charge: number;
+  end_site_price: number;
+  driver_price: number;
+  date: string | null;
 }
 
 export default defineComponent({
-  name: 'DriverExcel',
+  name: 'DetailExcel',
   components: {
-    FleetSelect,
+    OwnerSelect,
+    OwnerProjectsSelect,
+    OwnerStartSitesSelect,
+    OwnerEndSitesSelect,
     GoodsSelect,
   },
   setup() {
     const filters = ref({
-      vehicle_id: 0,
+      owner: '',
+      projectId: 0,
+      startsite_id: 0,
+      endsite_id: 0,
       goods_id: 0,
       dateRange: [null, null] as [Date | null, Date | null],
     });
+
     const errors = ref({
-      vehicle_id: null as string | null,
       dateRange: null as string | null,
     });
+
     const details = ref<Detail[]>([]);
     const currentDetails = ref<Detail[]>([]);
     const selectedDetails = ref<Detail[]>([]);
@@ -112,6 +183,7 @@ export default defineComponent({
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
     const totalDetails = ref(0);
+
     const isExportDisabled = ref(true);
 
     const getRowKey = (row: Detail) => {
@@ -123,29 +195,18 @@ export default defineComponent({
     };
 
     const validateAndFetchDetails = async () => {
-      let valid = true;
-
-      if (!filters.value.vehicle_id) {
-        errors.value.vehicle_id = '请选择车队';
-        valid = false;
-      } else {
-        errors.value.vehicle_id = null;
-      }
-
       if (!filters.value.dateRange || !filters.value.dateRange[0] || !filters.value.dateRange[1]) {
         errors.value.dateRange = '请选择时间范围';
-        valid = false;
+        return;
       } else {
         errors.value.dateRange = null;
       }
 
-      if (valid) {
-        await fetchFilteredDetails();
-        isExportDisabled.value = false;
-        selectedDetails.value = [];
-        if (detailTable.value) {
-          detailTable.value.clearSelection();
-        }
+      await fetchFilteredDetails();
+      isExportDisabled.value = false;
+      selectedDetails.value = [];
+      if (detailTable.value) {
+        detailTable.value.clearSelection();
       }
     };
 
@@ -157,7 +218,9 @@ export default defineComponent({
       });
       try {
         const params = {
-          vehicle_id: filters.value.vehicle_id,
+          project_id: filters.value.projectId,
+          startsite_id: filters.value.startsite_id,
+          endsite_id: filters.value.endsite_id,
           goods_id: filters.value.goods_id,
           start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null,
           end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null,
@@ -182,7 +245,6 @@ export default defineComponent({
     const isAllSelected = computed(() => {
       return selectedDetails.value.length === details.value.length && details.value.length > 0;
     });
-
     const toggleAllSelection = () => {
       if (detailTable.value) {
         if (isAllSelected.value) {
@@ -211,22 +273,14 @@ export default defineComponent({
 
       const item_ids = selectedDetails.value.map(detail => detail.id);
 
-      const exportData = {
-        item_ids: item_ids,
-        vehicle_id: filters.value.vehicle_id,
-        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
-        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
-        goods_id: filters.value.goods_id,
-      };
-
       try {
-        const exportResponse = await getDriverExcel(exportData);
+        const exportResponse = await getDetailExcel({ item_ids });
         const blob = new Blob([exportResponse.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, '驾驶员对账表.xlsx');
+        saveAs(blob, '运输详情对账表.xlsx');
         loadingInstance.close();
       } catch (error) {
         loadingInstance.close();
-        console.error('Error exporting driver statement:', error);
+        console.error('Error exporting details:', error);
       }
     };
 
@@ -239,16 +293,8 @@ export default defineComponent({
 
       const item_ids = selectedDetails.value.map(detail => detail.id);
 
-      const printData = {
-        item_ids: item_ids,
-        vehicle_id: filters.value.vehicle_id,
-        start_date: filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : '',
-        end_date: filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : '',
-        goods_id: filters.value.goods_id,
-      };
-
       try {
-        const pdfResponse = await getDriverPDF(printData);
+        const pdfResponse = await getDetailPDF({ item_ids });
         const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
         const pdfURL = URL.createObjectURL(blob);
 
@@ -266,20 +312,19 @@ export default defineComponent({
       } catch (error) {
         loadingInstance.close();
         ElMessage.error('生成打印文件失败，请稍后再试');
-        console.error('Error printing driver statement:', error);
+        console.error('Error printing details:', error);
       }
     };
-
     const showExportNotSupportedMessage = () => {
-      // ElMessage.warning('暂不支持选中导出功能')
+      ElMessage.warning('暂不支持此功能')
     };
-
     onMounted(() => {
       fetchFilteredDetails();
       showExportNotSupportedMessage();
     });
 
     return {
+      detailTable,
       filters,
       errors,
       details,
@@ -290,7 +335,6 @@ export default defineComponent({
       totalDetails,
       isExportDisabled,
       isAllSelected,
-      detailTable,
       showExportNotSupportedMessage,
       toggleAllSelection,
       getRowKey,
@@ -300,7 +344,7 @@ export default defineComponent({
       handleExport,
       handlePrint,
       handleDetailPageChange,
-      formatLoad,
+      formatDate,
     };
   },
 });

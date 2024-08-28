@@ -2,7 +2,7 @@
   <div class="payment-detail-search">
     <el-card>
       <h2>付款详情查询</h2>
-      <el-form @submit.prevent="fetchFilteredPayments">
+      <el-form @submit.prevent="fetchFilteredPayments" label-width="auto" label-position="left">
         <el-form-item label="老板">
           <OwnerSelect v-model="filters.owner" />
         </el-form-item>
@@ -11,24 +11,24 @@
             end-placeholder="结束日期"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="fetchFilteredPayments">筛选</el-button>
+          <el-button type="primary" @click="fetchFilteredPayments" plain>筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <h2>筛选结果</h2>
-      <el-table :data="filteredPayments" style="width: 100%">
-        <el-table-column prop="owner" label="老板" />
-        <el-table-column prop="pay.method" label="付款方式" />
-        <el-table-column prop="amount" label="付款金额" />
-        <el-table-column prop="balance_amount" label="尾款数额" />
-        <el-table-column prop="date" label="付款日期">
+      <el-table :data="filteredPayments" style="width: 100%" border>
+        <el-table-column prop="owner" label="老板" show-overflow-tooltip/>
+        <el-table-column prop="pay.method" label="付款方式" show-overflow-tooltip/>
+        <el-table-column prop="amount" label="付款金额" show-overflow-tooltip/>
+        <el-table-column prop="balance_amount" label="尾款数额" show-overflow-tooltip/>
+        <el-table-column prop="date" label="付款日期" show-overflow-tooltip>
           <template v-slot="scope">
             {{ formatDate(scope.row.date) }}
           </template>
         </el-table-column>
-        <el-table-column prop="note" label="备注" />
+        <el-table-column prop="note" label="备注" show-overflow-tooltip/>
       </el-table>
       <el-pagination
         @current-change="handlePageChange"

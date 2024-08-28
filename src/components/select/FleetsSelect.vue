@@ -30,18 +30,20 @@
       <el-button 
         type="primary" 
         @click="addVehicle" 
-        :disabled="!canAddVehicle">添加</el-button>
+        :disabled="!canAddVehicle" 
+        plain>添加</el-button>
     </div>
-    
-    <div v-if="addedVehicles.length" class="added-vehicles-list">
-      <h3>已添加的车辆</h3>
-      <ul>
-        <li v-for="(vehicle, index) in addedVehicles" :key="index">
-          车辆: {{ vehicle.license }} - 数量: {{ vehicle.quantity }}
-          <el-button type="danger" @click="removeVehicle(index)">删除</el-button>
-        </li>
-      </ul>
-    </div>
+
+    <el-collapse v-if="addedVehicles.length" class="added-vehicles-list">
+      <el-collapse-item title="已添加的车辆">
+        <ul>
+          <li v-for="(vehicle, index) in addedVehicles" :key="index">
+            车辆: {{ vehicle.license }} - 数量: {{ vehicle.quantity }}
+            <el-button type="danger" @click="removeVehicle(index)" plain>删除</el-button>
+          </li>
+        </ul>
+      </el-collapse-item>
+    </el-collapse>
   </div>
 </template>
 
@@ -145,8 +147,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 设置两个框之间的间距 */
+}
+
 .pagination-container {
   padding: 10px;
   text-align: center;
+}
+
+.vehicle-select {
+  flex: 1;
+  width: 220px;
+}
+
+.quantity-input {
+  width: 220px;
 }
 </style>

@@ -80,11 +80,11 @@
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
       <div style="margin-top: 10px;">
-        <el-button type="primary" @click="toggleAllSelection">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
-        <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length">
+        <el-button type="primary" @click="toggleAllSelection" plain>{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
+        <el-button type="primary" @click="handleExport" :disabled="isExportDisabled || !selectedDetails.length" plain>
           导出
         </el-button>
-        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length">
+        <el-button type="primary" @click="handlePrint" :disabled="isExportDisabled || !selectedDetails.length" plain>
           打印
         </el-button>
       </div>

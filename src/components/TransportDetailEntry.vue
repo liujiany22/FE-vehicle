@@ -2,7 +2,7 @@
   <div class="transport-detail-entry">
     <el-card>
       <h2>运输明细录入</h2>
-      <el-form @submit.prevent="addDetail">
+      <el-form @submit.prevent="addDetail" label-position="left" label-width="auto">
         <el-form-item label="老板">
           <OwnerSelect v-model="form.owner" />
         </el-form-item>
@@ -50,15 +50,15 @@
           <el-input v-model="form.note" placeholder="输入备注" class="custom-input" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addDetail">提交</el-button>
+          <el-button type="primary" @click="addDetail" plain>提交</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <h2>已录入的运输明细</h2>
-      <el-table :data="details" style="width: 100%">
-        <el-table-column prop="project.name" label="项目" v-slot="scope">
+      <el-table :data="details" style="width: 100%" border>
+        <el-table-column prop="project.name" label="项目" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <ProjectSelect v-model="editingDetail.project_id" />
           </div>
@@ -66,7 +66,7 @@
             {{ scope.row.project?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="start_site.name" label="运输起点" v-slot="scope">
+        <el-table-column prop="start_site.name" label="运输起点" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <StartSiteSelect v-model="editingDetail.start_site_id" />
           </div>
@@ -74,7 +74,7 @@
             {{ scope.row.start_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="end_site.name" label="运输终点" v-slot="scope">
+        <el-table-column prop="end_site.name" label="运输终点" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <EndSiteSelect v-model="editingDetail.end_site_id" />
           </div>
@@ -82,7 +82,7 @@
             {{ scope.row.end_site?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="vehicle" label="运输车队" v-slot="scope">
+        <el-table-column prop="vehicle" label="运输车队" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <FleetSelect v-model="editingDetail.vehicle_id" />
           </div>
@@ -91,7 +91,7 @@
           </div>
         </el-table-column>
 
-        <el-table-column prop="goods.name" label="运输品类" v-slot="scope">
+        <el-table-column prop="goods.name" label="运输品类" v-slot="scope" show-overflow-tooltip> 
           <div v-if="isEditing(scope.row.id)">
             <GoodsSelect v-model="editingDetail.goods_id" />
           </div>
@@ -99,7 +99,7 @@
             {{ scope.row.goods?.name || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="quantity" label="数量" v-slot="scope">
+        <el-table-column prop="quantity" label="数量" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-input v-model="editingDetail.quantity" type="number" placeholder="输入数量" />
           </div>
@@ -107,7 +107,7 @@
             {{ scope.row.quantity || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="unit" label="单位" v-slot="scope">
+        <el-table-column prop="unit" label="单位" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-input v-model="editingDetail.unit" placeholder="输入单位" />
           </div>
@@ -115,7 +115,7 @@
             {{ scope.row.unit || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="date" label="日期" v-slot="scope">
+        <el-table-column prop="date" label="日期" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-date-picker v-model="editingDetail.date" type="date" placeholder="选择日期"></el-date-picker>
           </div>
@@ -123,7 +123,7 @@
             {{ formatDate(scope.row.date) || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式" v-slot="scope">
+        <el-table-column prop="load" label="装载方式" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <LoadSelect v-model="editingDetail.load" />
           </div>
@@ -132,7 +132,7 @@
           </div>
         </el-table-column>
 
-        <el-table-column prop="note" label="备注" v-slot="scope">
+        <el-table-column prop="note" label="备注" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-input v-model="editingDetail.note" placeholder="输入备注" />
           </div>
@@ -140,14 +140,14 @@
             {{ scope.row.note || '无' }}
           </div>
         </el-table-column>
-        <el-table-column label="操作" v-slot="scope">
+        <el-table-column label="操作" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
-            <el-button type="primary" @click="saveDetail(scope.row.id)">保存</el-button>
-            <el-button @click="cancelEdit">取消</el-button>
+            <el-button type="primary" @click="saveDetail(scope.row.id)" plain size="small">保存</el-button>
+            <el-button @click="cancelEdit" plain size="small">取消</el-button>
           </div>
           <div v-else>
-            <el-button @click="editDetail(scope.row)">修改</el-button>
-            <el-button type="danger" @click="removeDetail(scope.row.id)">删除</el-button>
+            <el-button @click="editDetail(scope.row)" plain size="small">修改</el-button>
+            <el-button type="danger" @click="removeDetail(scope.row.id)" plain size="small">删除</el-button>
           </div>
         </el-table-column>
       </el-table>
