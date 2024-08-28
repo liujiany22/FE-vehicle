@@ -6,13 +6,13 @@
         <el-form-item label="老板">
           <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
         </el-form-item>
-        <el-form-item label="项目" :error="errors.projectId">
+        <el-form-item label="项目">
           <OwnerProjectsSelect v-model="filters.projectId" :ownerName="filters.owner" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输起点">
           <OwnerStartSitesSelect v-model="filters.startsite_id" :ownerName="filters.owner" :project_id="filters.projectId" @change="handleFilterChange" />
         </el-form-item>
-        <el-form-item label="运输终点">
+        <el-form-item label="运输终点" :error="errors.endsite_id">
           <OwnerEndSitesSelect v-model="filters.endsite_id" :ownerName="filters.owner" :project_id="filters.projectId" @change="handleFilterChange" />
         </el-form-item>
         <el-form-item label="运输品类">
@@ -31,11 +31,6 @@
     <el-card v-if="currentDetails.length">
       <el-table :data="currentDetails" style="width: 100%" @selection-change="handleSelectionChange" ref="detailTable" :row-key="getRowKey">
         <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
-        <el-table-column prop="project.name" label="项目名称">
-          <template v-slot="scope">
-            {{ scope.row.project?.name || '无' }}
-          </template>
-        </el-table-column>
         <el-table-column prop="start_site.name" label="起点工地">
           <template v-slot="scope">
             {{ scope.row.start_site?.name || '无' }}
@@ -140,7 +135,7 @@ export default defineComponent({
     });
 
     const errors = ref({
-      projectId: null as string | null,
+      endsite_id: null as string | null,
       dateRange: null as string | null,
     });
 
@@ -164,11 +159,11 @@ export default defineComponent({
     };
 
     const validateAndFetchDetails = async () => {
-      if (!filters.value.projectId) {
-        errors.value.projectId = '请选择项目';
+      if (!filters.value.endsite_id) {
+        errors.value.endsite_id = '请选择终点';
         return;
       } else {
-        errors.value.projectId = null;
+        errors.value.endsite_id = null;
       }
 
       if (!filters.value.dateRange || !filters.value.dateRange[0] || !filters.value.dateRange[1]) {
