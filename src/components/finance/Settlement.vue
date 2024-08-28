@@ -62,6 +62,7 @@
   import { formatDate } from '@/utils/time';
   import { searchTransportDetails } from '@/services/detailService';
   import { getSettlement } from '@/services/financeService';
+import { ElLoading } from 'element-plus';
   
   interface Detail {
     id: number;
@@ -102,6 +103,11 @@
       const settlementAmount = ref(0);
   
       const fetchFilteredDetailsAndSettlement = async () => {
+        const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
         try {
           const check_date = filters.value.dateRange;
           const params = {
@@ -122,8 +128,9 @@
           // Fetching settlement amount
           const settlementResponse = await getSettlement(params);
           settlementAmount.value = settlementResponse.data.total_amount;
-  
+          loadingInstance.close();
         } catch (error) {
+          loadingInstance.close();
           console.error('Failed to fetch details or settlement amount', error);
         }
       };

@@ -94,7 +94,7 @@ import OwnerStartSitesSelect from '@/components/select/OwnerStartSitesSelect.vue
 import OwnerEndSitesSelect from '@/components/select/OwnerEndSitesSelect.vue';
 import { formatDate } from '../utils/time';
 import { searchTransportDetails, updateTransportPrices } from '@/services/detailService';
-import { ElTable } from 'element-plus';
+import { ElLoading, ElTable } from 'element-plus';
 
 interface Detail {
   id: number;
@@ -157,7 +157,14 @@ export default defineComponent({
     };
 
     const fetchFilteredDetails = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
       try {
+
+
         const date_check = filters.value.dateRange;
         const params = {
           ownerName: filters.value.owner,
@@ -183,7 +190,9 @@ export default defineComponent({
         selectedDetails.value = [];
         cancelEdit();
         isEditingDisabled.value = false;  // 启用“修改”按钮
+        loadingInstance.close(); // 关闭加载框
       } catch (error) {
+        loadingInstance.close(); // 关闭加载框
         console.error('Failed to fetch details', error);
       }
     };

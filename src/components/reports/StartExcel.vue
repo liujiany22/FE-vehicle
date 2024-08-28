@@ -192,6 +192,11 @@ export default defineComponent({
     };
 
     const fetchFilteredDetails = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
       try {
         const params = {
           project_id: filters.value.projectId,
@@ -206,7 +211,10 @@ export default defineComponent({
         totalDetails.value = details.value.length;
 
         currentDetails.value = details.value.slice((detailCurrentPage.value - 1) * perPage.value, detailCurrentPage.value * perPage.value);
+
+        loadingInstance.close();
       } catch (error) {
+        loadingInstance.close();
         console.error('Failed to fetch details', error);
       }
     };

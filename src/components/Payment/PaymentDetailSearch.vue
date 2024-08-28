@@ -46,6 +46,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import { searchPaymentDetails } from '@/services/paymentService';
 import { formatDate } from '@/utils/time';
+import { ElLoading } from 'element-plus';
 
 export default defineComponent({
   name: 'PaymentDetailSearch',
@@ -64,6 +65,11 @@ export default defineComponent({
     const totalRecords = ref(0);
 
     const fetchFilteredPayments = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
       const check_date = filters.value.dateRange;
       const start_date = check_date ? (filters.value.dateRange[0] ? filters.value.dateRange[0].toISOString().split('T')[0] : null) : null;
       const end_date = check_date ? (filters.value.dateRange[1] ? filters.value.dateRange[1].toISOString().split('T')[0] : null) : null;
@@ -77,7 +83,10 @@ export default defineComponent({
 
         filteredPayments.value = response.data.payments;
         totalRecords.value = response.data.total_count;
+
+        loadingInstance.close();
       } catch (error) {
+        loadingInstance.close();
         console.error('Failed to fetch filtered payments', error);
       }
     };

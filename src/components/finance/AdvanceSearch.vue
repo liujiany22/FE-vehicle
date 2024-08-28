@@ -94,6 +94,7 @@
   import { searchAdvances, updateAdvance, delAdvance } from '@/services/financeService';
   import { formatDate } from '@/utils/time';
 import { isNullishCoalesce } from 'typescript';
+import { ElLoading } from 'element-plus';
   
   export default defineComponent({
     name: 'AdvanceSearch',
@@ -120,6 +121,11 @@ import { isNullishCoalesce } from 'typescript';
       const editingId = ref<number | null>(null);
   
       const fetchFilteredAdvances = async () => {
+        const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
         try {
           const check_date = filters.value.dateRange;
           const params = {
@@ -137,8 +143,10 @@ import { isNullishCoalesce } from 'typescript';
             note: item.note || '',
           }));
           totalAdvances.value = response.data.total_pages * perPage.value;
+          loadingInstance.close();
         } catch (error) {
           console.error('Failed to fetch advances', error);
+          loadingInstance.close();
         }
       };
   
