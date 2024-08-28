@@ -218,6 +218,7 @@ export default defineComponent({
       });
       try {
         const params = {
+          ownerName: filters.value.owner,
           project_id: filters.value.projectId,
           startsite_id: filters.value.startsite_id,
           endsite_id: filters.value.endsite_id,
