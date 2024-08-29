@@ -209,9 +209,9 @@ export default defineComponent({
 			ElMessage.warning('维护中')
 		};
 
-		onMounted(() => {
-			showMessage();
-		})
+		// onMounted(() => {
+		// 	showMessage();
+		// })
 
 		return {
 			usernameForm,

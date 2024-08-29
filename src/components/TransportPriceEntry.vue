@@ -271,7 +271,7 @@ export default defineComponent({
       ElMessage.warning('修改功能维护中');
     };
     onMounted(() => {
-      showMessage();
+      // showMessage();
       fetchFilteredDetails();
     });
 
