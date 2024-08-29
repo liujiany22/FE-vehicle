@@ -11,7 +11,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
-import PasswordSetting from '@/components/PasswordSetting.vue';
 import StartSite from '@/components/settings/StartSite.vue';
 import EndSite from '@/components/settings/EndSite.vue';
 import Category from '@/components/settings/Category.vue';
@@ -35,7 +34,6 @@ export default defineComponent({
   name: 'Dashboard',
   components: {
     Sidebar,
-    PasswordSetting,
     StartSite,
     EndSite,
     Category,
