@@ -3,19 +3,19 @@
 		<el-card>
 			<template #header>
 				<div class="card-header">
-					<span>用户信息</span>					
+					<span>用户信息</span>
 				</div>
 			</template>
 			<!-- 用户信息展示 -->
 			<el-descriptions :border="true" direction="vertical" column="4">
 				<el-descriptions-item label="用户ID">{{ userInfo.id }}</el-descriptions-item>
 				<el-descriptions-item label="用户名">{{ userInfo.name }}</el-descriptions-item>
-				<el-descriptions-item label="手机号">{{ userInfo.phone }}</el-descriptions-item>
-				<el-descriptions-item label="账户状态">{{ userInfo.status === 'online' ? "在线" : "离线" }}</el-descriptions-item>
+				<el-descriptions-item label="账户状态">{{ userInfo.status === 'online' ? "在线" : "离线" }}&nbsp&nbsp&nbsp<el-button
+						type="warning" @click="handleLogout" plain size="small">登出</el-button>
+					<el-button type="danger" @click="handleCancel" size="small" plain>注销</el-button></el-descriptions-item>
 			</el-descriptions>
 			<!-- 登出和注销 -->
-			<el-button type="warning" @click="handleLogout" plain>登出</el-button>
-			<el-button type="danger" @click="handleCancel" plain>注销</el-button>
+
 		</el-card>
 		<el-card>
 			<template #header>
