@@ -9,9 +9,9 @@
         <el-form-item label="密码" :error="errors.password">
           <el-input type="password" v-model="signupForm.password" placeholder="请输入密码" show-password @blur="validatePassword"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="手机号" :error="errors.phone">
-          <el-input v-model="signupForm.phone" placeholder="请输入手机号" @blur="validatePhone"></el-input>
-        </el-form-item> -->
+        <el-form-item label="口令" :error="errors.keyword">
+          <el-input type="password" v-model="signupForm.keyword" placeholder="请输入注册口令" show-password @blur="validateKeyword"></el-input>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSignup" class="signup-button" plain>注册</el-button>
         </el-form-item>
@@ -33,13 +33,13 @@ export default defineComponent({
     const signupForm = reactive({
       username: '',
       password: '',
-      phone: '',
+      keyword: '',
     });
 
     const errors = ref({
       username: null as string | null,
       password: null as string | null,
-      phone: null as string | null,
+      keyword: null as string | null,
     });
 
     const validateUsername = () => {
@@ -64,26 +64,26 @@ export default defineComponent({
       }
     };
 
-    const validatePhone = () => {
-      const phoneRegex = /^1[3-9]\d{9}$/;
-      if (!signupForm.phone) {
-        errors.value.phone = '请输入手机号';
-      } else if (!phoneRegex.test(signupForm.phone)) {
-        errors.value.phone = '手机号格式不正确';
+    const validateKeyword = () => {
+      const keywordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      if (!signupForm.keyword) {
+        errors.value.keyword = '请输入注册口令';
+      } else if (!keywordRegex.test(signupForm.keyword)) {
+        errors.value.keyword = '注册口令至少8个字符，且包含字母和数字';
       } else {
-        errors.value.phone = null;
+        errors.value.keyword = null;
       }
     };
 
     const handleSignup = async () => {
       validateUsername();
       validatePassword();
-      validatePhone();
+      validateKeyword();
 
-      if (errors.value.username || errors.value.password || errors.value.phone) return;
+      if (errors.value.username || errors.value.password || errors.value.keyword) return;
 
       try {
-        await signup(signupForm.username, signupForm.password, signupForm.phone);
+        await signup(signupForm.username, signupForm.password, signupForm.keyword);
         ElMessage.success('注册成功');
         router.push('/login');
       } catch (error) {
@@ -98,7 +98,7 @@ export default defineComponent({
       handleSignup,
       validateUsername,
       validatePassword,
-      validatePhone,
+      validateKeyword,
     };
   },
 });

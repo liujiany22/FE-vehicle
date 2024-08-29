@@ -9,8 +9,8 @@ export const loginByVerification = (phone: string, verification: string) => {
   return apiClient.post('/user/login_verification', { phone, verification });
 };
 
-export const signup = (username: string, password: string, phone: string) => {
-  return apiClient.post('/user/signup', { username, password, phone });
+export const signup = (username: string, password: string, keyword: string) => {
+  return apiClient.post('/user/signup', { username, password, keyword });
 };
 
 export const logout = () => {
