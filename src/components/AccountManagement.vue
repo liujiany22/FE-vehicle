@@ -208,11 +208,8 @@ export default defineComponent({
 		const showMessage = () => {
 			ElMessage.warning('维护中')
 		};
-		const showMessage = () => {
-      // ElMessage.warning('维护中')
-    };
+
 		onMounted(() => {
-			showMessage();
 			showMessage();
 		})
 
