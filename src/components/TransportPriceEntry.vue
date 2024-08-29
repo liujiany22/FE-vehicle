@@ -2,7 +2,7 @@
   <div class="transport-price-entry">
     <el-card>
       <h2>运输单价录入</h2>
-      <el-form @submit.prevent="fetchFilteredDetails">
+      <el-form @submit.prevent="fetchFilteredDetails" label-width="auto" label-position="left">
         <el-form-item label="老板">
           <OwnerSelect v-model="filters.owner" @change="handleFilterChange" />
         </el-form-item>
@@ -91,7 +91,7 @@ import OwnerStartSitesSelect from '@/components/select/OwnerStartSitesSelect.vue
 import OwnerEndSitesSelect from '@/components/select/OwnerEndSitesSelect.vue';
 import { formatDate } from '../utils/time';
 import { searchTransportDetails, updateTransportPrices } from '@/services/detailService';
-import { ElLoading, ElTable } from 'element-plus';
+import { ElLoading, ElMessage, ElTable } from 'element-plus';
 
 interface Detail {
   id: number;
@@ -105,6 +105,14 @@ interface Detail {
   endSubsidy: number;
   endPayment: number;
   driverPrice: number;
+}
+
+interface EditForm {
+  contractorPrice?: number;
+  startSubsidy?: number;
+  endSubsidy?: number;
+  endPayment?: number;
+  driverPrice?: number;
 }
 
 export default defineComponent({
@@ -134,13 +142,7 @@ export default defineComponent({
     // 选择条目
     const selectedDetails = ref<Detail[]>([]);
     // 修改框
-    const editForm = ref({
-      contractorPrice: 0,
-      startSubsidy: 0,
-      endSubsidy: 0,
-      endPayment: 0,
-      driverPrice: 0,
-    });
+    const editForm = ref<EditForm>({});
 
     const detailCurrentPage = ref(1);
     const perPage = ref(10);
@@ -190,6 +192,7 @@ export default defineComponent({
         loadingInstance.close(); // 关闭加载框
       } catch (error) {
         loadingInstance.close(); // 关闭加载框
+        ElMessage.error('运输明细获取失败，请稍后再试');
         console.error('Failed to fetch details', error);
       }
     };
@@ -246,9 +249,10 @@ export default defineComponent({
           ...editForm.value,
         }));
         await updateTransportPrices(data);
-        alert('价格更新成功');
+        ElMessage.success('价格更新成功');
         fetchFilteredDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('价格更新失败，请稍后再试');
         console.error('Failed to update prices', error);
       }
     };
@@ -256,15 +260,18 @@ export default defineComponent({
     const cancelEdit = () => {
       isEditing.value = false;
       editForm.value = {
-        contractorPrice: 0,
-        startSubsidy: 0,
-        endSubsidy: 0,
-        endPayment: 0,
-        driverPrice: 0,
+        contractorPrice: undefined,
+        startSubsidy: undefined,
+        endSubsidy: undefined,
+        endPayment: undefined,
+        driverPrice: undefined,
       };
     };
-
+    const showMessage = () => {
+      ElMessage.warning('修改功能维护中');
+    };
     onMounted(() => {
+      showMessage();
       fetchFilteredDetails();
     });
 
@@ -280,6 +287,7 @@ export default defineComponent({
       totalDetails,
       isEditing,
       isEditingDisabled,
+      showMessage,
       getRowKey,
       fetchFilteredDetails,
       handleFilterChange,

@@ -205,6 +205,7 @@ export default defineComponent({
         loadingInstance.close();
       } catch (error) {
         console.error('Failed to fetch details', error);
+        ElMessage.error('筛选失败，请稍后再试');
         loadingInstance.close();
       }
     };
@@ -261,6 +262,7 @@ export default defineComponent({
         saveAs(blob, '终点对账表.xlsx');
         loadingInstance.close(); // 关闭加载框
       } catch (error) {
+        ElMessage.error('生成表格失败，请稍后再试');
         console.error('Error exporting site entry:', error);
       }
     };

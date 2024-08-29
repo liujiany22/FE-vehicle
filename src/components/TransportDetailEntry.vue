@@ -176,6 +176,7 @@ import {
   delTransportDetail,
   updateTransportDetail
 } from '@/services/detailService';
+import { ElMessage } from 'element-plus';
 
 export default defineComponent({
   name: 'TransportDetailEntry',
@@ -259,6 +260,7 @@ export default defineComponent({
         }));
         totalDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
+        ElMessage.error('明细获取失败，请稍后再试');
         console.error('Failed to fetch details', error);
       }
     };
@@ -281,7 +283,7 @@ export default defineComponent({
         }
 
         if (form.value.vehicle_ids.length === 0) {
-          alert('请先添加至少一辆车辆及其数量');
+          ElMessage.error('请先添加至少一辆车辆及其数量');
           return;
         }
         // 遍历每个 vehicle 对象并发送单独的请求
@@ -305,7 +307,7 @@ export default defineComponent({
           };
           await addTransportDetail(data);
         }
-        alert('运输明细录入成功');
+        ElMessage.success('运输明细录入成功');
         resetForm();
         if(fleetsSelect.value){
           
@@ -313,6 +315,7 @@ export default defineComponent({
         }
         fetchDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('运输明细录入失败，请稍后再试')
         console.error('Failed to add transport detail', error);
       }
     };
@@ -320,9 +323,10 @@ export default defineComponent({
     const removeDetail = async (itemId: number) => {
       try {
         await delTransportDetail(itemId);
-        alert('运输明细删除成功');
+        ElMessage.success('运输明细删除成功');
         fetchDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('运输明细删除失败，请稍后再试')
         console.error('Failed to delete transport detail', error);
       }
     };
@@ -359,10 +363,11 @@ export default defineComponent({
           note: editingDetail.value.note
         };
         await updateTransportDetail(data);
-        alert('运输明细更新成功');
+        ElMessage.success('运输明细更新成功');
         resetEditingDetail();
         fetchDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('运输明细更新失败，请稍后再试')
         console.error('Failed to update transport detail', error);
       }
     };

@@ -215,6 +215,7 @@ export default defineComponent({
         loadingInstance.close();
       } catch (error) {
         loadingInstance.close();
+        ElMessage.error('筛选失败，请稍后再试');
         console.error('Failed to fetch details', error);
       }
     };
@@ -273,6 +274,7 @@ export default defineComponent({
         loadingInstance.close(); // 关闭加载框
       } catch (error) {
         loadingInstance.close(); // 确保在捕获错误时关闭加载框
+        ElMessage.error('生成表格失败，请稍后再试');
         console.error('Error exporting site entry:', error);
       }
     };
