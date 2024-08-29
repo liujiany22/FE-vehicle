@@ -69,6 +69,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { addEndSite, delEndSite, getEndSites, updateEndSite } from '@/services/transportService';
+import { ElMessage } from 'element-plus';
 
 export default defineComponent({
   name: 'EndSite',
@@ -92,6 +93,7 @@ export default defineComponent({
         parameters.value = response.data.end_sites;
         totalPages.value = response.data.total_pages;
       } catch (error) {
+        ElMessage.error('参数获取失败，请稍后再试');
         console.error('Failed to fetch parameters', error);
       }
     };
@@ -111,6 +113,7 @@ export default defineComponent({
           fetchParameters();
           newParameter.value = { name: '', manager: '', phone: '' };
         } catch (error) {
+          ElMessage.error('参数添加失败，请稍后再试');
           console.error('Failed to add parameter', error);
         }
       }
@@ -121,6 +124,7 @@ export default defineComponent({
         await delEndSite(id);
         fetchParameters();
       } catch (error) {
+        ElMessage.error('参数删除失败，请稍后再试');
         console.error('Failed to delete parameter', error);
       }
     };
@@ -136,6 +140,7 @@ export default defineComponent({
         fetchParameters();
         cancelEdit();
       } catch (error) {
+        ElMessage.error('参数更新失败，请稍后再试');
         console.error('Failed to update parameter', error);
       }
     };
@@ -171,6 +176,7 @@ export default defineComponent({
   },
 });
 </script>
+
 
 <style scoped>
 @import '@/assets/select.css'; /* 引入共享样式 */

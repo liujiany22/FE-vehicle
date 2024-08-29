@@ -113,6 +113,7 @@ import { addAdvance, delAdvance, getAdvances, updateAdvance } from '../../servic
 import { formatDate } from '../../utils/time';
 import FleetSelect from '@/components/select/FleetSelect.vue';
 import PaymentSelect from '@/components/select/PaymentSelect.vue';
+import { ElMessage } from 'element-plus';
 
 export default defineComponent({
   name: 'Advance',
@@ -160,6 +161,7 @@ export default defineComponent({
         advances.value = response.data.advances;
         totalAdvances.value = response.data.total_pages * perPage.value;
       } catch (error) {
+        ElMessage.error('预支获取失败，请稍后再试');
         console.error('Failed to fetch advances', error);
       }
     };
@@ -171,10 +173,11 @@ export default defineComponent({
         }
 
         await addAdvance(form.value);
-        alert('预支录入成功');
+        ElMessage.success('预支录入成功');
         resetForm();
         fetchParameters(); // 刷新列表
       } catch (error) {
+        ElMessage.error('预支录入失败，请稍后再试');
         console.error('Failed to add advance', error);
       }
     };
@@ -182,9 +185,10 @@ export default defineComponent({
     const removeParameter = async (advanceId: number) => {
       try {
         await delAdvance(advanceId);
-        alert('预支删除成功');
+        ElMessage.success('预支删除成功');
         fetchParameters(); // 刷新列表
       } catch (error) {
+        ElMessage.error('预支删除失败，请稍后再试');
         console.error('Failed to delete advance', error);
       }
     };
@@ -197,10 +201,11 @@ export default defineComponent({
     const saveParameter = async (advanceId: number) => {
       try {
         await updateAdvance({ advance_id: advanceId, ...editingAdvance.value });
-        alert('预支更新成功');
+        ElMessage.success('预支更新成功');
         cancelEdit();
         fetchParameters(); // 刷新列表
       } catch (error) {
+        ElMessage.error('预支更新失败，请稍后再试');
         console.error('Failed to update advance', error);
       }
     };

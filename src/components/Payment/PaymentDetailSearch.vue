@@ -46,7 +46,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import { searchPaymentDetails } from '@/services/paymentService';
 import { formatDate } from '@/utils/time';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
 
 export default defineComponent({
   name: 'PaymentDetailSearch',
@@ -87,6 +87,7 @@ export default defineComponent({
         loadingInstance.close();
       } catch (error) {
         loadingInstance.close();
+        ElMessage.error('付款详情获取失败，请稍后再试');
         console.error('Failed to fetch filtered payments', error);
       }
     };

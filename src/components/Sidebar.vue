@@ -3,7 +3,7 @@
     <el-menu default-active="1" class="el-menu-vertical-demo" @select="handleSelect">
         <el-sub-menu index="1">
             <template v-slot:title>用户管理</template>
-            <el-menu-item index="PasswordSetting">修改密码</el-menu-item>
+            <el-menu-item index="AccountManagement">账户管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="2">
             <template v-slot:title>运输参数设置</template>

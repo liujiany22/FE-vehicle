@@ -62,7 +62,7 @@
   import { formatDate } from '@/utils/time';
   import { searchTransportDetails } from '@/services/detailService';
   import { getSettlement } from '@/services/financeService';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
   
   interface Detail {
     id: number;
@@ -131,6 +131,7 @@ import { ElLoading } from 'element-plus';
           loadingInstance.close();
         } catch (error) {
           loadingInstance.close();
+          ElMessage.error('明细获取失败，请稍后再试');
           console.error('Failed to fetch details or settlement amount', error);
         }
       };

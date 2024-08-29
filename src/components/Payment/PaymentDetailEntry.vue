@@ -128,6 +128,7 @@ import { addPaymentDetail, delPaymentDetail, getPaymentDetails, updatePaymentDet
 import OwnerSelect from '@/components/select/OwnerSelect.vue';
 import PaymentSelect from '@/components/select/PaymentSelect.vue';
 import { formatDate } from '@/utils/time';
+import { ElMessage } from 'element-plus';
 
 export default defineComponent({
   name: 'PaymentDetailEntry',
@@ -183,6 +184,7 @@ export default defineComponent({
         paymentDetails.value = response.data.payments;
         totalPaymentDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
+        ElMessage.error('付款详情获取失败，请稍后再试');
         console.error('Failed to fetch payment details', error);
       }
     };
@@ -194,10 +196,11 @@ export default defineComponent({
         }
 
         await addPaymentDetail(form.value);
-        alert('付款详情录入成功');
+        ElMessage.success('付款详情录入成功');
         resetForm();
         fetchPaymentDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('付款详情录入失败，请稍后再试');
         console.error('Failed to add payment detail', error);
       }
     };
@@ -205,9 +208,10 @@ export default defineComponent({
     const removeParameter = async (id: number) => {
       try {
         await delPaymentDetail(id);
-        alert('付款详情删除成功');
+        ElMessage.success('付款详情删除成功');
         fetchPaymentDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('付款详情删除失败，请稍后再试');
         console.error('Failed to delete payment detail', error);
       }
     };
@@ -220,10 +224,11 @@ export default defineComponent({
     const saveParameter = async (id: number) => {
       try {
         await updatePaymentDetail({ payment_id: id, ...editingPayment.value });
-        alert('付款详情更新成功');
+        ElMessage.success('付款详情更新成功');
         cancelEdit();
         fetchPaymentDetails(); // 刷新列表
       } catch (error) {
+        ElMessage.error('付款详情更新失败，请稍后再试');
         console.error('Failed to update payment detail', error);
       }
     };

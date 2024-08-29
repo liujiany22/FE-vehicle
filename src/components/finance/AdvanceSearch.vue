@@ -94,7 +94,7 @@
   import { searchAdvances, updateAdvance, delAdvance } from '@/services/financeService';
   import { formatDate } from '@/utils/time';
 import { isNullishCoalesce } from 'typescript';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElMessage } from 'element-plus';
   
   export default defineComponent({
     name: 'AdvanceSearch',
@@ -145,6 +145,7 @@ import { ElLoading } from 'element-plus';
           totalAdvances.value = response.data.total_pages * perPage.value;
           loadingInstance.close();
         } catch (error) {
+          ElMessage.error('预支获取失败，请稍后再试');
           console.error('Failed to fetch advances', error);
           loadingInstance.close();
         }
@@ -164,10 +165,11 @@ import { ElLoading } from 'element-plus';
       const saveParameter = async (advanceId: number) => {
         try {
           await updateAdvance({ advance_id: advanceId, ...editingAdvance.value });
-          alert('预支更新成功');
+          ElMessage.success('预支更新成功');
           cancelEdit();
           fetchFilteredAdvances();
         } catch (error) {
+          ElMessage.error('预支更新失败，请稍后再试');
           console.error('Failed to update advance', error);
         }
       };
@@ -180,9 +182,10 @@ import { ElLoading } from 'element-plus';
       const removeParameter = async (advanceId: number) => {
         try {
           await delAdvance(advanceId);
-          alert('预支删除成功');
+          ElMessage.success('预支删除成功');
           fetchFilteredAdvances();
         } catch (error) {
+          ElMessage.error('预支删除失败，请稍后再试');
           console.error('Failed to delete advance', error);
         }
       };
