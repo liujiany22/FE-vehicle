@@ -89,6 +89,7 @@ import OwnerProjectsSelect from '@/components/select/OwnerProjectsSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import OwnerStartSitesSelect from '@/components/select/OwnerStartSitesSelect.vue';
 import OwnerEndSitesSelect from '@/components/select/OwnerEndSitesSelect.vue';
+import UnitSelect from './select/UnitSelect.vue';
 import { formatDate } from '../utils/time';
 import { searchTransportDetails, updateTransportPrices } from '@/services/detailService';
 import { ElLoading, ElMessage, ElTable } from 'element-plus';
@@ -122,7 +123,8 @@ export default defineComponent({
     OwnerProjectsSelect,
     GoodsSelect,
     OwnerStartSitesSelect,
-    OwnerEndSitesSelect
+    OwnerEndSitesSelect,
+    UnitSelect,
   },
   setup() {
     // 表格引用

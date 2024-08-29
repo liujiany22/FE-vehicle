@@ -22,7 +22,7 @@
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
         <el-form-item label="单位" :error="errors.unit">
-          <el-input v-model="form.unit" placeholder="输入单位" class="custom-input" />
+          <UnitSelect v-model="form.unit"/>
         </el-form-item>
         <el-form-item label="日期" :error="errors.date">
           <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
@@ -109,7 +109,7 @@
         </el-table-column>
         <el-table-column prop="unit" label="单位" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
-            <el-input v-model="editingDetail.unit" placeholder="输入单位" />
+            <UnitSelect v-model="editingDetail.unit" />
           </div>
           <div v-else>
             {{ scope.row.unit || '无' }}
@@ -170,6 +170,7 @@ import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import LoadSelect from '@/components/select/LoadSelect.vue';
 import OwnerSelect from './select/OwnerSelect.vue';
 import OwnerProjectsSelect from './select/OwnerProjectsSelect.vue';
+import UnitSelect from './select/UnitSelect.vue';
 import {
   getTransportDetails,
   addTransportDetail,
@@ -190,6 +191,7 @@ export default defineComponent({
     LoadSelect,
     OwnerProjectsSelect,
     OwnerSelect,
+    UnitSelect,
   },
   setup() {
     const details = ref([]);
