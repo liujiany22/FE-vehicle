@@ -9,9 +9,9 @@
         <el-form-item label="密码" :error="errors.password">
           <el-input type="password" v-model="signupForm.password" placeholder="请输入密码" show-password @blur="validatePassword"></el-input>
         </el-form-item>
-        <el-form-item label="手机号" :error="errors.phone">
+        <!-- <el-form-item label="手机号" :error="errors.phone">
           <el-input v-model="signupForm.phone" placeholder="请输入手机号" @blur="validatePhone"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" @click="handleSignup" class="signup-button" plain>注册</el-button>
         </el-form-item>

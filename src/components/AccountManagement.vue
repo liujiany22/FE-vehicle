@@ -12,7 +12,7 @@
 					</el-input>
 				</el-form-item>
 			</el-form>
-			<el-form :model="phoneForm" @submit.prevent="handlePhoneChange" label-width="70px">
+			<!-- <el-form :model="phoneForm" @submit.prevent="handlePhoneChange" label-width="70px">
 				<el-form-item label="新手机号" :error="errors.phone">
 					<el-input v-model="phoneForm.newPhone" placeholder="请输入新手机号" @blur="validatePhone" class="custom-input">
 						<template #append>
@@ -20,7 +20,7 @@
 						</template>
 					</el-input>
 				</el-form-item>
-			</el-form>
+			</el-form> -->
 			<el-form :model="passwordForm" @submit.prevent="handlePasswordChange" label-width="70px">
 				<el-form-item label="旧密码" :error="errors.oldPassword">
 					<el-input type="password" v-model="passwordForm.oldPassword" placeholder="请输入旧密码" @blur="validateOldPassword"
@@ -36,7 +36,7 @@
 				</el-form-item>
 			</el-form>
 
-		<!-- 登出和注销 -->
+			<!-- 登出和注销 -->
 			<el-button type="warning" @click="handleLogout" plain>登出</el-button>
 			<el-button type="danger" @click="handleCancel" plain>注销</el-button>
 		</el-card>
