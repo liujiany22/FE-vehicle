@@ -1,45 +1,45 @@
 <template>
 	<div class="account-management">
 		<!-- 用户名更改 -->
-		<el-form :model="usernameForm" @submit.prevent="handleUsernameChange">
-			<el-form-item label="新用户名" :error="errors.username">
-				<el-input v-model="usernameForm.newUsername" placeholder="请输入新用户名" @blur="validateUsername"
-					class="custom-input">
-					<template #append>
-						<el-button type="primary" @click="handleUsernameChange" plain>更改</el-button>
-					</template>
-				</el-input>
-			</el-form-item>
-		</el-form>
-
-		<el-form :model="phoneForm" @submit.prevent="handlePhoneChange">
-			<el-form-item label="新手机号" :error="errors.phone">
-				<el-input v-model="phoneForm.newPhone" placeholder="请输入新手机号" @blur="validatePhone" class="custom-input">
-					<template #append>
-						<el-button type="primary" @click="handlePhoneChange" plain>更改</el-button>
-					</template>
-				</el-input>
-			</el-form-item>
-		</el-form>
-
-		<el-form :model="passwordForm" @submit.prevent="handlePasswordChange">
-			<el-form-item label="旧密码" :error="errors.oldPassword">
-				<el-input type="password" v-model="passwordForm.oldPassword" placeholder="请输入旧密码" @blur="validateOldPassword"
-					class="custom-input"></el-input>
-			</el-form-item>
-			<el-form-item label="新密码" :error="errors.newPassword">
-				<el-input type="password" v-model="passwordForm.newPassword" placeholder="请输入新密码" @blur="validateNewPassword"
-					class="custom-input">
-				<template #append>
-					<el-button type="primary" @click="handlePasswordChange" plain>更改</el-button>
-				</template>
-				</el-input>
-			</el-form-item>
-		</el-form>
+		<el-card>
+			<el-form :model="usernameForm" @submit.prevent="handleUsernameChange" label-width="70px">
+				<el-form-item label="新用户名" :error="errors.username">
+					<el-input v-model="usernameForm.newUsername" placeholder="请输入新用户名" @blur="validateUsername"
+						class="custom-input">
+						<template #append>
+							<el-button type="primary" @click="handleUsernameChange" plain>更改</el-button>
+						</template>
+					</el-input>
+				</el-form-item>
+			</el-form>
+			<el-form :model="phoneForm" @submit.prevent="handlePhoneChange" label-width="70px">
+				<el-form-item label="新手机号" :error="errors.phone">
+					<el-input v-model="phoneForm.newPhone" placeholder="请输入新手机号" @blur="validatePhone" class="custom-input">
+						<template #append>
+							<el-button type="primary" @click="handlePhoneChange" plain>更改</el-button>
+						</template>
+					</el-input>
+				</el-form-item>
+			</el-form>
+			<el-form :model="passwordForm" @submit.prevent="handlePasswordChange" label-width="70px">
+				<el-form-item label="旧密码" :error="errors.oldPassword">
+					<el-input type="password" v-model="passwordForm.oldPassword" placeholder="请输入旧密码" @blur="validateOldPassword"
+						class="custom-input"></el-input>
+				</el-form-item>
+				<el-form-item label="新密码" :error="errors.newPassword">
+					<el-input type="password" v-model="passwordForm.newPassword" placeholder="请输入新密码" @blur="validateNewPassword"
+						class="custom-input">
+						<template #append>
+							<el-button type="primary" @click="handlePasswordChange" plain>更改</el-button>
+						</template>
+					</el-input>
+				</el-form-item>
+			</el-form>
 
 		<!-- 登出和注销 -->
-		<el-button type="warning" @click="handleLogout" plain>登出</el-button>
-		<el-button type="danger" @click="handleCancel" plain>注销</el-button>
+			<el-button type="warning" @click="handleLogout" plain>登出</el-button>
+			<el-button type="danger" @click="handleCancel" plain>注销</el-button>
+		</el-card>
 	</div>
 </template>
 

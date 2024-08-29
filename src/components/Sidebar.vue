@@ -1,10 +1,7 @@
 <!-- src/components/Sidebar.vue -->
 <template>
     <el-menu default-active="1" class="el-menu-vertical-demo" @select="handleSelect">
-        <el-sub-menu index="1">
-            <template v-slot:title>用户管理</template>
-            <el-menu-item index="AccountManagement">账户管理</el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="AccountManagement">账户管理</el-menu-item>
         <el-sub-menu index="2">
             <template v-slot:title>运输参数设置</template>
             <el-menu-item index="StartSite">运输起点参数</el-menu-item>
@@ -39,9 +36,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import AccountManagement from './AccountManagement.vue';
 
 export default defineComponent({
     name: 'Sidebar',
+    components: {
+        AccountManagement,
+    },
     setup(_, { emit }) {
         const handleSelect = (key: string) => {
             emit('changeModule', key);
