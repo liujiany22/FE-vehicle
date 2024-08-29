@@ -1,7 +1,28 @@
 <template>
 	<div class="account-management">
-		<!-- 用户名更改 -->
 		<el-card>
+			<template #header>
+				<div class="card-header">
+					<span>用户信息</span>					
+				</div>
+			</template>
+			<!-- 用户信息展示 -->
+			<el-descriptions :border="true" direction="vertical" column="4">
+				<el-descriptions-item label="用户ID">{{ userInfo.id }}</el-descriptions-item>
+				<el-descriptions-item label="用户名">{{ userInfo.name }}</el-descriptions-item>
+				<el-descriptions-item label="手机号">{{ userInfo.phone }}</el-descriptions-item>
+				<el-descriptions-item label="账户状态">{{ userInfo.status === 'online' ? "在线" : "离线" }}</el-descriptions-item>
+			</el-descriptions>
+			<!-- 登出和注销 -->
+			<el-button type="warning" @click="handleLogout" plain>登出</el-button>
+			<el-button type="danger" @click="handleCancel" plain>注销</el-button>
+		</el-card>
+		<el-card>
+			<template #header>
+				<div class="card-header">
+					<span>信息修改</span>
+				</div>
+			</template>
 			<el-form :model="usernameForm" @submit.prevent="handleUsernameChange" label-width="70px">
 				<el-form-item label="新用户名" :error="errors.username">
 					<el-input v-model="usernameForm.newUsername" placeholder="请输入新用户名" @blur="validateUsername"
@@ -12,15 +33,6 @@
 					</el-input>
 				</el-form-item>
 			</el-form>
-			<!-- <el-form :model="phoneForm" @submit.prevent="handlePhoneChange" label-width="70px">
-				<el-form-item label="新手机号" :error="errors.phone">
-					<el-input v-model="phoneForm.newPhone" placeholder="请输入新手机号" @blur="validatePhone" class="custom-input">
-						<template #append>
-							<el-button type="primary" @click="handlePhoneChange" plain>更改</el-button>
-						</template>
-					</el-input>
-				</el-form-item>
-			</el-form> -->
 			<el-form :model="passwordForm" @submit.prevent="handlePasswordChange" label-width="70px">
 				<el-form-item label="旧密码" :error="errors.oldPassword">
 					<el-input type="password" v-model="passwordForm.oldPassword" placeholder="请输入旧密码" @blur="validateOldPassword"
@@ -35,10 +47,27 @@
 					</el-input>
 				</el-form-item>
 			</el-form>
+		</el-card>
 
-			<!-- 登出和注销 -->
-			<el-button type="warning" @click="handleLogout" plain>登出</el-button>
-			<el-button type="danger" @click="handleCancel" plain>注销</el-button>
+		<el-card v-if="userInfo.manager">
+			<template #header>
+				<div class="card-header">
+					<span>管理员信息</span>
+				</div>
+			</template>
+			<!-- 管理员操作区 -->
+			<el-form :model="tokenForm" label-width="70px">
+				<el-form-item label="旧口令">
+					<el-input v-model="tokenForm.oldToken" readonly class="custom-input"></el-input>
+				</el-form-item>
+				<el-form-item label="新口令" :error="errors.token">
+					<el-input v-model="tokenForm.newToken" placeholder="请输入新口令" @blur="validateNewToken" class="custom-input">
+						<template #append>
+							<el-button type="primary" @click="handleTokenChange" plain>更改</el-button>
+						</template>
+					</el-input>
+				</el-form-item>
+			</el-form>
 		</el-card>
 	</div>
 </template>
@@ -46,26 +75,55 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { logout, cancel, getVerification, changePassword, changePhone, changeUsername } from '@/services/authService';
+import { logout, cancel, changePassword, changeUsername, getInfo, getToken, updateToken } from '@/services/authService';
+import router from '@/router';
 
 export default defineComponent({
 	name: 'AccountManagement',
 	setup() {
+		const userInfo = ref({
+			id: '',
+			name: '',
+			phone: '',
+			register_time: '',
+			loginTime: '',
+			status: '',
+			manager: false,
+		});
+
+		const tokenForm = ref({ oldToken: '', newToken: '' });
 		const usernameForm = ref({ newUsername: '' });
-		const phoneForm = ref({ newPhone: '', verification: '' });
-		const passwordForm = ref({ oldPassword: '', newPassword: '', verification: '' });
+		const passwordForm = ref({ oldPassword: '', newPassword: '' });
 
 		const errors = ref({
 			username: null as string | null,
-			phone: null as string | null,
 			oldPassword: null as string | null,
 			newPassword: null as string | null,
-			verification: null as string | null,
+			token: null as string | null,
 		});
 
-		const isCountingDown = ref(false);
-		const countdownText = ref('');
-		let countdownTimer: ReturnType<typeof setInterval>;
+		// 获取用户信息
+		const loadUserInfo = async () => {
+			try {
+				const response = await getInfo();
+				userInfo.value = response.data;
+				if (userInfo.value.manager) {
+					await loadToken();
+				}
+			} catch (error) {
+				ElMessage.error('加载用户信息失败');
+			}
+		};
+
+		// 获取Token信息
+		const loadToken = async () => {
+			try {
+				const response = await getToken();
+				tokenForm.value.oldToken = response.data.token;
+			} catch (error) {
+				ElMessage.error('加载Token信息失败');
+			}
+		};
 
 		const validateUsername = () => {
 			const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
@@ -75,17 +133,6 @@ export default defineComponent({
 				errors.value.username = '用户名只能包含字母、数字或下划线，长度3-20个字符';
 			} else {
 				errors.value.username = null;
-			}
-		};
-
-		const validatePhone = () => {
-			const phoneRegex = /^1[3-9]\d{9}$/;
-			if (!phoneForm.value.newPhone) {
-				errors.value.phone = '请输入手机号';
-			} else if (!phoneRegex.test(phoneForm.value.newPhone)) {
-				errors.value.phone = '手机号格式不正确';
-			} else {
-				errors.value.phone = null;
 			}
 		};
 
@@ -108,14 +155,14 @@ export default defineComponent({
 			}
 		};
 
-		const validateVerificationCode = () => {
-			const codeRegex = /^\d{6}$/;
-			if (!phoneForm.value.verification && !passwordForm.value.verification) {
-				errors.value.verification = '请输入验证码';
-			} else if (!codeRegex.test(phoneForm.value.verification || passwordForm.value.verification)) {
-				errors.value.verification = '验证码必须是6位数字';
+		const validateNewToken = () => {
+			const tokenRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+			if (!tokenForm.value.newToken) {
+				errors.value.token = '请输入新口令';
+			} else if (!tokenRegex.test(tokenForm.value.newToken)) {
+				errors.value.token = '口令至少8个字符，且包含字母和数字';
 			} else {
-				errors.value.verification = null;
+				errors.value.token = null;
 			}
 		};
 
@@ -131,24 +178,10 @@ export default defineComponent({
 			}
 		};
 
-		const handlePhoneChange = async () => {
-			validatePhone();
-			// validateVerificationCode();
-			if (errors.value.phone || errors.value.verification) return;
-
-			try {
-				await changePhone('', phoneForm.value.newPhone);
-				ElMessage.success('手机号已更改');
-			} catch (error) {
-				ElMessage.error('更改手机号失败，请稍后再试');
-			}
-		};
-
 		const handlePasswordChange = async () => {
 			validateOldPassword();
 			validateNewPassword();
-			// validateVerificationCode();
-			if (errors.value.oldPassword || errors.value.newPassword || errors.value.verification) return;
+			if (errors.value.oldPassword || errors.value.newPassword) return;
 
 			try {
 				await changePassword(passwordForm.value.oldPassword, passwordForm.value.newPassword);
@@ -158,39 +191,24 @@ export default defineComponent({
 			}
 		};
 
-		const handleGetVerification = async () => {
-			validatePhone();
-			if (errors.value.phone) return;
+		const handleTokenChange = async () => {
+			validateNewToken();
+			if (errors.value.token) return;
 
 			try {
-				await getVerification(phoneForm.value.newPhone);
-				ElMessage.success('验证码已发送');
-				startCountdown();
+				await updateToken(tokenForm.value.newToken);
+				ElMessage.success('Token已更新');
+				await loadToken(); // 重新加载旧Token
 			} catch (error) {
-				ElMessage.error('获取验证码失败，请稍后再试');
+				ElMessage.error('更新Token失败，请稍后再试');
 			}
-		};
-
-		const startCountdown = () => {
-			let countdown = 60;
-			isCountingDown.value = true;
-			countdownText.value = `${countdown}秒后重新获取`;
-			countdownTimer = setInterval(() => {
-				countdown--;
-				if (countdown <= 0) {
-					clearInterval(countdownTimer);
-					isCountingDown.value = false;
-					countdownText.value = '';
-				} else {
-					countdownText.value = `${countdown}秒后重新获取`;
-				}
-			}, 1000);
 		};
 
 		const handleLogout = async () => {
 			try {
 				await logout();
 				ElMessage.success('已登出');
+				router.push('/');
 			} catch (error) {
 				ElMessage.error('登出失败，请稍后再试');
 			}
@@ -200,35 +218,29 @@ export default defineComponent({
 			try {
 				await cancel();
 				ElMessage.success('账户已注销');
+				router.push('/');
 			} catch (error) {
 				ElMessage.error('注销账户失败，请稍后再试');
 			}
 		};
 
-		const showMessage = () => {
-			ElMessage.warning('维护中')
-		};
-
-		// onMounted(() => {
-		// 	showMessage();
-		// })
+		onMounted(() => {
+			loadUserInfo();
+		});
 
 		return {
+			userInfo,
+			tokenForm,
 			usernameForm,
-			phoneForm,
 			passwordForm,
 			errors,
-			isCountingDown,
-			countdownText,
 			validateUsername,
 			validateOldPassword,
 			validateNewPassword,
-			validatePhone,
-			validateVerificationCode,
+			validateNewToken,
 			handleUsernameChange,
-			handlePhoneChange,
 			handlePasswordChange,
-			handleGetVerification,
+			handleTokenChange,
 			handleLogout,
 			handleCancel,
 		};

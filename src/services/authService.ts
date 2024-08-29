@@ -52,3 +52,15 @@ export const updateUserInfo = (username: string, phone: string) => {
 export const getVerification = (phone: string) => {
   return apiClient.get(`/user/get_verification?phone=${phone}`);
 }
+
+export const getInfo = () => {
+  return apiClient.get('/user/info');
+}
+
+export const getToken = () => {
+  return apiClient.get('/user/check_token');
+}
+
+export const updateToken = (newToken: string) => {
+  return apiClient.post('/user/change_token', { newToken });
+}
