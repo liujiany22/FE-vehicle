@@ -207,6 +207,7 @@ export default defineComponent({
 		const handleLogout = async () => {
 			try {
 				await logout();
+				localStorage.removeItem('token');
 				ElMessage.success('已登出');
 				router.push('/');
 			} catch (error) {
@@ -217,6 +218,7 @@ export default defineComponent({
 		const handleCancel = async () => {
 			try {
 				await cancel();
+				localStorage.removeItem('token');
 				ElMessage.success('账户已注销');
 				router.push('/');
 			} catch (error) {

@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import StartSite from '@/components/settings/StartSite.vue';
 import EndSite from '@/components/settings/EndSite.vue';
@@ -29,6 +29,7 @@ import PaymentDetailEntry from '@/components/Payment/PaymentDetailEntry.vue';
 import PaymentDetailSearch from '@/components/Payment/PaymentDetailSearch.vue';
 import DetailExcel from '@/components/reports/DetailExcel.vue';
 import AccountManagement from '@/components/AccountManagement.vue';
+import router from '@/router';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -55,6 +56,13 @@ export default defineComponent({
   },
   setup() {
     const currentModule = ref('Module1Feature1');
+
+    const checkLogin = () => {
+      const token = localStorage.getItem('token');
+      if(!token) router.push('/')
+    }
+
+    onMounted(checkLogin);
 
     return {
       currentModule,
