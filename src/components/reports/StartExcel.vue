@@ -71,9 +71,9 @@
             {{ formatDate(scope.row.date) || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式" show-overflow-tooltip>
+        <el-table-column prop="load.method" label="装载方式" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ formatLoad(scope.row.load) || '无' }}
+            {{ scope.row.load || '无' }}
           </template>
         </el-table-column>
       </el-table>

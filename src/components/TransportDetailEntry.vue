@@ -123,12 +123,12 @@
             {{ formatDate(scope.row.date) || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式" v-slot="scope" show-overflow-tooltip>
+        <el-table-column prop="load.method" label="装载方式" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <LoadSelect v-model="editingDetail.load" />
           </div>
           <div v-else>
-            {{ formatLoad(scope.row.load) || '无' }}
+            {{ scope.row.load || '无' }}
           </div>
         </el-table-column>
 
@@ -251,15 +251,7 @@ export default defineComponent({
     const fetchDetails = async () => {
       try {
         const response = await getTransportDetails(perPage.value, detailCurrentPage.value);
-        details.value = response.data.items.map((item: any) => ({
-          ...item,
-          start_site: item.start_site || { name: '' },
-          end_site: item.end_site || { name: '' },
-          vehicle: item.vehicle || { license:'', driver:''},
-          goods: item.goods || { name: '' },
-          load: item.load || '',
-          project: item.project || { name: '' },
-        }));
+        details.value = response.data.items;
         totalDetails.value = response.data.total_pages * perPage.value;
       } catch (error) {
         ElMessage.error('明细获取失败，请稍后再试');

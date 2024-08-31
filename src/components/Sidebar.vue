@@ -10,6 +10,7 @@
             <el-menu-item index="Fleet">运输车队参数</el-menu-item>
             <el-menu-item index="ProjectOwner">项目-老板参数</el-menu-item>
             <el-menu-item index="PaymentMethod">付款方式参数</el-menu-item>
+            <el-menu-item index="Load">装载方式参数</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="3">
             <template v-slot:title>运输明细管理</template>

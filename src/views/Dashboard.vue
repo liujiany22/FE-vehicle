@@ -30,6 +30,7 @@ import PaymentDetailSearch from '@/components/Payment/PaymentDetailSearch.vue';
 import DetailExcel from '@/components/reports/DetailExcel.vue';
 import AccountManagement from '@/components/AccountManagement.vue';
 import router from '@/router';
+import Load from '@/components/settings/Load.vue';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -53,6 +54,7 @@ export default defineComponent({
     PaymentDetailSearch,
     DetailExcel,
     AccountManagement,
+    Load,
   },
   setup() {
     const currentModule = ref('Module1Feature1');

@@ -41,9 +41,9 @@
             {{ scope.row.unit || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="load" label="装载方式" show-overflow-tooltip>
+        <el-table-column prop="load.method" label="装载方式" show-overflow-tooltip>
           <template v-slot="scope">
-            {{ formatLoad(scope.row.load) || '无' }}
+            {{ scope.row.load || '无' }}
           </template>
         </el-table-column>
         <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip>

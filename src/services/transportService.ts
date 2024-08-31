@@ -83,3 +83,16 @@ export const getPaymentMethods = (per_page: number, page: number) => {
 export const updatePaymentMethod = (data: { pay_id: number, method?: string }) => {
     return apiClient.post('/parameter/change_pay', data);
 };
+
+export const addLoad = (data: { method: string }) => {
+    return apiClient.post('/parameter/new_load', data);
+};
+export const delLoad = (load_id: number) => {
+    return apiClient.delete(`/parameter/del_load/${load_id}`);
+};
+export const getLoads = (per_page: number, page: number) => {
+    return apiClient.get(`/parameter/load_list/${per_page}/${page}`);
+};
+export const updateLoad = (data: { load_id: number, method?: string }) => {
+    return apiClient.post('/parameter/change_load', data);
+};
