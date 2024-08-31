@@ -127,7 +127,7 @@ import { ElLoading, ElMessage } from 'element-plus';
   
           // Fetching settlement amount
           const settlementResponse = await getSettlement(params);
-          settlementAmount.value = settlementResponse.data.total_amount;
+          settlementAmount.value = (settlementResponse.data.total_amount).toFixed(2);
           loadingInstance.close();
         } catch (error) {
           loadingInstance.close();
