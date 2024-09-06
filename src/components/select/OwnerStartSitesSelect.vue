@@ -1,33 +1,15 @@
 <template>
-  <el-select 
-    v-model="localValue" 
-    :placeholder="placeholderText" 
-    @visible-change="fetchStartSites" 
-    @input="handleInput"
-    class="custom-select"
-    filterable
-    clearable>
-    <el-option 
-      v-if="allowClear" 
-      :key="null" 
-      :label="placeholderText" 
-      :value="null">
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchStartSites"
+    class="custom-select" filterable clearable>
+    <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
     </el-option>
 
-    <el-option 
-      v-for="site in filteredStartSites" 
-      :key="site.id" 
-      :label="site.name" 
-      :value="site.id">
+    <el-option v-for="site in filteredStartSites" :key="site.id" :label="site.name" :value="site.id">
     </el-option>
 
     <div class="pagination-container">
-      <el-pagination 
-        @current-change="handlePageChange" 
-        :current-page="currentPage" 
-        :page-size="perPage"
-        layout="prev, pager, next" 
-        :total="totalStartSites" />
+      <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalStartSites" />
     </div>
   </el-select>
 </template>
@@ -87,7 +69,7 @@ export default defineComponent({
     };
 
     const filterStartSites = () => {
-      return startSites.value.filter(site => 
+      return startSites.value.filter(site =>
         site.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     };

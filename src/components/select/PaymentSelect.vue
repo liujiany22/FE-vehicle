@@ -3,7 +3,6 @@
       v-model="localValue" 
       :placeholder="placeholderText" 
       @visible-change="fetchPayments" 
-      @input="handleInput"
       class="custom-select"
       filterable
       clearable>

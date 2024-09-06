@@ -1,34 +1,17 @@
 <template>
-  <el-select 
-    v-model="localValue" 
-    :placeholder="placeholderText" 
-    @visible-change="fetchFleets" 
-    @input="handleInput"
-    class="custom-select"
-    filterable
-    clearable>
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchFleets"
+    class="custom-select" filterable clearable>
     <!-- 默认的取消选项 -->
-    <el-option 
-      v-if="allowClear" 
-      :key="null" 
-      :label="placeholderText" 
-      :value="null">
+    <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
     </el-option>
 
-    <el-option 
-      v-for="vehicle in filteredVehicles" 
-      :key="vehicle.id" 
-      :label="`${vehicle.license} (${vehicle.driver})`" 
+    <el-option v-for="vehicle in filteredVehicles" :key="vehicle.id" :label="`${vehicle.license} (${vehicle.driver})`"
       :value="vehicle.id">
     </el-option>
 
     <div class="pagination-container">
-      <el-pagination 
-        @current-change="handleVehiclePageChange" 
-        :current-page="vehicleCurrentPage" 
-        :page-size="perPage" 
-        layout="prev, pager, next" 
-        :total="totalVehicles" />
+      <el-pagination @current-change="handleVehiclePageChange" :current-page="vehicleCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalVehicles" />
     </div>
   </el-select>
 </template>
@@ -82,7 +65,7 @@ export default defineComponent({
     };
 
     const filterVehicles = () => {
-      return vehicles.value.filter(vehicle => 
+      return vehicles.value.filter(vehicle =>
         vehicle.license.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         vehicle.driver.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
@@ -120,7 +103,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
+/* 引入共享样式 */
 
 .pagination-container {
   padding: 10px;

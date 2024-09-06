@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchGoods" @input="handleInput"
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchGoods"
     class="custom-select" filterable clearable>
     <!-- 默认的取消选项 -->
     <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">

@@ -1,34 +1,16 @@
 <template>
-  <el-select 
-    v-model="localValue" 
-    :placeholder="placeholderText" 
-    @visible-change="fetchLoads" 
-    @input="handleInput"
-    class="custom-select"
-    filterable
-    clearable>
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchLoads" class="custom-select"
+    filterable clearable>
     <!-- 默认的取消选项 -->
-    <el-option 
-      v-if="allowClear" 
-      :key="null" 
-      :label="placeholderText" 
-      :value="null">
+    <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
     </el-option>
 
-    <el-option 
-      v-for="item in filteredLoads" 
-      :key="item.method" 
-      :label="item.method" 
-      :value="item.method">
+    <el-option v-for="item in filteredLoads" :key="item.method" :label="item.method" :value="item.method">
     </el-option>
 
     <div class="pagination-container">
-      <el-pagination 
-        @current-change="handleLoadsPageChange" 
-        :current-page="loadsCurrentPage" 
-        :page-size="perPage" 
-        layout="prev, pager, next" 
-        :total="totalLoads" />
+      <el-pagination @current-change="handleLoadsPageChange" :current-page="loadsCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalLoads" />
     </div>
   </el-select>
 </template>
@@ -76,7 +58,7 @@ export default defineComponent({
     };
 
     const filterLoads = () => {
-      return loads.value.filter(load => 
+      return loads.value.filter(load =>
         load.method.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     };
@@ -113,7 +95,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
+/* 引入共享样式 */
 
 .pagination-container {
   padding: 10px;

@@ -1,34 +1,16 @@
 <template>
-  <el-select 
-    v-model="localValue" 
-    :placeholder="placeholderText" 
-    @visible-change="fetchEndSites" 
-    @input="handleInput"
-    class="custom-select"
-    filterable
-    clearable>
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchEndSites"
+    class="custom-select" filterable clearable>
     <!-- 默认的取消选项 -->
-    <el-option 
-      v-if="allowClear" 
-      :key="null" 
-      :label="placeholderText" 
-      :value="null">
+    <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
     </el-option>
 
-    <el-option 
-      v-for="item in filteredEndSites" 
-      :key="item.id" 
-      :label="item.name" 
-      :value="item.id">
+    <el-option v-for="item in filteredEndSites" :key="item.id" :label="item.name" :value="item.id">
     </el-option>
 
     <div class="pagination-container">
-      <el-pagination 
-        @current-change="handleEndSitePageChange" 
-        :current-page="endSiteCurrentPage" 
-        :page-size="perPage" 
-        layout="prev, pager, next" 
-        :total="totalEndSites" />
+      <el-pagination @current-change="handleEndSitePageChange" :current-page="endSiteCurrentPage" :page-size="perPage"
+        layout="prev, pager, next" :total="totalEndSites" />
     </div>
   </el-select>
 </template>
@@ -36,6 +18,8 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
 import { getEndSites } from '@/services/transportService';
+import { ElMessage } from 'element-plus';
+
 
 export default defineComponent({
   name: 'EndSiteSelect',
@@ -76,7 +60,7 @@ export default defineComponent({
     };
 
     const filterEndSites = () => {
-      return end_sites.value.filter(site => 
+      return end_sites.value.filter(site =>
         site.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     };
@@ -113,7 +97,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
+/* 引入共享样式 */
 
 .pagination-container {
   padding: 10px;
