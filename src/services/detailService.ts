@@ -76,38 +76,51 @@ export const searchTransportDetails = (
     return apiClient.get(`/item/search4item/${perPage}/${page}?${queryParams.toString()}`);
 };
 
-export const getOwners = (perPage: number, page: number) => {
-    return apiClient.get(`/parameter/owner_list/${perPage}/${page}`)
+export const getOwners = (perPage: number, page: number, query?: string) => {
+    const params = new URLSearchParams();
+    if (query) {
+        params.append('query', query);
+      }
+    return apiClient.get(`/parameter/owner_list/${perPage}/${page}?${params.toString()}`)
 };
 
-export const getOwner2Projects = (ownerName: string | null, per_page: number, page: number) => {
-    const params: any = {};
+export const getOwner2Projects = (ownerName: string | null, per_page: number, page: number, query?: string) => {
+    const params = new URLSearchParams();
     if (ownerName) {
-        params.ownerName = ownerName;
+        params.append('ownerName', ownerName);
     }
-    return apiClient.get(`/parameter/owner2project/${per_page}/${page}`, { params });
+    if (query) {
+        params.append('query', query);
+    }
+    return apiClient.get(`/parameter/owner2project/${per_page}/${page}?${params.toString()}`);
 };
 
-export const getStartSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number) => {
-    const params: any = {};
+export const getStartSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number, query?: string) => {
+    const params = new URLSearchParams();
     if (ownerName) {
-        params.ownerName = ownerName;
+        params.append('ownerName', ownerName);
+    }
+    if (query) {
+        params.append('query', query);
     }
     if (project_id) {
-        params.project_id = project_id;
+        params.append('project_id', project_id.toString());
     }
-    return apiClient.get(`/parameter/start_site_list/${per_page}/${page}`, { params });
+    return apiClient.get(`/parameter/start_site_list/${per_page}/${page}?${params.toString()}`);
 }
 
-export const getEndSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number) => {
-    const params: any = {};
+export const getEndSites = (ownerName: string | null, project_id: number | null, per_page: number, page: number, query?: string) => {
+    const params = new URLSearchParams();
     if (ownerName) {
-        params.ownerName = ownerName;
+        params.append('ownerName', ownerName);
+    }
+    if (query) {
+        params.append('query', query);
     }
     if (project_id) {
-        params.project_id = project_id;
+        params.append('project_id', project_id.toString());
     }
-    return apiClient.get(`/parameter/end_site_list/${per_page}/${page}`, { params });
+    return apiClient.get(`/parameter/end_site_list/${per_page}/${page}?${params.toString()}`);
 }
 
 export const getOwnerEntry = (data : {

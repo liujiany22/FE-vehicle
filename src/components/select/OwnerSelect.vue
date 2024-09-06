@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchOwners" class="custom-select"
+  <el-select v-model="localValue" :placeholder="placeholderText" @visible-change="fetchOwners" :filter-method="remoteMethod" class="custom-select"
     filterable clearable>
     <!-- 默认的取消选项 -->
     <el-option v-if="allowClear" :key="null" :label="placeholderText" :value="null">
@@ -57,6 +57,18 @@ export default defineComponent({
       currentOwners.value = owners.value.slice((currentPage.value - 1) * perPage.value, currentPage.value * perPage.value);
     };
 
+    const remoteMethod = async (query: string) => {
+      try {
+        const response = await getOwners(10000000, 1, query);
+        owners.value = response.data.owner_list; // 更新为从 response.data.owner_list 获取老板列表
+        totalOwners.value = owners.value.length;
+
+        handlePageChange(1);
+      } catch (error) {
+        console.error('Failed to fetch owners', error);
+      }
+    }
+
     watch(localValue, (newValue) => {
       emit('update:modelValue', newValue === null ? '' : newValue);
     });
@@ -73,6 +85,7 @@ export default defineComponent({
       currentOwners,
       fetchOwners,
       handlePageChange,
+      remoteMethod,
       localValue,
       placeholderText,
       allowClear,

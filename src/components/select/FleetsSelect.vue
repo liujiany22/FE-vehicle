@@ -2,8 +2,8 @@
   <div class="fleets-select">
     <div class="input-group">
       <el-select v-model="selectedVehicleId" filterable placeholder="请选择车辆" @visible-change="fetchFleets"
-        class="vehicle-select" clearable>
-        <el-option v-for="vehicle in vehicles" :key="vehicle.id" :label="`${vehicle.license} (${vehicle.driver})`"
+        class="vehicle-select" clearable :filter-method="remoteMethod">
+        <el-option v-for="vehicle in currentVehicles" :key="vehicle.id" :label="`${vehicle.license} (${vehicle.driver})`"
           :value="vehicle.id">
         </el-option>
         <div class="pagination-container">
@@ -20,7 +20,7 @@
         <el-descriptions border column="1">
           <el-descriptions-item v-for="(vehicle, index) in addedVehicles" :key="index" :label="'车辆 ' + (index + 1)">
             <div style="display: flex; align-items: center;">
-              <span>{{ vehicle.license }}({{vehicle.driver}})</span>
+              <span>{{ vehicle.license }}({{ vehicle.driver }})</span>
               <span style="margin-left: 20px;">数量: {{ vehicle.quantity }}</span>
               <el-button type="danger" @click="removeVehicle(index)" plain size="small" style="margin-left: 20px;">
                 删除
@@ -60,6 +60,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const vehicles = ref<Vehicle[]>([]);
+    const currentVehicles = ref<Vehicle[]>([]);
     const selectedVehicleId = ref<number | null>(null);
     const vehicleQuantity = ref<number | null>(null);
     const vehicleCurrentPage = ref(1);
@@ -69,9 +70,21 @@ export default defineComponent({
 
     const fetchFleets = async () => {
       try {
-        const response = await getFleets(perPage.value, vehicleCurrentPage.value);
+        const response = await getFleets(1000000000, 1);
         vehicles.value = response.data.vehicle;
-        totalVehicles.value = response.data.total_pages * perPage.value;
+        totalVehicles.value = vehicles.value.length;
+        handleVehiclePageChange(1);
+      } catch (error) {
+        console.error('Failed to fetch fleets', error);
+      }
+    };
+
+    const remoteMethod = async (query: string) => {
+      try {
+        const response = await getFleets(1000000000, 1, query);
+        vehicles.value = response.data.vehicle;
+        totalVehicles.value = vehicles.value.length;
+        handleVehiclePageChange(1);
       } catch (error) {
         console.error('Failed to fetch fleets', error);
       }
@@ -79,7 +92,7 @@ export default defineComponent({
 
     const handleVehiclePageChange = (page: number) => {
       vehicleCurrentPage.value = page;
-      fetchFleets();
+      currentVehicles.value = vehicles.value.slice((vehicleCurrentPage.value - 1) * perPage.value, vehicleCurrentPage.value * perPage.value);
     };
 
     onMounted(() => {
@@ -125,12 +138,14 @@ export default defineComponent({
       addedVehicles,
       vehicleCurrentPage,
       perPage,
+      currentVehicles,
       totalVehicles,
       fetchFleets,
       handleVehiclePageChange,
       addVehicle,
       removeVehicle,
-      canAddVehicle
+      canAddVehicle,
+      remoteMethod
     };
   }
 });
