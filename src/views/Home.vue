@@ -2,7 +2,7 @@
   <div class="home">
     <el-row>
       <el-col :span="24" class="header">
-        <h1>宏图渣土清运有限公司管理系统</h1>
+        <h1>宏途渣土清运有限公司管理系统</h1>
         <p>立 信 于 心 ， 尽 责 至 善</p>
       </el-col>
     </el-row>
