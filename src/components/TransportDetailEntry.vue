@@ -1,5 +1,9 @@
 <template>
   <div class="transport-detail-entry">
+    <!-- Filter Section -->
+
+
+    <!-- Form for Adding Transport Details (Unchanged) -->
     <el-card>
       <h2>运输明细录入</h2>
       <el-form @submit.prevent="addDetail" label-position="left" label-width="auto">
@@ -22,7 +26,7 @@
           <GoodsSelect v-model="form.goods_id" />
         </el-form-item>
         <el-form-item label="单位" :error="errors.unit">
-          <UnitSelect v-model="form.unit"/>
+          <UnitSelect v-model="form.unit" />
         </el-form-item>
         <el-form-item label="日期" :error="errors.date">
           <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
@@ -45,7 +49,6 @@
         <el-form-item label="给司机单价">
           <el-input v-model="form.driverPrice" type="number" placeholder="输入司机价格" class="custom-input" />
         </el-form-item>
-
         <el-form-item label="备注">
           <el-input v-model="form.note" placeholder="输入备注" class="custom-input" />
         </el-form-item>
@@ -56,8 +59,38 @@
     </el-card>
 
     <el-card>
+      <h2>运输明细筛选</h2>
+      <el-form @submit.prevent="validateAndFetchDetails" label-position="left" label-width="auto">
+        <el-form-item label="老板">
+          <OwnerSelect v-model="filters.owner" />
+        </el-form-item>
+        <el-form-item label="项目">
+          <ProjectSelect v-model="filters.projectId"/>
+        </el-form-item>
+        <el-form-item label="运输起点">
+          <StartSiteSelect v-model="filters.startsite_id" />
+        </el-form-item>
+        <el-form-item label="运输终点">
+          <EndSiteSelect v-model="filters.endsite_id" />
+        </el-form-item>
+        <el-form-item label="运输品类">
+          <GoodsSelect v-model="filters.goods_id" />
+        </el-form-item>
+        <el-form-item label="时间范围" class="custom-date-picker">
+          <el-date-picker v-model="filters.dateRange" type="daterange" start-placeholder="开始日期"
+            end-placeholder="结束日期" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="validateAndFetchDetails" plain>筛选</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- Transport Details Display Table with Filters Applied -->
+    <el-card>
       <h2>已录入的运输明细</h2>
-      <el-table :data="details" style="width: 100%" border>
+      <el-table :data="currentDetails" style="width: 100%" border>
+        <!-- Your existing table columns go here (unchanged) -->
         <el-table-column prop="project.name" label="项目" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <ProjectSelect v-model="editingDetail.project_id" />
@@ -90,8 +123,7 @@
             {{ scope.row.vehicle ? `${scope.row.vehicle.license} (${scope.row.vehicle?.driver || '无司机'})` : '无' }}
           </div>
         </el-table-column>
-
-        <el-table-column prop="goods.name" label="运输品类" v-slot="scope" show-overflow-tooltip> 
+        <el-table-column prop="goods.name" label="运输品类" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <GoodsSelect v-model="editingDetail.goods_id" />
           </div>
@@ -131,7 +163,6 @@
             {{ scope.row.load || '无' }}
           </div>
         </el-table-column>
-
         <el-table-column prop="note" label="备注" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-input v-model="editingDetail.note" placeholder="输入备注" />
@@ -160,41 +191,36 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { formatDate } from '../utils/time';
-import { formatLoad } from '../utils/load';
-import ProjectSelect from './select/ProjectSelect.vue';
+import { ElMessage, ElLoading } from 'element-plus';
+import { searchTransportDetails, addTransportDetail, delTransportDetail, updateTransportDetail } from '@/services/detailService';
+import OwnerSelect from './select/OwnerSelect.vue';
+import OwnerProjectsSelect from './select/OwnerProjectsSelect.vue';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
 import EndSiteSelect from '@/components/select/EndSiteSelect.vue';
 import FleetsSelect from '@/components/select/FleetsSelect.vue';
 import FleetSelect from './select/FleetSelect.vue';
 import GoodsSelect from '@/components/select/GoodsSelect.vue';
 import LoadSelect from '@/components/select/LoadSelect.vue';
-import OwnerSelect from './select/OwnerSelect.vue';
-import OwnerProjectsSelect from './select/OwnerProjectsSelect.vue';
 import UnitSelect from './select/UnitSelect.vue';
-import {
-  getTransportDetails,
-  addTransportDetail,
-  delTransportDetail,
-  updateTransportDetail
-} from '@/services/detailService';
-import { ElMessage } from 'element-plus';
+import ProjectSelect from './select/ProjectSelect.vue';
 
 export default defineComponent({
   name: 'TransportDetailEntry',
   components: {
-    ProjectSelect,
+    OwnerSelect,
+    OwnerProjectsSelect,
     StartSiteSelect,
     EndSiteSelect,
     FleetsSelect,
     FleetSelect,
     GoodsSelect,
     LoadSelect,
-    OwnerProjectsSelect,
-    OwnerSelect,
     UnitSelect,
+    ProjectSelect,
   },
   setup() {
     const details = ref([]);
+    const currentDetails = ref([]);
     const form = ref({
       owner: '',
       project_id: 0,
@@ -225,7 +251,6 @@ export default defineComponent({
       project_id: 0,
       note: ''
     });
-
     const editingId = ref<number | null>(null);
     const errors = ref<{
       project_id: string | null,
@@ -234,6 +259,7 @@ export default defineComponent({
       goods_id: string | null,
       unit: string | null,
       date: string | null,
+      dateRange: string | null,
     }>({
       project_id: null,
       start_site_id: null,
@@ -241,6 +267,16 @@ export default defineComponent({
       goods_id: null,
       unit: null,
       date: null,
+      dateRange: null,
+    });
+
+    const filters = ref({
+      owner: '',
+      projectId: 0,
+      startsite_id: 0,
+      endsite_id: 0,
+      goods_id: 0,
+      dateRange: [null, null] as [Date | null, Date | null],
     });
 
     const detailCurrentPage = ref(1);
@@ -248,26 +284,38 @@ export default defineComponent({
     const totalDetails = ref(0);
     const fleetsSelect = ref<InstanceType<typeof FleetsSelect> | null>(null);
 
-    const fetchDetails = async () => {
-      try {
-        const response = await getTransportDetails(perPage.value, detailCurrentPage.value);
-        details.value = response.data.items;
-        totalDetails.value = response.data.total_pages * perPage.value;
-      } catch (error) {
-        ElMessage.error('明细获取失败，请稍后再试');
-        console.error('Failed to fetch details', error);
-      }
+    const validateAndFetchDetails = async () => {
+      await fetchFilteredDetails();
     };
 
-    const validateInputs = () => {
-      errors.value.project_id = form.value.project_id ? null : '项目不能为空';
-      errors.value.start_site_id = form.value.start_site_id ? null : '运输起点不能为空';
-      errors.value.end_site_id = form.value.end_site_id ? null : '运输终点不能为空';
-      errors.value.goods_id = form.value.goods_id ? null : '运输品类不能为空';
-      errors.value.unit = form.value.unit.trim() ? null : '单位不能为空';
-      errors.value.date = form.value.date ? null : '日期不能为空';
+    const fetchFilteredDetails = async () => {
+      const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在加载，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
+      try {
+        const params = {
+          ownerName: filters.value.owner,
+          project_id: filters.value.projectId,
+          startsite_id: filters.value.startsite_id,
+          endsite_id: filters.value.endsite_id,
+          goods_id: filters.value.goods_id,
+          start_date: filters.value.dateRange ? (filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null) : null,
+          end_date: filters.value.dateRange ? (filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null) : null,
+        };
+        const response = await searchTransportDetails(params, perPage.value, detailCurrentPage.value);
+        details.value = response.data.items;
+        totalDetails.value = response.data.total_pages * perPage.value;
 
-      return !errors.value.project_id && !errors.value.start_site_id && !errors.value.end_site_id && !errors.value.goods_id && !errors.value.unit && !errors.value.date;
+        currentDetails.value = details.value;
+
+        loadingInstance.close();
+      } catch (error) {
+        loadingInstance.close();
+        ElMessage.error('筛选失败，请稍后再试');
+        console.error('Failed to fetch details', error);
+      }
     };
 
     const addDetail = async () => {
@@ -303,11 +351,10 @@ export default defineComponent({
         }
         ElMessage.success('运输明细录入成功');
         resetForm();
-        if(fleetsSelect.value){
-          
+        if (fleetsSelect.value) {
           fleetsSelect.value.addedVehicles = [];
         }
-        fetchDetails(); // 刷新列表
+        fetchFilteredDetails(); // 刷新列表
       } catch (error) {
         ElMessage.error('运输明细录入失败，请稍后再试')
         console.error('Failed to add transport detail', error);
@@ -318,7 +365,7 @@ export default defineComponent({
       try {
         await delTransportDetail(itemId);
         ElMessage.success('运输明细删除成功');
-        fetchDetails(); // 刷新列表
+        fetchFilteredDetails(); // 刷新列表
       } catch (error) {
         ElMessage.error('运输明细删除失败，请稍后再试')
         console.error('Failed to delete transport detail', error);
@@ -347,7 +394,7 @@ export default defineComponent({
           item_id: itemId,
           startsite_id: editingDetail.value.start_site_id,
           endsite_id: editingDetail.value.end_site_id,
-          vehicle_id: editingDetail.value.vehicle_id, 
+          vehicle_id: editingDetail.value.vehicle_id,
           goods_id: editingDetail.value.goods_id,
           load: editingDetail.value.load,
           project_id: editingDetail.value.project_id,
@@ -359,7 +406,7 @@ export default defineComponent({
         await updateTransportDetail(data);
         ElMessage.success('运输明细更新成功');
         resetEditingDetail();
-        fetchDetails(); // 刷新列表
+        fetchFilteredDetails(); // 刷新列表
       } catch (error) {
         ElMessage.error('运输明细更新失败，请稍后再试')
         console.error('Failed to update transport detail', error);
@@ -372,7 +419,7 @@ export default defineComponent({
 
     const handleDetailPageChange = (page: number) => {
       detailCurrentPage.value = page;
-      fetchDetails();
+      fetchFilteredDetails();
     };
 
     const resetForm = () => {
@@ -414,15 +461,29 @@ export default defineComponent({
 
     const isEditing = (id: number) => editingId.value === id;
 
+    const validateInputs = () => {
+      errors.value.project_id = form.value.project_id ? null : '项目不能为空';
+      errors.value.start_site_id = form.value.start_site_id ? null : '运输起点不能为空';
+      errors.value.end_site_id = form.value.end_site_id ? null : '运输终点不能为空';
+      errors.value.goods_id = form.value.goods_id ? null : '运输品类不能为空';
+      errors.value.unit = form.value.unit.trim() ? null : '单位不能为空';
+      errors.value.date = form.value.date ? null : '日期不能为空';
+
+      return !errors.value.project_id && !errors.value.start_site_id && !errors.value.end_site_id && !errors.value.goods_id && !errors.value.unit && !errors.value.date;
+    };
+
     onMounted(() => {
-      fetchDetails();
+      fetchFilteredDetails();
     });
 
     return {
       details,
+      currentDetails,
       form,
       editingDetail,
       editingId,
+      filters,
+      errors,
       detailCurrentPage,
       perPage,
       totalDetails,
@@ -433,15 +494,14 @@ export default defineComponent({
       saveDetail,
       cancelEdit,
       handleDetailPageChange,
+      validateAndFetchDetails,
       isEditing,
       formatDate,
-      formatLoad,
-      errors,
+      resetForm,
     };
   },
 });
 </script>
-
 
 <style scoped>
 @import '@/assets/select.css';
