@@ -73,6 +73,9 @@
         <el-form-item label="运输终点">
           <EndSiteSelect v-model="filters.endsite_id" />
         </el-form-item>
+        <el-form-item label="运输车队">
+          <FleetSelect v-model="filters.vehicle_id" />
+        </el-form-item>
         <el-form-item label="运输品类">
           <GoodsSelect v-model="filters.goods_id" />
         </el-form-item>
@@ -275,6 +278,7 @@ export default defineComponent({
       projectId: 0,
       startsite_id: 0,
       endsite_id: 0,
+      vehicle_id: 0,
       goods_id: 0,
       dateRange: [null, null] as [Date | null, Date | null],
     });
@@ -301,6 +305,7 @@ export default defineComponent({
           startsite_id: filters.value.startsite_id,
           endsite_id: filters.value.endsite_id,
           goods_id: filters.value.goods_id,
+          vehicle_id: filters.value.vehicle_id,
           start_date: filters.value.dateRange ? (filters.value.dateRange[0] ? filters.value.dateRange[0]!.toISOString() : null) : null,
           end_date: filters.value.dateRange ? (filters.value.dateRange[1] ? filters.value.dateRange[1]!.toISOString() : null) : null,
         };
