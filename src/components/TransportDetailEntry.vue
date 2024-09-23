@@ -166,6 +166,14 @@
             {{ scope.row.load || '无' }}
           </div>
         </el-table-column>
+        <el-table-column prop="driverPrice" label="给司机单价" v-slot="scope" show-overflow-tooltip>
+          <div v-if="isEditing(scope.row.id)">
+            <el-input v-model="editingDetail.driverPrice" type="number" placeholder="输入给司机单价" />
+          </div>
+          <div v-else>
+            {{ scope.row.driverPrice || '无' }}
+          </div>
+        </el-table-column>
         <el-table-column prop="note" label="备注" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
             <el-input v-model="editingDetail.note" placeholder="输入备注" />
@@ -252,6 +260,7 @@ export default defineComponent({
       date: '',
       load: '',
       project_id: 0,
+      driverPrice: 0,
       note: ''
     });
     const editingId = ref<number | null>(null);
@@ -388,6 +397,7 @@ export default defineComponent({
         date: detail.date || '',
         load: detail.load || '',
         project_id: detail.project?.id || 0,
+        driverPrice: detail.project || 0,
         note: detail.note || ''
       };
       editingId.value = detail.id;
@@ -406,6 +416,7 @@ export default defineComponent({
           quantity: editingDetail.value.quantity,
           unit: editingDetail.value.unit,
           date: editingDetail.value.date,
+          driverPrice: editingDetail.value.driverPrice,
           note: editingDetail.value.note
         };
         await updateTransportDetail(data);
@@ -459,6 +470,7 @@ export default defineComponent({
         date: '',
         load: '',
         project_id: 0,
+        driverPrice: 0,
         note: ''
       };
       editingId.value = null;

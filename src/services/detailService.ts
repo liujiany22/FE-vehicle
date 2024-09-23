@@ -43,6 +43,7 @@ export const updateTransportDetail = (data: {
     quantity?: number;
     unit?: string;
     date?: string;
+    driverPrice?: number;
     note?: string;
 }) => {
     return apiClient.post('/item/change_item', data);
