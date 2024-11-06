@@ -41,7 +41,7 @@
         <el-table-column prop="startSubsidy" label="起点补贴金额" show-overflow-tooltip></el-table-column>
         <el-table-column prop="endSubsidy" label="弃点付费金额" show-overflow-tooltip></el-table-column>
         <el-table-column prop="endPayment" label="终点付费金额" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="driverPrice" label="给司机运费" show-overflow-tooltip></el-table-column>
       </el-table>
       <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
         layout="prev, pager, next" :total="totalDetails" />
@@ -71,8 +71,8 @@
           <el-input v-model="editForm.endPayment" type="number" placeholder="请输入终点付费金额"
             class="custom-input"></el-input>
         </el-form-item>
-        <el-form-item label="给司机单价">
-          <el-input v-model="editForm.driverPrice" type="number" placeholder="请输入给司机单价"
+        <el-form-item label="给司机运费">
+          <el-input v-model="editForm.driverPrice" type="number" placeholder="请输入给司机运费"
             class="custom-input"></el-input>
         </el-form-item>
         <el-button type="primary" @click="saveDetail" plain>保存</el-button>

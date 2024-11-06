@@ -46,8 +46,8 @@
         <el-form-item label="弃点付费金额">
           <el-input v-model="form.endPayment" type="number" placeholder="输入终点支付" class="custom-input" />
         </el-form-item>
-        <el-form-item label="给司机单价">
-          <el-input v-model="form.driverPrice" type="number" placeholder="输入司机价格" class="custom-input" />
+        <el-form-item label="给司机运费">
+          <el-input v-model="form.driverPrice" type="number" placeholder="输入司机总运费" class="custom-input" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.note" placeholder="输入备注" class="custom-input" />
@@ -166,9 +166,9 @@
             {{ scope.row.load || '无' }}
           </div>
         </el-table-column>
-        <el-table-column prop="driverPrice" label="给司机单价" v-slot="scope" show-overflow-tooltip>
+        <el-table-column prop="driverPrice" label="给司机运费" v-slot="scope" show-overflow-tooltip>
           <div v-if="isEditing(scope.row.id)">
-            <el-input v-model="editingDetail.driverPrice" type="number" placeholder="输入给司机单价" />
+            <el-input v-model="editingDetail.driverPrice" type="number" placeholder="输入给司机运费" />
           </div>
           <div v-else>
             {{ scope.row.driverPrice || '无' }}

@@ -46,7 +46,7 @@
             {{ scope.row.load || '无' }}
           </template>
         </el-table-column>
-        <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip>
+        <el-table-column prop="driverPrice" label="给司机运费" show-overflow-tooltip>
           <template v-slot="scope">
             {{ scope.row.driverPrice || '无' }}
           </template>
