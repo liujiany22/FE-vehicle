@@ -42,7 +42,7 @@
           <el-table-column prop="startSubsidy" label="起点补贴金额" show-overflow-tooltip></el-table-column>
           <el-table-column prop="endSubsidy" label="弃点付费金额" show-overflow-tooltip></el-table-column>
           <el-table-column prop="endPayment" label="终点付费金额" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="driverPrice" label="给司机单价" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="driverPrice" label="给司机运费" show-overflow-tooltip></el-table-column>
         </el-table>
         <el-pagination @current-change="handleDetailPageChange" :current-page="detailCurrentPage" :page-size="perPage"
           layout="prev, pager, next" :total="totalDetails" />
