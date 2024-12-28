@@ -14,7 +14,7 @@
           <OwnerProjectsSelect v-model="form.project_id" :ownerName="form.owner" />
         </el-form-item>
         <el-form-item label="运输起点" :error="errors.start_site_id">
-          <StartSiteSelect v-model="form.start_site_id" />
+          <StartSiteSelect v-model="form.start_site_id" :project_id="form.project_id" />
         </el-form-item>
         <el-form-item label="运输终点" :error="errors.end_site_id">
           <EndSiteSelect v-model="form.end_site_id" />
@@ -54,6 +54,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addDetail" plain>提交</el-button>
+          <el-button type="secondary" @click="loadLastForm" plain>加载上次填写</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -65,7 +66,7 @@
           <OwnerSelect v-model="filters.owner" />
         </el-form-item>
         <el-form-item label="项目">
-          <ProjectSelect v-model="filters.projectId"/>
+          <ProjectSelect v-model="filters.projectId" />
         </el-form-item>
         <el-form-item label="运输起点">
           <StartSiteSelect v-model="filters.startsite_id" />
@@ -203,7 +204,12 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { formatDate } from '../utils/time';
 import { ElMessage, ElLoading } from 'element-plus';
-import { searchTransportDetails, addTransportDetail, delTransportDetail, updateTransportDetail } from '@/services/detailService';
+import {
+  searchTransportDetails,
+  addTransportDetail,
+  delTransportDetail,
+  updateTransportDetail
+} from '@/services/detailService';
 import OwnerSelect from './select/OwnerSelect.vue';
 import OwnerProjectsSelect from './select/OwnerProjectsSelect.vue';
 import StartSiteSelect from '@/components/select/StartSiteSelect.vue';
@@ -364,6 +370,10 @@ export default defineComponent({
           await addTransportDetail(data);
         }
         ElMessage.success('运输明细录入成功');
+
+        // 保存表单数据到 localStorage
+        saveFormData();
+
         resetForm();
         if (fleetsSelect.value) {
           fleetsSelect.value.addedVehicles = [];
@@ -397,7 +407,7 @@ export default defineComponent({
         date: detail.date || '',
         load: detail.load || '',
         project_id: detail.project?.id || 0,
-        driverPrice: detail.project || 0,
+        driverPrice: detail.driverPrice || 0, // 修正这里
         note: detail.note || ''
       };
       editingId.value = detail.id;
@@ -440,6 +450,8 @@ export default defineComponent({
 
     const resetForm = () => {
       form.value = {
+        owner: '',
+        project_id: 0,
         start_site_id: 0,
         end_site_id: 0,
         vehicle_ids: [],
@@ -448,8 +460,6 @@ export default defineComponent({
         unit: '',
         date: '',
         load: '',
-        owner: '',
-        project_id: 0,
         contractorPrice: 0,
         startSubsidy: 0,
         endSubsidy: 0,
@@ -486,7 +496,34 @@ export default defineComponent({
       errors.value.unit = form.value.unit.trim() ? null : '单位不能为空';
       errors.value.date = form.value.date ? null : '日期不能为空';
 
-      return !errors.value.project_id && !errors.value.start_site_id && !errors.value.end_site_id && !errors.value.goods_id && !errors.value.unit && !errors.value.date;
+      return !errors.value.project_id &&
+        !errors.value.start_site_id &&
+        !errors.value.end_site_id &&
+        !errors.value.goods_id &&
+        !errors.value.unit &&
+        !errors.value.date;
+    };
+
+    // 保存表单数据到 localStorage
+    const saveFormData = () => {
+      const formData = JSON.stringify(form.value);
+      localStorage.setItem('transportFormData', formData);
+    };
+
+    // 从 localStorage 加载表单数据
+    const loadLastForm = () => {
+      const savedData = localStorage.getItem('transportFormData');
+      if (savedData) {
+        try {
+          form.value = JSON.parse(savedData);
+          ElMessage.success('成功加载上次填写的内容');
+        } catch (error) {
+          ElMessage.error('加载上次填写的内容失败');
+          console.error('Failed to parse saved form data', error);
+        }
+      } else {
+        ElMessage.info('没有找到上次填写的内容');
+      }
     };
 
     onMounted(() => {
@@ -515,10 +552,12 @@ export default defineComponent({
       isEditing,
       formatDate,
       resetForm,
+      loadLastForm, // 导出新方法
     };
   },
 });
 </script>
+
 
 <style scoped>
 @import '@/assets/select.css';

@@ -29,7 +29,12 @@ export default defineComponent({
     modelValue: {
       type: Number,
       required: true
-    }
+    },
+    project_id: {
+      type: Number,
+      required: false,
+      default: 0
+    },
   },
   setup(props, { emit }) {
     const start_sites = ref<{ id: number, name: string, manager: string }[]>([]);
@@ -38,14 +43,14 @@ export default defineComponent({
     const perPage = ref(10);
     const totalStartSites = ref(0);
     const localValue = ref<number | null>(props.modelValue === 0 ? null : props.modelValue);
-
     const placeholderText = ref('请选择运输起点');
     const allowClear = ref(true);  // 允许清除选项
 
     // 获取起点站数据
     const fetchStartSites = async () => {
       try {
-        const response = await getStartSites(10000000, 1); // 获取所有起点站数据
+        const project_id = props.project_id || undefined;
+        const response = await getStartSites(10000000, 1, undefined, undefined, project_id);  // 获取所有起点站数据
         start_sites.value = response.data.start_sites;
         totalStartSites.value = start_sites.value.length;
         handleStartSitePageChange(1); // 初始化分页
@@ -63,7 +68,8 @@ export default defineComponent({
     // 远程筛选方法
     const remoteMethod = async (query: string) => {
       try {
-        const response = await getStartSites(10000000, 1, undefined, query); // 根据查询条件筛选
+        const project_id = props.project_id || undefined;
+        const response = await getStartSites(10000000, 1, undefined, query, project_id); // 根据查询条件筛选
         start_sites.value = response.data.start_sites;
         totalStartSites.value = start_sites.value.length;
         handleStartSitePageChange(1); // 重置分页

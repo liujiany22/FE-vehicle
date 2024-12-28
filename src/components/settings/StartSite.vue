@@ -12,6 +12,12 @@
         <el-form-item label="联系电话" :error="errors.phone">
           <el-input v-model="newParameter.phone" placeholder="请输入联系电话" class="custom-input"></el-input>
         </el-form-item>
+        <el-form-item label="老板">
+          <OwnerSelect v-model="newParameter.owner" />
+        </el-form-item>
+        <el-form-item label="项目" :error="errors.project_id">
+          <OwnerProjectsSelect v-model="newParameter.project_id" :ownerName="newParameter.owner" />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addParameter" plain>添加</el-button>
         </el-form-item>
@@ -47,6 +53,14 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="project.name" label="项目" v-slot="scope" show-overflow-tooltip>
+          <div v-if="editingId === scope.row.id">
+            <ProjectSelect v-model="editingParameter.project_id" />
+          </div>
+          <div v-else>
+            {{ scope.row.project?.name || '无' }}({{ scope.row.project?.owner || '无' }})
+          </div>
+        </el-table-column>
         <el-table-column label="操作" show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-if="editingId === scope.row.id">
@@ -70,21 +84,30 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { addStartSite, delStartSite, getStartSites, updateStartSite } from '@/services/transportService';
 import { ElMessage } from 'element-plus';
+import OwnerSelect from '../select/OwnerSelect.vue';
+import OwnerProjectsSelect from '../select/OwnerProjectsSelect.vue';
+import ProjectSelect from '../select/ProjectSelect.vue';
 
 export default defineComponent({
   name: 'StartSite',
+  components: {
+    OwnerSelect,
+    OwnerProjectsSelect,
+    ProjectSelect
+  },
   setup() {
     const parameters = ref<{ id: number, name: string, manager: string, manager_phone: string }[]>([]);
-    const newParameter = ref({ name: '', manager: '', phone: '' });
-    const editingParameter = ref({ name: '', manager: '', manager_phone: '' });
+    const newParameter = ref({ name: '', manager: '', phone: '', owner: '', project_id: 0, });
+    const editingParameter = ref({ name: '', manager: '', manager_phone: '', project_id: 0 });
     const editingId = ref<number | null>(null);
     const currentPage = ref(1);
     const perPage = ref(10);
     const totalPages = ref(0);
-    const errors = ref<{ name: string | null; manager: string | null; phone: string | null }>({
+    const errors = ref<{ name: string | null; manager: string | null; phone: string | null; project_id: string | null }>({
       name: null,
       manager: null,
       phone: null,
+      project_id: null,
     });
 
     const fetchParameters = async () => {
@@ -99,11 +122,12 @@ export default defineComponent({
     };
 
     const validateInputs = () => {
+      errors.value.project_id = newParameter.value.project_id ? null : '项目不能为空';
       errors.value.name = newParameter.value.name.trim() ? null : '工地名称不能为空';
       errors.value.manager = newParameter.value.manager.trim() ? null : '工地负责人不能为空';
       errors.value.phone = newParameter.value.phone.trim() ? null : '联系电话不能为空';
 
-      return !errors.value.name && !errors.value.manager && !errors.value.phone;
+      return !errors.value.project_id && !errors.value.name && !errors.value.manager && !errors.value.phone;
     };
 
     const addParameter = async () => {
@@ -111,7 +135,7 @@ export default defineComponent({
         try {
           await addStartSite(newParameter.value);
           fetchParameters();
-          newParameter.value = { name: '', manager: '', phone: '' };
+          newParameter.value = { name: '', manager: '', phone: '', project_id: 0, owner: '' };
         } catch (error) {
           ElMessage.error('参数添加失败，请稍后再试');
           console.error('Failed to add parameter', error);
@@ -129,7 +153,7 @@ export default defineComponent({
       }
     };
 
-    const editParameter = (parameter: { id: number, name: string, manager: string, manager_phone: string }) => {
+    const editParameter = (parameter: { id: number, name: string, manager: string, manager_phone: string, project_id: number }) => {
       editingId.value = parameter.id;
       editingParameter.value = { ...parameter };
     };
@@ -147,7 +171,7 @@ export default defineComponent({
 
     const cancelEdit = () => {
       editingId.value = null;
-      editingParameter.value = { name: '', manager: '', manager_phone: '' };
+      editingParameter.value = { name: '', manager: '', manager_phone: '', project_id: 0 };
     };
 
     const handlePageChange = (page: number) => {
@@ -178,7 +202,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '@/assets/select.css'; /* 引入共享样式 */
+@import '@/assets/select.css';
+/* 引入共享样式 */
 
 .start-site {
   padding: 20px;
